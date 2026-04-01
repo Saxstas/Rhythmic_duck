@@ -28,11 +28,24 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        h1 { font-size: 1.2rem; color: #00cec9; text-transform: uppercase; margin: 5px 0 10px 0; letter-spacing: 2px; }
+        h1 { font-size: 1.2rem; color: #00cec9; text-transform: uppercase; margin: 5px 0 5px 0; letter-spacing: 2px; }
         h3 { font-size: 0.9rem; color: #a4b0be; margin-bottom: 15px; }
 
         .screen { display: none; }
         #menuScreen { display: block; }
+
+        .rank-box {
+            background: linear-gradient(135deg, rgba(0, 206, 201, 0.1), rgba(9, 132, 227, 0.1));
+            border: 1px solid rgba(0, 206, 201, 0.3);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rank-title { font-weight: bold; color: #00cec9; }
+        .total-stars { color: #fdcb6e; font-weight: bold; }
 
         .levels-container {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
@@ -74,31 +87,22 @@
         }
 
         .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
+        
         .game-panel {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0, 0, 0, 0.3); padding: 10px 20px; border-radius: 12px; margin-bottom: 15px;
+            display: flex; flex-direction: column; gap: 5px;
+            background: rgba(0, 0, 0, 0.3); padding: 10px 15px; border-radius: 12px; margin-bottom: 15px;
         }
+        .panel-row { display: flex; justify-content: space-between; align-items: center; }
+        
         .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; text-align: left; }
-        .feedback-box { font-weight: bold; color: #00cec9; min-width: 120px; text-align: right; font-size: 0.9rem; }
+        .feedback-box { font-weight: bold; color: #00cec9; text-align: right; font-size: 0.9rem; }
+        .best-score-box { font-size: 0.8rem; color: #a4b0be; text-align: left; }
 
-        /* СТИЛИ ДЛЯ ВЗРЫВАЮЩИХСЯ ЗВЕЗД */
-        .stars-display {
-            font-size: 1.2rem;
-            display: flex;
-            gap: 4px;
-        }
-        .star-item {
-            color: rgba(255, 255, 255, 0.15);
-            display: inline-block;
-            transition: color 0.2s ease;
-        }
-        .star-item.filled {
-            color: #fdcb6e;
-            text-shadow: 0 0 10px rgba(253, 203, 110, 0.5);
-        }
-        .star-pop {
-            animation: starPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .stars-display { font-size: 1.2rem; display: flex; gap: 4px; }
+        .star-item { color: rgba(255, 255, 255, 0.15); display: inline-block; transition: color 0.2s ease; }
+        .star-item.filled { color: #fdcb6e; text-shadow: 0 0 10px rgba(253, 203, 110, 0.5); }
+        .star-pop { animation: starPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
         @keyframes starPop {
             0% { transform: scale(1); }
             50% { transform: scale(2); text-shadow: 0 0 25px #fdcb6e; }
@@ -121,26 +125,12 @@
         .active-slot { border-color: #00cec9 !important; transform: scale(1.05); }
 
         .tap-area {
-            background: rgba(0, 206, 201, 0.05);
-            border: 2px dashed #00cec9;
-            border-radius: 15px;
-            height: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.3rem;
-            color: #00cec9;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-            transition: 0.1s;
-            cursor: pointer;
+            background: rgba(0, 206, 201, 0.05); border: 2px dashed #00cec9; border-radius: 15px;
+            height: 100px; display: flex; justify-content: center; align-items: center;
+            font-size: 1.3rem; color: #00cec9; font-weight: bold; letter-spacing: 2px;
+            margin-bottom: 15px; transition: 0.1s; cursor: pointer;
         }
-        .tap-area.active-tap {
-            background: rgba(0, 206, 201, 0.2);
-            transform: scale(0.98);
-            border: 2px solid #00cec9;
-        }
+        .tap-area.active-tap { background: rgba(0, 206, 201, 0.2); transform: scale(0.98); border: 2px solid #00cec9; }
 
         .metronome-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
         #bpmRange { width: 100%; margin: 10px 0; accent-color: #00cec9; }
@@ -155,6 +145,12 @@
     <div id="menuScreen" class="screen">
         <h1>RHYTHM MASTER</h1>
         <h3>ВЫБЕРИТЕ УРОВЕНЬ</h3>
+        
+        <div class="rank-box">
+            <div>Ранг: <span class="rank-title" id="playerRank">Новичок</span></div>
+            <div class="total-stars" id="totalStarsDisplay">★ 0</div>
+        </div>
+
         <div class="levels-container" id="levelsGrid"></div>
         <button id="startGameBtn" class="primary-btn">ИГРАТЬ</button>
         <button id="calibOpenBtn" class="secondary-btn">⚙️ НАСТРОИТЬ ЗАДЕРЖКУ</button>
@@ -167,8 +163,13 @@
             <h1 style="margin: 0; font-size: 1rem;">LVL <span id="currentLevelDisplay">1</span></h1>
         </div>
         <div class="game-panel">
-            <div class="score-box">SCORE: <span id="scoreDisplay">0</span></div>
-            <div class="feedback-box" id="feedbackDisplay">READY</div>
+            <div class="panel-row">
+                <div class="score-box">SCORE: <span id="scoreDisplay">0</span></div>
+                <div class="feedback-box" id="feedbackDisplay">READY</div>
+            </div>
+            <div class="panel-row">
+                <div class="best-score-box">BEST: <span id="bestScoreDisplay">0</span></div>
+            </div>
         </div>
         <button id="rollButton" class="primary-btn">ВРАЩАТЬ КАРТЫ</button>
         <div id="imageContainer" class="grid"></div>
@@ -186,6 +187,9 @@
         <h1>КАЛИБРОВКА</h1>
         <p style="font-size: 0.8rem; color: #a4b0be;">Мы установим 70 BPM для точности.<br>Сначала 4 удара отсчета, затем тапайте в такт.</p>
         <div id="calibProgress">НАЖМИТЕ НАЧАТЬ</div>
+        
+        <div id="calibTapArea" class="tap-area">ТАПАЙ В ТАКТ СЮДА</div>
+        
         <div id="calibValueDisplay">Задержка: --</div>
         <button id="calibStartBtn" class="primary-btn">НАЧАТЬ</button>
         <button id="calibBackBtn" class="secondary-btn">ГОТОВО</button>
@@ -224,8 +228,10 @@
     let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
 
     let perfectStreak = 0; 
-    let lastStarsCount = 0; // Для отслеживания новых звезд
+    let lastStarsCount = 0;
+    
     let levelStars = JSON.parse(localStorage.getItem('rhythm_level_stars')) || {};
+    let levelHighScores = JSON.parse(localStorage.getItem('rhythm_high_scores')) || {};
 
     let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.17;
     let calibrationData = [], isCalibrating = false;
@@ -237,7 +243,27 @@
         document.getElementById(id).style.display = 'block';
     }
 
+    function updatePlayerRank() {
+        let totalStars = 0;
+        for (let key in levelStars) totalStars += levelStars[key];
+        
+        document.getElementById('totalStarsDisplay').innerText = `★ ${totalStars}`;
+        
+        let rank = "Новичок";
+        let color = "#a4b0be";
+        
+        if (totalStars >= 50) { rank = "Бог Ритма"; color = "#ff4757"; }
+        else if (totalStars >= 35) { rank = "Мастер"; color = "#fdcb6e"; }
+        else if (totalStars >= 20) { rank = "Профи"; color = "#00cec9"; }
+        else if (totalStars >= 5) { rank = "Любитель"; color = "#0984e3"; }
+        
+        const rankEl = document.getElementById('playerRank');
+        rankEl.innerText = rank;
+        rankEl.style.color = color;
+    }
+
     function initLevels() {
+        updatePlayerRank();
         const grid = document.getElementById('levelsGrid');
         grid.innerHTML = ''; 
         for(let i=1; i<=19; i++) {
@@ -275,10 +301,7 @@
             if (s < currentStars) {
                 span.innerText = '★';
                 span.classList.add('filled');
-                // Если звезда только что заработана — взрываем её!
-                if (s >= lastStarsCount) {
-                    span.classList.add('star-pop');
-                }
+                if (s >= lastStarsCount) span.classList.add('star-pop');
             } else {
                 span.innerText = '☆';
             }
@@ -297,6 +320,9 @@
     document.getElementById('startGameBtn').onclick = () => {
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
+        document.getElementById('bestScoreDisplay').innerText = levelHighScores[currentLevel] || 0;
+        score = 0;
+        document.getElementById('scoreDisplay').innerText = score;
         perfectStreak = 0; 
         lastStarsCount = 0; 
         updateGameStarsDisplay();
@@ -494,6 +520,13 @@
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
         }
         document.getElementById('scoreDisplay').innerText = score;
+        
+        const currentBest = levelHighScores[currentLevel] || 0;
+        if (score > currentBest) {
+            levelHighScores[currentLevel] = score;
+            localStorage.setItem('rhythm_high_scores', JSON.stringify(levelHighScores));
+            document.getElementById('bestScoreDisplay').innerText = score;
+        }
     }
 
     function stopMetronome() {
@@ -551,14 +584,20 @@
     };
 
     const tapArea = document.getElementById('tapArea');
+    const calibTapArea = document.getElementById('calibTapArea');
+    
     function triggerTap(e) {
         e.preventDefault(); 
         handleTap();
-        tapArea.classList.add('active-tap');
-        setTimeout(() => tapArea.classList.remove('active-tap'), 100);
+        this.classList.add('active-tap');
+        setTimeout(() => this.classList.remove('active-tap'), 100);
     }
+    
     tapArea.addEventListener('touchstart', triggerTap, { passive: false });
     tapArea.addEventListener('mousedown', triggerTap);
+    
+    calibTapArea.addEventListener('touchstart', triggerTap, { passive: false });
+    calibTapArea.addEventListener('mousedown', triggerTap);
 
     initLevels();
 </script>
