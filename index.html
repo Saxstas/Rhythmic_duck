@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rhythmic Game Pro</title>
+    <title>Rhythm Master Pro</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -17,9 +17,8 @@
             color: #ffffff;
             margin: 0;
             padding: 10px;
-            overflow-x: hidden;
+            overflow: hidden;
             user-select: none;
-            -webkit-user-select: none;
             touch-action: manipulation;
         }
 
@@ -30,30 +29,32 @@
             background: rgba(255, 255, 255, 0.05);
             padding: 15px;
             border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        h1 { font-size: 1.4rem; color: #00cec9; text-transform: uppercase; margin: 5px 0 15px 0; }
+        h1 { font-size: 1.2rem; color: #00cec9; text-transform: uppercase; margin: 5px 0 15px 0; letter-spacing: 2px; }
 
         .game-panel {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 8px 15px;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 12px;
             margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; }
-        .feedback-box { font-weight: bold; color: #00cec9; min-width: 80px; text-align: right; }
+        .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.2rem; }
+        .feedback-box { font-weight: bold; color: #00cec9; min-width: 100px; text-align: right; transition: all 0.1s; }
 
-        /* СЕТКА КНОПОК УРОВНЕЙ */
+        /* Сетка уровней */
         .levels-container {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
             margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(0,0,0,0.2);
             padding: 10px;
             border-radius: 12px;
         }
@@ -61,19 +62,19 @@
         .level-btn {
             background: #2d2d44;
             color: white;
-            border: none;
+            border: 1px solid #3d3d5c;
             padding: 8px 0;
             font-size: 12px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
         .level-btn.active {
             background: #00cec9;
             color: #1a1a2e;
-            box-shadow: 0 0 10px rgba(0, 206, 201, 0.5);
+            border-color: #00cec9;
+            box-shadow: 0 0 10px rgba(0, 206, 201, 0.4);
         }
 
         #rollButton {
@@ -81,80 +82,84 @@
             color: white;
             font-weight: bold;
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 10px;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 12px;
             border: none;
-            cursor: pointer;
             margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 206, 201, 0.3);
         }
-        #rollButton:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* СЕТКА КАРТИНОК (ВСЕГДА 4 СЛОТА) */
+        #rollButton:active { transform: scale(0.98); }
+        #rollButton:disabled { opacity: 0.5; }
+
+        /* Игровое поле */
         .grid {
             display: flex;
             justify-content: center;
-            align-items: flex-end;
-            gap: 1.5vw;
-            min-height: 120px;
-            margin: 15px 0;
-            padding: 10px 5px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            overflow: hidden;
+            align-items: center;
+            gap: 8px;
+            min-height: 140px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #2d2d44;
+            position: relative;
         }
 
         .image-card {
-            width: 22vw; 
-            height: 22vw;
-            max-width: 120px;
-            max-height: 120px;
+            width: 20vw; height: 20vw;
+            max-width: 90px; max-height: 90px;
             object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #3d3d5c;
+            border-radius: 10px;
+            border: 3px solid #3d3d5c;
+            transition: transform 0.1s, border-color 0.1s, box-shadow 0.1s;
             opacity: 0;
-            transition: opacity 0.2s ease, transform 0.1s ease;
-        }
-
-        .image-card.double-size {
-            width: calc(44vw + 1.5vw); 
-            max-width: 255px;
-            border-color: #fdcb6e;
+            background: #2d2d44;
         }
 
         .image-card.loaded { opacity: 1; }
-        .image-card:active { transform: scale(0.95); }
+        .image-card.double-size { width: 42vw; max-width: 190px; }
+        
+        .active-slot {
+            border-color: #00cec9 !important;
+            box-shadow: 0 0 20px rgba(0, 206, 201, 0.6);
+            transform: scale(1.05);
+            background: rgba(0, 206, 201, 0.1);
+        }
 
-        /* МЕТРОНОМ */
+        /* Управление метрономом */
         .metronome-box {
-            margin-top: 15px;
+            background: rgba(255,255,255,0.03);
             padding: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .bpm-display { font-size: 20px; font-weight: bold; color: #fdcb6e; }
-        #bpmRange { width: 90%; margin: 10px 0; }
+        #bpmRange { width: 100%; margin: 15px 0; accent-color: #00cec9; }
 
-        .visual-beat {
-            width: 12px;
-            height: 12px;
-            background: #333;
-            border-radius: 50%;
-            margin: 5px auto;
+        #metronomeBtn {
+            background: #2d3436;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1rem;
         }
-
-        .visual-beat.active { background: #ff4757; box-shadow: 0 0 10px #ff4757; }
-        #metronomeBtn { background: #2d3436; color: white; width: 100%; max-width: 200px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <h1>🎰 RHYTHMIC GAME</h1>
+    <h1>RHYTHM MASTER</h1>
 
     <div class="game-panel">
-        <div class="score-box" id="scoreDisplay">Очки: 0</div>
-        <div class="feedback-box" id="feedbackDisplay">УРОВЕНЬ 1</div>
+        <div class="score-box" id="scoreDisplay">SCORE: 0</div>
+        <div class="feedback-box" id="feedbackDisplay">READY</div>
     </div>
 
     <div class="levels-container" id="levelsGrid"></div>
@@ -164,10 +169,11 @@
     <div id="imageContainer" class="grid"></div>
 
     <div class="metronome-box">
-        <div class="bpm-display"><span id="bpmValue">120</span> BPM</div>
-        <input type="range" id="bpmRange" min="30" max="240" value="120">
-        <div class="visual-beat" id="beatIndicator"></div>
-        <button id="metronomeBtn">Включить Метроном</button>
+        <div style="font-size: 1.1rem; color: #fdcb6e; font-weight: bold;">
+            <span id="bpmValue">120</span> BPM
+        </div>
+        <input type="range" id="bpmRange" min="40" max="200" value="120">
+        <button id="metronomeBtn">СТАРТ</button>
     </div>
 </div>
 
@@ -175,256 +181,272 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // --- БАЗА ДАННЫХ ПО УРОВНЯМ ---
-    // На каждом уровне добавляются новые картинки к общему пулу.
+    // База данных уровней. Каждый уровень добавляет новый контент в общий пул.
     const levelPacks = {
         1: [
-            { src: "Lvl1/s1.png", size: 1, pattern: [1] },
-            { src: "Lvl1/Size2/6.png", size: 2, pattern: [1] }
+            { src: "Lvl1/s1.png", size: 1, pattern: [0] },
+            { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }
         ],
         2: [
-            { src: "lvl2/2.png", size: 1, pattern: [0.5, 0.5] }
+            { src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }
         ],
         3: [
-            { src: "Lvl3/4.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl3/5.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl3/Size2/30.png", size: 2, pattern: [0.5, 0.5] }
+            { src: "Lvl3/4.png", size: 1, pattern: [] },
+            { src: "Lvl3/5.png", size: 1, pattern: [] },
+            { src: "Lvl3/Size2/30.png", size: 2, pattern: [] }
         ],
         4: [
-            { src: "Lvl4/size2/9.png", size: 2, pattern: [0.5, 0.5] }
+            { src: "Lvl4/size2/9.png", size: 2, pattern: [0, 1, 1.5] }
         ],
         5: [
-            { src: "Lvl5/3.png", size: 1, pattern: [0.25, 0.25, 0.25, 0.25] }
+            { src: "Lvl5/3.png", size: 1, pattern: [0.5] }
         ],
         6: [
-            { src: "Lvl6/Size2/7.png", size: 2, pattern: [0.5, 0.5] },
-            { src: "Lvl6/Size2/8.png", size: 2, pattern: [0.5, 0.5] }
+            { src: "Lvl6/Size2/7.png", size: 2, pattern: [0, 1.5] },
+            { src: "Lvl6/Size2/8.png", size: 2, pattern: [0, 0.5] }
         ],
         7: [
-            { src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 0.5] },
-            { src: "Lvl7/Size2/11.png", size: 2, pattern: [1] }
+            { src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 1.5] },
+            { src: "Lvl7/Size2/11.png", size: 2, pattern: [0.5] }
         ],
         8: [
-            { src: "Lvl8/24.png", size: 1, pattern: [1] }
+            { src: "Lvl8/24.png", size: 1, pattern: [0, 0.25, 0.5, 0.75] }
         ],
         9: [
-            { src: "Lvl9/27.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl9/26.png", size: 1, pattern: [1] }
+            { src: "Lvl9/27.png", size: 1, pattern: [0, 0.5, 0.75] },
+            { src: "Lvl9/26.png", size: 1, pattern: [0, 0.25, 0.5] }
         ],
         10: [
-            { src: "Lvl10/13.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl10/15.png", size: 1, pattern: [1] }
+            { src: "Lvl10/13.png", size: 1, pattern: [0, 0.25, 0.50] },
+            { src: "Lvl10/15.png", size: 1, pattern: [0, 0.50, 0.75] }
         ],
         11: [
-            { src: "Lvl11/18.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl11/19.png", size: 1, pattern: [1] }
+            { src: "Lvl11/18.png", size: 1, pattern: [0.50, 0.75] },
+            { src: "Lvl11/19.png", size: 1, pattern: [0, 0.25] }
         ],
         12: [
-            { src: "Lvl12/25.png", size: 1, pattern: [1] }
+            { src: "Lvl12/25.png", size: 1, pattern: [0.25, 0.5, 0.75] }
         ],
         13: [
-            { src: "Lvl13/14.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl13/31.png", size: 1, pattern: [1] }
+            { src: "Lvl13/14.png", size: 1, pattern: [0, 0.25, 0.75] },
+            { src: "Lvl13/31.png", size: 1, pattern: [0, 0.75] }
         ],
         14: [
-            { src: "Lvl14/20.png", size: 1, pattern: [1] }
+            { src: "Lvl14/20.png", size: 1, pattern: [0, 0.5] }
         ],
         15: [
-            { src: "Lvl15/17.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl15/23.png", size: 1, pattern: [1] }
+            { src: "Lvl15/17.png", size: 1, pattern: [0, 0.25] },
+            { src: "Lvl15/23.png", size: 1, pattern: [0, 0.75] }
         ],
         16: [
-            { src: "Lvl16/21.png", size: 1, pattern: [1] }
+            { src: "Lvl16/21.png", size: 1, pattern: [ 0.25, 0.5, 0.75] }
         ],
         17: [
             // Сюда добавь свои картинки для 17 уровня
-            { src: "Lvl17/16.png", size: 1, pattern: [0.5, 0.5] },
-            { src: "Lvl17/33.png", size: 1, pattern: [1] } 
+            { src: "Lvl17/16.png", size: 1, pattern: [0.25, 0.75] },
+            { src: "Lvl17/33.png", size: 1, pattern: [0.25] } 
         ],
         18: [
-            { src: "Lvl18/34.png", size: 1, pattern: [1] }
+            { src: "Lvl18/34.png", size: 1, pattern: [0.75] }
         ],
         19: [
-            { src: "Lvl19/12.png", size: 1, pattern: [1] }
+            { src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }
         ]
     };
 
-    const container = document.getElementById('imageContainer');
-    const rollButton = document.getElementById('rollButton');
-    const levelsGrid = document.getElementById('levelsGrid');
-    
+    // Игровые переменные
     let currentLevel = 1;
     let score = 0;
-    let lastBeatTime = 0; 
+    let currentSequence = [];
+    let currentSlotIndex = -1;
+    let targetTimings = [];
+    let isRunning = false;
+    let audioCtx, nextBeatTime, timerID;
+    let lastBeatStartTime = 0;
 
-    // ГЕНЕРАЦИЯ 19 КНОПОК
+    // Инициализация кнопок уровней
     function initLevels() {
-        levelsGrid.innerHTML = '';
-        for (let i = 1; i <= 19; i++) {
-            const btn = document.createElement('button');
-            btn.className = 'level-btn';
-            btn.innerText = i;
-            if (i === currentLevel) btn.classList.add('active');
-            
-            btn.addEventListener('click', () => {
+        const grid = document.getElementById('levelsGrid');
+        for(let i=1; i<=19; i++) {
+            const b = document.createElement('button');
+            b.className = 'level-btn' + (i === 1 ? ' active' : '');
+            b.innerText = i;
+            b.onclick = () => {
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                document.querySelector('.level-btn.active').classList.remove('active');
-                btn.classList.add('active');
+                document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+                b.classList.add('active');
                 currentLevel = i;
-                document.getElementById('feedbackDisplay').innerText = `УРОВЕНЬ ${i}`;
-            });
-            levelsGrid.appendChild(btn);
+            };
+            grid.appendChild(b);
         }
     }
-    initLevels();
 
-    // СОБИРАЕМ КУЧУ КАРТИНОК: текущий уровень + все предыдущие
-    function getPoolForLevel(level) {
+    // Сбор доступных карточек для текущего уровня
+    function getAvailablePool() {
         let pool = [];
-        for (let i = 1; i <= level; i++) {
-            if (levelPacks[i]) {
-                pool.push(...levelPacks[i]);
-            }
+        for(let i=1; i<=currentLevel; i++) {
+            if(levelPacks[i]) pool.push(...levelPacks[i]);
         }
         return pool;
     }
 
-    // Всегда собираем ровно 4 слота
-    function getFinalSelection(pool, maxSlots) {
-        let result = [];
-        let currentSize = 0;
-        const smalls = pool.filter(i => i.size === 1);
-
-        while (currentSize < maxSlots) {
-            let img = pool[Math.floor(Math.random() * pool.length)];
-            if (currentSize + img.size > maxSlots) {
-                img = smalls[Math.floor(Math.random() * smalls.length)];
+    // Генерация случайной последовательности (всегда 4 слота)
+    function roll() {
+        const pool = getAvailablePool();
+        let sequence = [];
+        let totalSize = 0;
+        const smalls = pool.filter(x => x.size === 1);
+        
+        while(totalSize < 4) {
+            let item = pool[Math.floor(Math.random() * pool.length)];
+            if(totalSize + item.size > 4) {
+                item = smalls[Math.floor(Math.random() * smalls.length)];
             }
-            result.push(img);
-            currentSize += img.size;
+            if(!item) break; 
+            sequence.push(item);
+            totalSize += item.size;
         }
-        return result;
+        currentSequence = sequence;
+        renderSequence();
     }
 
-    function render(list) {
+    function renderSequence() {
+        const container = document.getElementById('imageContainer');
         container.innerHTML = '';
-        list.forEach(item => {
+        currentSequence.forEach(item => {
             const img = document.createElement('img');
             img.src = item.src;
-            img.className = 'image-card';
-            if (item.size === 2) img.classList.add('double-size');
-            container.appendChild(img);
-            
+            img.className = 'image-card' + (item.size === 2 ? ' double-size' : '');
             img.onload = () => img.classList.add('loaded');
-            if (img.complete) img.classList.add('loaded');
+            container.appendChild(img);
         });
     }
 
-    rollButton.addEventListener('click', () => {
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-        const pool = getPoolForLevel(currentLevel);
-        const slotsCount = 4; // Карточек ВСЕГДА четыре
-        
-        rollButton.disabled = true;
-        let ticks = 0;
-        
-        const anim = setInterval(() => {
-            const smalls = pool.filter(i => i.size === 1);
-            const fake = Array.from({length: slotsCount}, () => smalls[Math.floor(Math.random() * smalls.length)]);
-            render(fake);
-            ticks++;
-            
-            if (ticks > 10) {
-                clearInterval(anim);
-                const finalSelection = getFinalSelection(pool, slotsCount);
-                render(finalSelection);
-                rollButton.disabled = false;
-            }
-        }, 80);
-    });
-
-    // МЕТРОНОМ
-    let audioCtx = null;
-    let isRunning = false;
-    let nextBeat = 0;
-    let timer = null;
-
+    // Логика метронома и расчет целей (Target Timings)
     function playTick() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) return;
         
+        const bpm = document.getElementById('bpmRange').value;
+        const secondsPerBeat = 60 / bpm;
+        
+        // Звук метронома
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain();
-        osc.frequency.value = 1000;
-        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        currentSlotIndex = (currentSlotIndex + 1) % 4;
+        
+        osc.frequency.value = currentSlotIndex === 0 ? 1000 : 600; // Акцент на "Раз"
+        g.gain.value = 0.1;
         g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
         osc.connect(g); g.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + 0.1);
 
-        lastBeatTime = audioCtx.currentTime;
+        lastBeatStartTime = audioCtx.currentTime;
 
-        const indicator = document.getElementById('beatIndicator');
-        indicator.classList.add('active');
-        setTimeout(() => indicator.classList.remove('active'), 100);
+        // Подсветка карточек и генерация целей для тапа
+        const cards = document.querySelectorAll('.image-card');
+        cards.forEach(c => c.classList.remove('active-slot'));
+        
+        let accumulatedSize = 0;
+        currentSequence.forEach((item, idx) => {
+            if(currentSlotIndex >= accumulatedSize && currentSlotIndex < accumulatedSize + item.size) {
+                cards[idx].classList.add('active-slot');
+                
+                // Если мы только что перешли на эту карточку, считаем тайминги внутри неё
+                if(currentSlotIndex === accumulatedSize) {
+                    targetTimings = [];
+                    let offset = 0;
+                    item.pattern.forEach(p => {
+                        targetTimings.push(lastBeatStartTime + (offset * secondsPerBeat));
+                        offset += p;
+                    });
+                }
+            }
+            accumulatedSize += item.size;
+        });
     }
 
     function scheduler() {
-        const bpm = document.getElementById('bpmRange').value;
-        while (nextBeat < audioCtx.currentTime + 0.1) {
+        while(nextBeatTime < audioCtx.currentTime + 0.1) {
             playTick();
-            nextBeat += 60.0 / bpm;
+            const bpm = document.getElementById('bpmRange').value;
+            nextBeatTime += 60 / bpm;
         }
-        timer = setTimeout(scheduler, 25);
+        timerID = setTimeout(scheduler, 25);
     }
 
+    // Обработка нажатий
     function handleTap() {
-        if (!isRunning) return;
+        if(!isRunning) return;
         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        
+        const now = audioCtx.currentTime;
+        let isHit = false;
 
-        const currentTime = audioCtx.currentTime;
-        const diff = Math.abs(currentTime - lastBeatTime);
-        const feedbackEl = document.getElementById('feedbackDisplay');
-
-        if (diff < 0.12) {
-            score += 100;
-            feedbackEl.innerText = "PERFECT!";
-            feedbackEl.style.color = "#00cec9";
-        } else if (diff < 0.25) {
-            score += 50;
-            feedbackEl.innerText = "GOOD";
-            feedbackEl.style.color = "#fdcb6e";
-        } else {
-            feedbackEl.innerText = "MISS";
-            feedbackEl.style.color = "#ff4757";
+        // Проверяем попадание в одну из целей текущей карточки
+        for(let i=0; i < targetTimings.length; i++) {
+            const diff = Math.abs(now - targetTimings[i]);
+            if(diff < 0.15) { // Окно попадания 150мс
+                targetTimings.splice(i, 1);
+                score += 100;
+                isHit = true;
+                updateFeedback("PERFECT!", "#00cec9");
+                break;
+            }
         }
 
-        document.getElementById('scoreDisplay').innerText = `Очки: ${score}`;
+        if(!isHit) {
+            score = Math.max(0, score - 50);
+            updateFeedback("MISS!", "#ff4757");
+        }
+        document.getElementById('scoreDisplay').innerText = `SCORE: ${score}`;
     }
 
-    container.addEventListener('touchstart', (e) => {
-        e.preventDefault(); 
-        handleTap();
-    });
+    function updateFeedback(text, color) {
+        const fb = document.getElementById('feedbackDisplay');
+        fb.innerText = text;
+        fb.style.color = color;
+        fb.style.transform = "scale(1.2)";
+        setTimeout(() => fb.style.transform = "scale(1)", 100);
+    }
+
+    // Слушатели событий
+    document.getElementById('rollButton').onclick = () => {
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        roll();
+    };
 
     document.getElementById('metronomeBtn').onclick = function() {
-        if (!audioCtx) audioCtx = new AudioContext();
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
         isRunning = !isRunning;
-        if (isRunning) {
-            nextBeat = audioCtx.currentTime;
+        if(isRunning) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            nextBeatTime = audioCtx.currentTime;
+            currentSlotIndex = -1;
             scheduler();
-            this.textContent = "Стоп";
+            this.innerText = "СТОП";
             this.style.background = "#ff4757";
         } else {
-            clearTimeout(timer);
-            this.textContent = "Включить Метроном";
+            clearTimeout(timerID);
+            this.innerText = "СТАРТ";
             this.style.background = "#2d3436";
+            document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
         }
     };
 
     document.getElementById('bpmRange').oninput = function() {
-        document.getElementById('bpmValue').textContent = this.value;
+        document.getElementById('bpmValue').innerText = this.value;
     };
+
+    // Тап по области игры
+    document.getElementById('imageContainer').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleTap();
+    });
+
+    // Стартовая инициализация
+    initLevels();
+    roll(); // Генерируем первый набор сразу
 </script>
 
 </body>
