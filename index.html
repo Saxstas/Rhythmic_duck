@@ -19,7 +19,7 @@
             padding: 10px;
             overflow: hidden;
             user-select: none;
-            touch-action: none; /* Отключаем системные жесты для скорости */
+            touch-action: none;
         }
 
         .main-container {
@@ -35,6 +35,11 @@
         }
 
         h1 { font-size: 1.2rem; color: #00cec9; text-transform: uppercase; margin: 5px 0 15px 0; letter-spacing: 2px; }
+        h3 { font-size: 1rem; color: #a4b0be; margin-bottom: 15px; }
+
+        /* Экраны */
+        #menuScreen { display: block; }
+        #gameScreen { display: none; }
 
         .game-panel {
             display: flex;
@@ -54,129 +59,109 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             background: rgba(0,0,0,0.2);
-            padding: 10px;
+            padding: 15px;
             border-radius: 12px;
-            position: relative;
-            z-index: 10;
         }
 
         .level-btn {
-            background: #2d2d44;
-            color: white;
-            border: 1px solid #3d3d5c;
-            padding: 8px 0;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
+            background: #2d2d44; color: white; border: 1px solid #3d3d5c;
+            padding: 12px 0; font-size: 14px; font-weight: bold;
+            border-radius: 8px; cursor: pointer; transition: 0.2s;
         }
 
         .level-btn.active {
-            background: #00cec9;
-            color: #1a1a2e;
-            border-color: #00cec9;
-            box-shadow: 0 0 10px rgba(0, 206, 201, 0.4);
+            background: #00cec9; color: #1a1a2e; border-color: #00cec9;
+            box-shadow: 0 0 15px rgba(0, 206, 201, 0.5); transform: scale(1.05);
         }
 
-        #rollButton {
+        /* Кнопки */
+        .primary-btn {
             background: linear-gradient(135deg, #00cec9, #0984e3);
-            color: white;
-            font-weight: bold;
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            border-radius: 12px;
-            border: none;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 206, 201, 0.3);
-            position: relative;
-            z-index: 10;
+            color: white; font-weight: bold; width: 100%; padding: 15px;
+            font-size: 18px; border-radius: 12px; border: none; margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 206, 201, 0.3); position: relative; z-index: 10;
         }
+        
+        .secondary-btn {
+            background: #2d2d44; color: white; border: none; padding: 10px 15px;
+            border-radius: 8px; margin-bottom: 15px; font-weight: bold;
+            display: inline-block; width: auto; align-self: flex-start;
+        }
+
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
 
         .grid {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            min-height: 140px;
-            background: rgba(0,0,0,0.4);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 2px solid #2d2d44;
-            pointer-events: none; /* Пропускаем тапы сквозь сетку на body */
+            display: flex; justify-content: center; align-items: center;
+            gap: 8px; min-height: 140px; background: rgba(0,0,0,0.4);
+            border-radius: 15px; padding: 15px; margin-bottom: 15px;
+            border: 2px solid #2d2d44; pointer-events: none;
         }
 
         .image-card {
-            width: 20vw; height: 20vw;
-            max-width: 90px; max-height: 90px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 3px solid #3d3d5c;
-            transition: transform 0.05s, border-color 0.05s;
-            opacity: 0;
-            background: #2d2d44;
+            width: 20vw; height: 20vw; max-width: 90px; max-height: 90px;
+            object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c;
+            transition: transform 0.05s, border-color 0.05s; opacity: 0; background: #2d2d44;
         }
 
         .image-card.loaded { opacity: 1; }
         .image-card.double-size { width: 42vw; max-width: 190px; }
         
         .active-slot {
-            border-color: #00cec9 !important;
-            box-shadow: 0 0 20px rgba(0, 206, 201, 0.6);
-            transform: scale(1.05);
-            background: rgba(0, 206, 201, 0.1);
+            border-color: #00cec9 !important; box-shadow: 0 0 20px rgba(0, 206, 201, 0.6);
+            transform: scale(1.05); background: rgba(0, 206, 201, 0.1);
         }
 
         .metronome-box {
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-            z-index: 10;
+            background: rgba(255,255,255,0.03); padding: 15px;
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);
+            position: relative; z-index: 10;
         }
 
         #bpmRange { width: 100%; margin: 15px 0; accent-color: #00cec9; }
 
         #metronomeBtn {
-            background: #2d3436;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-            font-size: 1rem;
+            background: #2d3436; color: white; padding: 12px; border-radius: 10px;
+            border: none; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;
         }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <h1>RHYTHM MASTER</h1>
-
-    <div class="game-panel">
-        <div class="score-box" id="scoreDisplay">SCORE: 0</div>
-        <div class="feedback-box" id="feedbackDisplay">READY</div>
+    
+    <div id="menuScreen">
+        <h1>RHYTHM MASTER</h1>
+        <h3>ВЫБЕРИТЕ УРОВЕНЬ</h3>
+        <div class="levels-container" id="levelsGrid"></div>
+        <button id="startGameBtn" class="primary-btn">ИГРАТЬ</button>
     </div>
 
-    <div class="levels-container" id="levelsGrid"></div>
-
-    <button id="rollButton">ВРАЩАТЬ!</button>
-
-    <div id="imageContainer" class="grid"></div>
-
-    <div class="metronome-box">
-        <div style="font-size: 1.1rem; color: #fdcb6e; font-weight: bold;">
-            <span id="bpmValue">120</span> BPM
+    <div id="gameScreen">
+        <div class="nav-header">
+            <button id="backBtn" class="secondary-btn">← НАЗАД</button>
+            <h1 style="margin: 0;">УРОВЕНЬ <span id="currentLevelDisplay">1</span></h1>
         </div>
-        <input type="range" id="bpmRange" min="40" max="200" value="120">
-        <button id="metronomeBtn">СТАРТ</button>
+
+        <div class="game-panel">
+            <div class="score-box" id="scoreDisplay">SCORE: 0</div>
+            <div class="feedback-box" id="feedbackDisplay">READY</div>
+        </div>
+
+        <button id="rollButton" class="primary-btn">ВРАЩАТЬ КАРТОЧКИ!</button>
+
+        <div id="imageContainer" class="grid"></div>
+
+        <div class="metronome-box">
+            <div style="font-size: 1.1rem; color: #fdcb6e; font-weight: bold;">
+                <span id="bpmValue">120</span> BPM
+            </div>
+            <input type="range" id="bpmRange" min="40" max="200" value="120">
+            <button id="metronomeBtn">СТАРТ</button>
+        </div>
     </div>
+
 </div>
 
 <script>
@@ -184,78 +169,97 @@
     tg.expand();
 
     const levelPacks = {
-        1: [
-            { src: "Lvl1/s1.png", size: 1, pattern: [0] },
-            { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }
-        ],
-        2: [
-            { src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }
-        ],
-        3: [
-            { src: "Lvl3/4.png", size: 1, pattern: [] },
-            { src: "Lvl3/5.png", size: 1, pattern: [] },
-            { src: "Lvl3/Size2/30.png", size: 2, pattern: [] }
-        ],
-        4: [
-            { src: "Lvl4/size2/9.png", size: 2, pattern: [0, 1, 1.5] }
-        ],
-        5: [
-            { src: "Lvl5/3.png", size: 1, pattern: [0.5] }
-        ],
-        6: [
-            { src: "Lvl6/Size2/7.png", size: 2, pattern: [0, 1.5] },
-            { src: "Lvl6/Size2/8.png", size: 2, pattern: [0, 0.5] }
-        ],
-        7: [
-            { src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 1.5] },
-            { src: "Lvl7/Size2/11.png", size: 2, pattern: [0.5] }
-        ],
-        8: [
-            { src: "Lvl8/24.png", size: 1, pattern: [0, 0.25, 0.5, 0.75] }
-        ],
-        9: [
-            { src: "Lvl9/27.png", size: 1, pattern: [0, 0.5, 0.75] },
-            { src: "Lvl9/26.png", size: 1, pattern: [0, 0.25, 0.5] }
-        ],
-        10: [
-            { src: "Lvl10/13.png", size: 1, pattern: [0, 0.25, 0.50] },
-            { src: "Lvl10/15.png", size: 1, pattern: [0, 0.50, 0.75] }
-        ],
-        11: [
-            { src: "Lvl11/18.png", size: 1, pattern: [0.50, 0.75] },
-            { src: "Lvl11/19.png", size: 1, pattern: [0, 0.25] }
-        ],
-        12: [
-            { src: "Lvl12/25.png", size: 1, pattern: [0.25, 0.5, 0.75] }
-        ],
-        13: [
-            { src: "Lvl13/14.png", size: 1, pattern: [0, 0.25, 0.75] },
-            { src: "Lvl13/31.png", size: 1, pattern: [0, 0.75] }
-        ],
-        14: [
-            { src: "Lvl14/20.png", size: 1, pattern: [0, 0.5] }
-        ],
-        15: [
-            { src: "Lvl15/17.png", size: 1, pattern: [0, 0.25] },
-            { src: "Lvl15/23.png", size: 1, pattern: [0, 0.75] }
-        ],
-        16: [
-            { src: "Lvl16/21.png", size: 1, pattern: [ 0.25, 0.5, 0.75] }
-        ],
-        17: [
-            // Сюда добавь свои картинки для 17 уровня
-            { src: "Lvl17/16.png", size: 1, pattern: [0.25, 0.75] },
-            { src: "Lvl17/33.png", size: 1, pattern: [0.25] } 
-        ],
-        18: [
-            { src: "Lvl18/34.png", size: 1, pattern: [0.75] }
-        ],
-        19: [
-            { src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }
-        ]
-    };
+    1: [
+        { src: "Lvl1/s1.png", size: 1, pattern: [0] }, 
+        { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }
+    ],
+    2: [
+        { src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }
+    ],
+    3: [
+        { src: "Lvl3/4.png", size: 1, pattern: [] }, 
+        { src: "Lvl3/5.png", size: 1, pattern: [] }, 
+        { src: "Lvl3/Size2/30.png", size: 2, pattern: [] }
+    ],
+    4: [
+        { src: "Lvl4/size2/9.png", size: 2, pattern: [0, 1, 1.5] }
+    ],
+    5: [
+        { src: "Lvl5/3.png", size: 1, pattern: [0.5] }
+    ],
+    6: [
+        { src: "Lvl6/Size2/7.png", size: 2, pattern: [0, 1.5] }, 
+        { src: "Lvl6/Size2/8.png", size: 2, pattern: [0, 0.5] }
+    ],
+    7: [
+        { src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 1.5] }, 
+        { src: "Lvl7/Size2/11.png", size: 2, pattern: [0.5] }
+    ],
+    8: [
+        { src: "Lvl8/24.png", size: 1, pattern: [0, 0.25, 0.5, 0.75] }
+    ],
+    9: [
+        { src: "Lvl9/27.png", size: 1, pattern: [0, 0.5, 0.75] }, 
+        { src: "Lvl9/26.png", size: 1, pattern: [0, 0.25, 0.5] }
+    ],
+    10: [
+        { src: "Lvl10/13.png", size: 1, pattern: [0, 0.25, 0.50] }, 
+        { src: "Lvl10/15.png", size: 1, pattern: [0, 0.50, 0.75] }
+    ],
+    11: [
+        { src: "Lvl11/18.png", size: 1, pattern: [0.50, 0.75] }, 
+        { src: "Lvl11/19.png", size: 1, pattern: [0, 0.25] }
+    ],
+    12: [
+        { src: "Lvl12/25.png", size: 1, pattern: [0.25, 0.5, 0.75] }
+    ],
+    13: [
+        { src: "Lvl13/14.png", size: 1, pattern: [0, 0.25, 0.75] }, 
+        { src: "Lvl13/31.png", size: 1, pattern: [0, 0.75] }
+    ],
+    14: [
+        { src: "Lvl14/20.png", size: 1, pattern: [0, 0.5] }
+    ],
+    15: [
+        { src: "Lvl15/17.png", size: 1, pattern: [0, 0.25] }, 
+        { src: "Lvl15/23.png", size: 1, pattern: [0, 0.75] }
+    ],
+    16: [
+        { src: "Lvl16/21.png", size: 1, pattern: [0.25, 0.5, 0.75] }
+    ],
+    17: [
+        { src: "Lvl17/16.png", size: 1, pattern: [0.25, 0.75] }, 
+        { src: "Lvl17/33.png", size: 1, pattern: [0.25] }
+    ],
+    18: [
+        { src: "Lvl18/34.png", size: 1, pattern: [0.75] }
+    ],
+    19: [
+        { src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }
+    ]
+};
     let currentLevel = 1, score = 0, currentSequence = [], currentSlotIndex = -1;
     let targetTimings = [], isRunning = false, audioCtx, nextBeatTime, timerID, lastBeatStartTime = 0;
+    
+    // Новые переменные для отсчета
+    let countdownBeats = 0; 
+    let isPlayingSequence = false; 
+
+    // --- Навигация экранов ---
+    document.getElementById('startGameBtn').onclick = () => {
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        document.getElementById('currentLevelDisplay').innerText = currentLevel;
+        roll(); // Генерируем карточки под выбранный уровень
+    };
+
+    document.getElementById('backBtn').onclick = () => {
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        if(isRunning) stopMetronome(); // Останавливаем игру при выходе
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+    };
 
     function initLevels() {
         const grid = document.getElementById('levelsGrid');
@@ -265,7 +269,7 @@
             b.innerText = i;
             b.onclick = (e) => {
                 e.stopPropagation();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
                 document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
                 b.classList.add('active');
                 currentLevel = i;
@@ -310,10 +314,32 @@
     function playTick() {
         if (!audioCtx) return;
         const secondsPerBeat = 60 / document.getElementById('bpmRange').value;
-        currentSlotIndex = (currentSlotIndex + 1) % 4;
 
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain();
+
+        // ФАЗА 1: ОТСЧЕТ (Countdown)
+        if (countdownBeats > 0) {
+            osc.frequency.value = countdownBeats === 4 ? 1000 : 600; // Первый удар отсчета выше
+            g.gain.value = 0.1;
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+
+            updateFeedback(`ВНИМАНИЕ: ${countdownBeats}`, "#fdcb6e");
+            countdownBeats--;
+
+            // Если отсчет закончился, подготавливаемся к старту самой игры
+            if (countdownBeats === 0) {
+                currentSlotIndex = -1;
+                isPlayingSequence = true;
+                setTimeout(() => updateFeedback("ИГРАЕМ!", "#00cec9"), (secondsPerBeat * 1000) - 50);
+            }
+            return; // Выходим, не подсвечиваем карточки
+        }
+
+        // ФАЗА 2: САМА ИГРА
+        currentSlotIndex = (currentSlotIndex + 1) % 4;
         osc.frequency.value = currentSlotIndex === 0 ? 1000 : 600;
         g.gain.value = 0.1;
         g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
@@ -345,44 +371,50 @@
         timerID = setTimeout(scheduler, 25);
     }
 
-   function handleTap() {
-    if(!isRunning) return;
-    
-    const now = audioCtx.currentTime; 
-    
-    // ADJUSTMENT: Если приходится жать ПОЗЖЕ, увеличиваем это число (в секундах)
-    // Попробуй значения: 0.08, 0.1, или даже 0.12
-    const AUDIO_DELAY_COMPENSATION = 0.17; 
-    
-    let isHit = false;
-
-    for(let i=0; i < targetTimings.length; i++) {
-        // Мы СУММИРУЕМ задержку со временем цели, 
-        // тем самым сдвигая "окно идеального нажатия" чуть позже, под звук
-        const diff = Math.abs(now - (targetTimings[i] + AUDIO_DELAY_COMPENSATION));
+    function handleTap() {
+        // Игнорируем тапы, если игра не запущена или идет фаза отсчета
+        if(!isRunning || !isPlayingSequence) return;
         
-        if(diff < 0.18) { // Окно попадания (180мс)
-            targetTimings.splice(i, 1);
-            score += 100;
-            isHit = true;
-            updateFeedback("PERFECT!", "#00cec9");
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            break;
-        }
-    }
+        const now = audioCtx.currentTime; 
+        const AUDIO_DELAY_COMPENSATION = 0.17; 
+        let isHit = false;
 
-    if(!isHit) {
-        score = Math.max(0, score - 50);
-        updateFeedback("MISS!", "#ff4757");
+        for(let i=0; i < targetTimings.length; i++) {
+            const diff = Math.abs(now - (targetTimings[i] + AUDIO_DELAY_COMPENSATION));
+            
+            if(diff < 0.18) { 
+                targetTimings.splice(i, 1);
+                score += 100;
+                isHit = true;
+                updateFeedback("PERFECT!", "#00cec9");
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                break;
+            }
+        }
+
+        if(!isHit) {
+            score = Math.max(0, score - 50);
+            updateFeedback("MISS!", "#ff4757");
+        }
+        document.getElementById('scoreDisplay').innerText = `SCORE: ${score}`;
     }
-    document.getElementById('scoreDisplay').innerText = `SCORE: ${score}`;
-}
 
     function updateFeedback(text, color) {
         const fb = document.getElementById('feedbackDisplay');
         fb.innerText = text; fb.style.color = color;
         fb.style.transform = "scale(1.2)";
         setTimeout(() => fb.style.transform = "scale(1)", 100);
+    }
+
+    function stopMetronome() {
+        isRunning = false;
+        isPlayingSequence = false;
+        clearTimeout(timerID);
+        const btn = document.getElementById('metronomeBtn');
+        btn.innerText = "СТАРТ"; btn.style.background = "#2d3436";
+        document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
+        targetTimings = [];
+        updateFeedback("READY", "#00cec9");
     }
 
     document.getElementById('rollButton').onclick = (e) => {
@@ -394,18 +426,20 @@
     document.getElementById('metronomeBtn').onclick = function(e) {
         e.stopPropagation();
         if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        isRunning = !isRunning;
-        if(isRunning) {
+        
+        if(!isRunning) {
+            // ЗАПУСК
+            isRunning = true;
+            isPlayingSequence = false;
+            countdownBeats = 4; // Задаем 4 удара отсчета
+            
             if (audioCtx.state === 'suspended') audioCtx.resume();
             nextBeatTime = audioCtx.currentTime;
-            currentSlotIndex = -1;
             scheduler();
             this.innerText = "СТОП"; this.style.background = "#ff4757";
         } else {
-            clearTimeout(timerID);
-            this.innerText = "СТАРТ"; this.style.background = "#2d3436";
-            document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
-            targetTimings = [];
+            // ОСТАНОВКА
+            stopMetronome();
         }
     };
 
@@ -413,17 +447,13 @@
         document.getElementById('bpmValue').innerText = this.value;
     };
 
-    // Глобальный слушатель тапа для исключения задержки
     document.addEventListener('touchstart', (e) => {
-        // Если тап попал в кнопки управления - не засчитываем как игровой тап
         if(e.target.closest('button') || e.target.closest('input')) return;
-        
         e.preventDefault(); 
         handleTap();
     }, { passive: false });
 
     initLevels();
-    roll();
 </script>
 </body>
 </html>
