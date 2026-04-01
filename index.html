@@ -142,75 +142,27 @@
     tg.expand();
 
     const levelPacks = {
-    1: [
-        { src: "Lvl1/s1.png", size: 1, pattern: [0] }, 
-        { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }
-    ],
-    2: [
-        { src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }
-    ],
-    3: [
-        { src: "Lvl3/4.png", size: 1, pattern: [] }, 
-        { src: "Lvl3/5.png", size: 1, pattern: [] }, 
-        { src: "Lvl3/Size2/30.png", size: 2, pattern: [] }
-    ],
-    4: [
-        { src: "Lvl4/size2/9.png", size: 2, pattern: [0, 1, 1.5] }
-    ],
-    5: [
-        { src: "Lvl5/3.png", size: 1, pattern: [0.5] }
-    ],
-    6: [
-        { src: "Lvl6/Size2/7.png", size: 2, pattern: [0, 1.5] }, 
-        { src: "Lvl6/Size2/8.png", size: 2, pattern: [0, 0.5] }
-    ],
-    7: [
-        { src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 1.5] }, 
-        { src: "Lvl7/Size2/11.png", size: 2, pattern: [0.5] }
-    ],
-    8: [
-        { src: "Lvl8/24.png", size: 1, pattern: [0, 0.25, 0.5, 0.75] }
-    ],
-    9: [
-        { src: "Lvl9/27.png", size: 1, pattern: [0, 0.5, 0.75] }, 
-        { src: "Lvl9/26.png", size: 1, pattern: [0, 0.25, 0.5] }
-    ],
-    10: [
-        { src: "Lvl10/13.png", size: 1, pattern: [0, 0.25, 0.50] }, 
-        { src: "Lvl10/15.png", size: 1, pattern: [0, 0.50, 0.75] }
-    ],
-    11: [
-        { src: "Lvl11/18.png", size: 1, pattern: [0.50, 0.75] }, 
-        { src: "Lvl11/19.png", size: 1, pattern: [0, 0.25] }
-    ],
-    12: [
-        { src: "Lvl12/25.png", size: 1, pattern: [0.25, 0.5, 0.75] }
-    ],
-    13: [
-        { src: "Lvl13/14.png", size: 1, pattern: [0, 0.25, 0.75] }, 
-        { src: "Lvl13/31.png", size: 1, pattern: [0, 0.75] }
-    ],
-    14: [
-        { src: "Lvl14/20.png", size: 1, pattern: [0, 0.5] }
-    ],
-    15: [
-        { src: "Lvl15/17.png", size: 1, pattern: [0, 0.25] }, 
-        { src: "Lvl15/23.png", size: 1, pattern: [0, 0.75] }
-    ],
-    16: [
-        { src: "Lvl16/21.png", size: 1, pattern: [0.25, 0.5, 0.75] }
-    ],
-    17: [
-        { src: "Lvl17/16.png", size: 1, pattern: [0.25, 0.75] }, 
-        { src: "Lvl17/33.png", size: 1, pattern: [0.25] }
-    ],
-    18: [
-        { src: "Lvl18/34.png", size: 1, pattern: [0.75] }
-    ],
-    19: [
-        { src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }
-    ]
-};
+        1: [{ src: "Lvl1/s1.png", size: 1, pattern: [0] }, { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }],
+        2: [{ src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }],
+        3: [{ src: "Lvl3/4.png", size: 1, pattern: [] }, { src: "Lvl3/5.png", size: 1, pattern: [] }, { src: "Lvl3/Size2/30.png", size: 2, pattern: [] }],
+        4: [{ src: "Lvl4/size2/9.png", size: 2, pattern: [0, 1, 1.5] }],
+        5: [{ src: "Lvl5/3.png", size: 1, pattern: [0.5] }],
+        6: [{ src: "Lvl6/Size2/7.png", size: 2, pattern: [0, 1.5] }, { src: "Lvl6/Size2/8.png", size: 2, pattern: [0, 0.5] }],
+        7: [{ src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 1.5] }, { src: "Lvl7/Size2/11.png", size: 2, pattern: [0.5] }],
+        8: [{ src: "Lvl8/24.png", size: 1, pattern: [0, 0.25, 0.5, 0.75] }],
+        9: [{ src: "Lvl9/27.png", size: 1, pattern: [0, 0.5, 0.75] }, { src: "Lvl9/26.png", size: 1, pattern: [0, 0.25, 0.5] }],
+        10: [{ src: "Lvl10/13.png", size: 1, pattern: [0, 0.25, 0.50] }, { src: "Lvl10/15.png", size: 1, pattern: [0, 0.50, 0.75] }],
+        11: [{ src: "Lvl11/18.png", size: 1, pattern: [0.50, 0.75] }, { src: "Lvl11/19.png", size: 1, pattern: [0, 0.25] }],
+        12: [{ src: "Lvl12/25.png", size: 1, pattern: [0.25, 0.5, 0.75] }],
+        13: [{ src: "Lvl13/14.png", size: 1, pattern: [0, 0.25, 0.75] }, { src: "Lvl13/31.png", size: 1, pattern: [0, 0.75] }],
+        14: [{ src: "Lvl14/20.png", size: 1, pattern: [0, 0.5] }],
+        15: [{ src: "Lvl15/17.png", size: 1, pattern: [0, 0.25] }, { src: "Lvl15/23.png", size: 1, pattern: [0, 0.75] }],
+        16: [{ src: "Lvl16/21.png", size: 1, pattern: [0.25, 0.5, 0.75] }],
+        17: [{ src: "Lvl17/16.png", size: 1, pattern: [0.25, 0.75] }, { src: "Lvl17/33.png", size: 1, pattern: [0.25] }],
+        18: [{ src: "Lvl18/34.png", size: 1, pattern: [0.75] }],
+        19: [{ src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }]
+    };
+
     let currentLevel = 1, score = 0, currentSequence = [], currentSlotIndex = -1;
     let targetTimings = [], isRunning = false, audioCtx, nextBeatTime, timerID, lastBeatStartTime = 0;
     
@@ -303,6 +255,9 @@
 
         // ФАЗА ОТСЧЕТА
         if (countdownBeats > 0) {
+            // Убираем подсветку карт, пока идет отсчет
+            document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
+
             osc.frequency.value = countdownBeats === 1 ? 1200 : 800;
             g.gain.value = 0.1;
             g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
@@ -444,9 +399,22 @@
         this.innerText = "СЛУШАЙТЕ...";
     };
 
+    // ОБНОВЛЕННАЯ ЛОГИКА КНОПКИ "ВРАЩАТЬ"
     document.getElementById('rollButton').onclick = () => {
         roll();
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        
+        if (isRunning) {
+            isPlayingSequence = false;
+            countdownBeats = 4;
+            currentSlotIndex = -1;
+            document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
+            
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            updateFeedback("ПРИГОТОВИТЬСЯ...", "#fdcb6e");
+        } else {
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            updateFeedback("READY", "#a4b0be");
+        }
     };
     
     document.getElementById('bpmRange').oninput = function() { 
