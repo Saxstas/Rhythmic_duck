@@ -35,19 +35,29 @@
         #menuScreen { display: block; }
 
         .levels-container {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
             margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;
         }
 
         .level-btn {
             background: #2d2d44; color: white; border: 1px solid #3d3d5c;
-            padding: 10px 0; font-size: 14px; font-weight: bold; border-radius: 8px;
-            cursor: pointer;
+            padding: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 2px;
         }
 
         .level-btn.active {
             background: #00cec9; color: #1a1a2e; border-color: #00cec9;
             box-shadow: 0 0 15px rgba(0, 206, 201, 0.5);
+        }
+
+        .level-stars {
+            font-size: 10px;
+            color: #fdcb6e;
+        }
+
+        .level-btn.active .level-stars {
+            color: #1a1a2e;
         }
 
         .primary-btn {
@@ -68,8 +78,15 @@
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(0, 0, 0, 0.3); padding: 10px 20px; border-radius: 12px; margin-bottom: 15px;
         }
-        .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; }
+        .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; text-align: left; }
         .feedback-box { font-weight: bold; color: #00cec9; min-width: 120px; text-align: right; font-size: 0.9rem; }
+
+        /* ИНДИКАТОР ЗВЕЗД В ИГРЕ */
+        .stars-display {
+            font-size: 1.2rem;
+            color: #fdcb6e;
+            text-shadow: 0 0 10px rgba(253, 203, 110, 0.5);
+        }
 
         .grid {
             display: flex; justify-content: center; align-items: center; gap: 8px;
@@ -90,11 +107,11 @@
             background: rgba(0, 206, 201, 0.05);
             border: 2px dashed #00cec9;
             border-radius: 15px;
-            height: 120px;
+            height: 100px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: #00cec9;
             font-weight: bold;
             letter-spacing: 2px;
@@ -129,6 +146,7 @@
     <div id="gameScreen" class="screen">
         <div class="nav-header">
             <button id="backBtn" class="secondary-btn" style="width:auto; margin-bottom:0;">← МЕНЮ</button>
+            <div class="stars-display" id="gameStarsDisplay">☆☆☆</div>
             <h1 style="margin: 0; font-size: 1rem;">LVL <span id="currentLevelDisplay">1</span></h1>
         </div>
         <div class="game-panel">
@@ -188,6 +206,10 @@
     
     let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
 
+    // СИСТЕМА ПРОГРЕССА
+    let perfectStreak = 0; // Сколько идеальных тактов подряд прошел игрок
+    let levelStars = JSON.parse(localStorage.getItem('rhythm_level_stars')) || {};
+
     let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.17;
     let calibrationData = [], isCalibrating = false;
     let countdownBeats = 0, isPlayingSequence = false;
@@ -198,12 +220,21 @@
         document.getElementById(id).style.display = 'block';
     }
 
+    // Инициализация уровней с отображением звезд
     function initLevels() {
         const grid = document.getElementById('levelsGrid');
+        grid.innerHTML = ''; // Очищаем старую сетку
         for(let i=1; i<=19; i++) {
             const b = document.createElement('button');
-            b.className = 'level-btn' + (i === 1 ? ' active' : '');
-            b.innerText = i;
+            b.className = 'level-btn' + (i === currentLevel ? ' active' : '');
+            
+            // Получаем звезды из памяти
+            const starsEarned = levelStars[i] || 0;
+            let starsStr = '';
+            for(let s=0; s<3; s++) starsStr += s < starsEarned ? '★' : '☆';
+
+            b.innerHTML = `<span>${i}</span><span class="level-stars">${starsStr}</span>`;
+            
             b.onclick = () => {
                 document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
                 b.classList.add('active');
@@ -213,6 +244,42 @@
             grid.appendChild(b);
         }
     }
+
+    function updateGameStarsDisplay() {
+        const display = document.getElementById('gameStarsDisplay');
+        let currentStars = 0;
+        if (perfectStreak >= 5) currentStars = 3;
+        else if (perfectStreak >= 3) currentStars = 2;
+        else if (perfectStreak >= 1) currentStars = 1;
+
+        let str = '';
+        for(let s=0; s<3; s++) str += s < currentStars ? '★' : '☆';
+        display.innerText = str;
+
+        // Если побили рекорд уровня, сохраняем его
+        const bestStars = levelStars[currentLevel] || 0;
+        if (currentStars > bestStars) {
+            levelStars[currentLevel] = currentStars;
+            localStorage.setItem('rhythm_level_stars', JSON.stringify(levelStars));
+        }
+    }
+
+    document.getElementById('startGameBtn').onclick = () => {
+        showScreen('gameScreen');
+        document.getElementById('currentLevelDisplay').innerText = currentLevel;
+        perfectStreak = 0; // Сбрасываем стрик при входе на уровень
+        updateGameStarsDisplay();
+        roll();
+    };
+
+    document.getElementById('backBtn').onclick = () => { 
+        stopMetronome(); 
+        initLevels(); // Перерисовываем меню, чтобы обновились звезды
+        showScreen('menuScreen'); 
+    };
+
+    document.getElementById('calibOpenBtn').onclick = () => { showScreen('calibrationScreen'); document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`; document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ"; };
+    document.getElementById('calibBackBtn').onclick = () => { stopMetronome(); isCalibrating = false; document.getElementById('bpmRange').value = savedBPM; document.getElementById('bpmValue').innerText = savedBPM; showScreen('menuScreen'); };
 
     function roll() {
         const pool = [];
@@ -240,7 +307,6 @@
         });
     }
 
-    // ФУНКЦИЯ ДЛЯ ЗАПУСКА ОТСЧЕТА (используется при ВРАЩЕНИИ и АВТОМАТИКЕ)
     function startCountdown() {
         isPlayingSequence = false;
         countdownBeats = 4;
@@ -282,17 +348,22 @@
             return;
         }
 
-        // ПРОВЕРКА В КОНЦЕ ТАКТА (на 4-й доле)
+        // ПРОВЕРКА В КОНЦЕ ТАКТА
         if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
             if (currentCycleHits === expectedHits && currentCycleMisses === 0 && expectedHits > 0) {
-                // ИДЕАЛЬНО! Автоматически вращаем и запускаем новый отсчет
+                // ИДЕАЛЬНО!
+                perfectStreak++;
+                updateGameStarsDisplay();
+                
                 roll();
                 startCountdown();
-                updateFeedback("LEVEL CLEAR! READY?", "#00cec9");
+                updateFeedback("EXCELLENT! READY?", "#00cec9");
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                return; // Прерываем текущий тик, так как перешли в режим отсчета
+                return; 
             }
-            // Если была ошибка — сбрасываем счетчики и даем переиграть этот же паттерн
+            // Если была ошибка — сбрасываем счетчики и стрик
+            perfectStreak = 0;
+            updateGameStarsDisplay();
             currentCycleHits = 0;
             currentCycleMisses = 0;
         }
@@ -331,6 +402,8 @@
                     targetTimings.splice(i, 1);
                     score = Math.max(0, score - 50);
                     currentCycleMisses++;
+                    perfectStreak = 0; // Ошибка сбрасывает стрик
+                    updateGameStarsDisplay();
                     updateFeedback("MISS!", "#ff4757");
                     document.getElementById('scoreDisplay').innerText = score;
                 }
@@ -377,6 +450,8 @@
         if(!isHit) { 
             score = Math.max(0, score - 50); 
             currentCycleMisses++; 
+            perfectStreak = 0; // Лишний тап сбрасывает стрик
+            updateGameStarsDisplay();
             updateFeedback("MISS!", "#ff4757"); 
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
         }
@@ -414,6 +489,8 @@
         roll();
         if (isRunning) {
             startCountdown();
+            perfectStreak = 0; // Смена карт вручную сбрасывает серию
+            updateGameStarsDisplay();
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         }
     };
