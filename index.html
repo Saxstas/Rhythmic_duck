@@ -345,35 +345,38 @@
         timerID = setTimeout(scheduler, 25);
     }
 
-    function handleTap() {
-        if(!isRunning) return;
-        
-        // 1. Мгновенно фиксируем время
-        const now = audioCtx.currentTime; 
-        
-        // 2. Компенсация задержки (Latency Compensation)
-        // 0.06 = 60мс (средняя задержка тача на мобильных устройствах)
-        const LATENCY_OFFSET = 0.06;
-        let isHit = false;
+   function handleTap() {
+    if(!isRunning) return;
+    
+    const now = audioCtx.currentTime; 
+    
+    // ADJUSTMENT: Если приходится жать ПОЗЖЕ, увеличиваем это число (в секундах)
+    // Попробуй значения: 0.08, 0.1, или даже 0.12
+    const AUDIO_DELAY_COMPENSATION = 0.1; 
+    
+    let isHit = false;
 
-        for(let i=0; i < targetTimings.length; i++) {
-            const diff = Math.abs((now - LATENCY_OFFSET) - targetTimings[i]);
-            if(diff < 0.18) { // Окно попадания 180мс
-                targetTimings.splice(i, 1);
-                score += 100;
-                isHit = true;
-                updateFeedback("PERFECT!", "#00cec9");
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                break;
-            }
+    for(let i=0; i < targetTimings.length; i++) {
+        // Мы СУММИРУЕМ задержку со временем цели, 
+        // тем самым сдвигая "окно идеального нажатия" чуть позже, под звук
+        const diff = Math.abs(now - (targetTimings[i] + AUDIO_DELAY_COMPENSATION));
+        
+        if(diff < 0.18) { // Окно попадания (180мс)
+            targetTimings.splice(i, 1);
+            score += 100;
+            isHit = true;
+            updateFeedback("PERFECT!", "#00cec9");
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            break;
         }
-
-        if(!isHit) {
-            score = Math.max(0, score - 50);
-            updateFeedback("MISS!", "#ff4757");
-        }
-        document.getElementById('scoreDisplay').innerText = `SCORE: ${score}`;
     }
+
+    if(!isHit) {
+        score = Math.max(0, score - 50);
+        updateFeedback("MISS!", "#ff4757");
+    }
+    document.getElementById('scoreDisplay').innerText = `SCORE: ${score}`;
+}
 
     function updateFeedback(text, color) {
         const fb = document.getElementById('feedbackDisplay');
