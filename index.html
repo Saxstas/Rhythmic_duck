@@ -376,7 +376,7 @@
         if(!isRunning || !isPlayingSequence) return;
         
         const now = audioCtx.currentTime; 
-        const AUDIO_DELAY_COMPENSATION = 0.17; 
+        const AUDIO_DELAY_COMPENSATION = 0.2; 
         let isHit = false;
 
         for(let i=0; i < targetTimings.length; i++) {
