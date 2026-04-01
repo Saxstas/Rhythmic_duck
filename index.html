@@ -43,6 +43,7 @@
         .level-btn {
             background: #2d2d44; color: white; border: 1px solid #3d3d5c;
             padding: 10px 0; font-size: 14px; font-weight: bold; border-radius: 8px;
+            cursor: pointer;
         }
 
         .level-btn.active {
@@ -54,11 +55,13 @@
             background: linear-gradient(135deg, #00cec9, #0984e3);
             color: white; font-weight: bold; width: 100%; padding: 15px;
             font-size: 18px; border-radius: 12px; border: none; margin-bottom: 10px;
+            cursor: pointer;
         }
 
         .secondary-btn {
             background: #2d2d44; color: white; border: none; padding: 10px 15px;
             border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 10px;
+            cursor: pointer;
         }
 
         /* Игровой интерфейс */
@@ -68,7 +71,7 @@
             background: rgba(0, 0, 0, 0.3); padding: 10px 20px; border-radius: 12px; margin-bottom: 15px;
         }
         .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; }
-        .feedback-box { font-weight: bold; color: #00cec9; min-width: 100px; text-align: right; }
+        .feedback-box { font-weight: bold; color: #00cec9; min-width: 120px; text-align: right; font-size: 0.9rem; }
 
         .grid {
             display: flex; justify-content: center; align-items: center; gap: 8px;
@@ -79,17 +82,18 @@
         .image-card {
             width: 20vw; height: 20vw; max-width: 80px; max-height: 80px;
             object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c;
-            opacity: 0; transition: 0.1s;
+            opacity: 0; transition: 0.1s; background: #2d2d44;
         }
         .image-card.loaded { opacity: 1; }
         .image-card.double-size { width: 42vw; max-width: 170px; }
         .active-slot { border-color: #00cec9 !important; transform: scale(1.05); }
 
-        .metronome-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; }
+        .metronome-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
         #bpmRange { width: 100%; margin: 10px 0; accent-color: #00cec9; }
 
         /* Калибровка */
-        #calibProgress { font-size: 2.5rem; color: #fdcb6e; margin: 20px 0; }
+        #calibProgress { font-size: 1.5rem; color: #fdcb6e; margin: 20px 0; font-weight: bold; min-height: 2em; }
+        #calibValueDisplay { margin-bottom: 20px; color: #a4b0be; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -101,16 +105,16 @@
         <h3>ВЫБЕРИТЕ УРОВЕНЬ</h3>
         <div class="levels-container" id="levelsGrid"></div>
         <button id="startGameBtn" class="primary-btn">ИГРАТЬ</button>
-        <button id="calibOpenBtn" class="secondary-btn">⚙️ КАЛИБРОВКА ЗАДЕРЖКИ</button>
+        <button id="calibOpenBtn" class="secondary-btn">⚙️ НАСТРОИТЬ ЗАДЕРЖКУ</button>
     </div>
 
     <div id="gameScreen" class="screen">
         <div class="nav-header">
-            <button id="backBtn" class="secondary-btn" style="width:auto;">← МЕНЮ</button>
+            <button id="backBtn" class="secondary-btn" style="width:auto; margin-bottom:0;">← МЕНЮ</button>
             <h1 style="margin: 0; font-size: 1rem;">LVL <span id="currentLevelDisplay">1</span></h1>
         </div>
         <div class="game-panel">
-            <div class="score-box" id="scoreDisplay">0</div>
+            <div class="score-box">SCORE: <span id="scoreDisplay">0</span></div>
             <div class="feedback-box" id="feedbackDisplay">READY</div>
         </div>
         <button id="rollButton" class="primary-btn">ВРАЩАТЬ</button>
@@ -124,9 +128,9 @@
 
     <div id="calibrationScreen" class="screen">
         <h1>КАЛИБРОВКА</h1>
-        <p>Тапайте ровно в такт звуку</p>
-        <div id="calibProgress">0 / 10</div>
-        <div id="calibValueDisplay" style="margin-bottom: 20px; color: #a4b0be;">Задержка: --</div>
+        <p style="font-size: 0.8rem; color: #a4b0be;">Мы установим 70 BPM для точности.<br>Сначала 4 удара отсчета, затем тапайте в такт.</p>
+        <div id="calibProgress">НАЖМИТЕ НАЧАТЬ</div>
+        <div id="calibValueDisplay">Задержка: --</div>
         <button id="calibStartBtn" class="primary-btn">НАЧАТЬ</button>
         <button id="calibBackBtn" class="secondary-btn">ГОТОВО</button>
     </div>
@@ -210,17 +214,35 @@
     let currentLevel = 1, score = 0, currentSequence = [], currentSlotIndex = -1;
     let targetTimings = [], isRunning = false, audioCtx, nextBeatTime, timerID, lastBeatStartTime = 0;
     
-    // Калибровка и Отсчет
+    // Параметры калибровки и отсчета
     let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.17;
     let calibrationData = [], isCalibrating = false;
     let countdownBeats = 0, isPlayingSequence = false;
+    let savedBPM = 120;
 
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
     }
 
-    // --- НАВИГАЦИЯ ---
+    // --- ИНИЦИАЛИЗАЦИЯ МЕНЮ ---
+    function initLevels() {
+        const grid = document.getElementById('levelsGrid');
+        for(let i=1; i<=19; i++) {
+            const b = document.createElement('button');
+            b.className = 'level-btn' + (i === 1 ? ' active' : '');
+            b.innerText = i;
+            b.onclick = () => {
+                document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+                b.classList.add('active');
+                currentLevel = i;
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            };
+            grid.appendChild(b);
+        }
+    }
+
+    // --- ЛОГИКА ЭКРАНОВ ---
     document.getElementById('startGameBtn').onclick = () => {
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
@@ -234,31 +256,19 @@
 
     document.getElementById('calibOpenBtn').onclick = () => {
         showScreen('calibrationScreen');
-        document.getElementById('calibValueDisplay').innerText = `Задержка: ${userOffset.toFixed(3)}s`;
+        document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`;
+        document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ";
     };
 
     document.getElementById('calibBackBtn').onclick = () => {
         stopMetronome();
         isCalibrating = false;
+        document.getElementById('bpmRange').value = savedBPM;
+        document.getElementById('bpmValue').innerText = savedBPM;
         showScreen('menuScreen');
     };
 
-    // --- ЛОГИКА ---
-    function initLevels() {
-        const grid = document.getElementById('levelsGrid');
-        for(let i=1; i<=19; i++) {
-            const b = document.createElement('button');
-            b.className = 'level-btn' + (i === 1 ? ' active' : '');
-            b.innerText = i;
-            b.onclick = () => {
-                document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
-                b.classList.add('active');
-                currentLevel = i;
-            };
-            grid.appendChild(b);
-        }
-    }
-
+    // --- ИГРОВАЯ ЛОГИКА ---
     function roll() {
         const pool = [];
         for(let i=1; i<=currentLevel; i++) if(levelPacks[i]) pool.push(...levelPacks[i]);
@@ -291,24 +301,31 @@
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain();
 
-        // Отсчет
+        // ФАЗА ОТСЧЕТА
         if (countdownBeats > 0) {
-            osc.frequency.value = countdownBeats === 4 ? 1000 : 600;
+            osc.frequency.value = countdownBeats === 1 ? 1200 : 800;
             g.gain.value = 0.1;
             g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
             osc.connect(g); g.connect(audioCtx.destination);
             osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            updateFeedback(`ВНИМАНИЕ: ${countdownBeats}`, "#fdcb6e");
+            
+            let msg = `ПРИГОТОВИТЬСЯ: ${countdownBeats}`;
+            if(isCalibrating) document.getElementById('calibProgress').innerText = msg;
+            else updateFeedback(msg, "#fdcb6e");
+
             countdownBeats--;
             if (countdownBeats === 0) {
                 currentSlotIndex = -1;
                 isPlayingSequence = true;
-                setTimeout(() => updateFeedback("ИГРАЕМ!", "#00cec9"), (secondsPerBeat * 1000) - 50);
+                setTimeout(() => {
+                    if(isCalibrating) document.getElementById('calibProgress').innerText = "ТАПАЙТЕ!";
+                    else updateFeedback("ИГРАЕМ!", "#00cec9");
+                }, (secondsPerBeat * 1000) - 50);
             }
             return;
         }
 
-        // Игра или Калибровка
+        // ФАЗА РИТМА
         currentSlotIndex = (currentSlotIndex + 1) % 4;
         osc.frequency.value = currentSlotIndex === 0 ? 1000 : 600;
         g.gain.value = 0.1;
@@ -334,6 +351,7 @@
     }
 
     function scheduler() {
+        if(!isRunning) return;
         while(nextBeatTime < audioCtx.currentTime + 0.1) {
             playTick();
             nextBeatTime += 60 / document.getElementById('bpmRange').value;
@@ -342,27 +360,28 @@
     }
 
     function handleTap() {
+        if(!isRunning || !isPlayingSequence) return;
         const now = audioCtx.currentTime;
 
-        if (isCalibrating && isRunning) {
+        if (isCalibrating) {
             let diff = now - lastBeatStartTime;
-            const spb = 60 / document.getElementById('bpmRange').value;
+            const spb = 60 / 70;
             if (diff > spb / 2) diff -= spb;
+            
             calibrationData.push(diff);
-            document.getElementById('calibProgress').innerText = `${calibrationData.length} / 10`;
+            document.getElementById('calibProgress').innerText = `ЗАПИСЬ: ${calibrationData.length} / 10`;
+            
             if (calibrationData.length >= 10) {
                 userOffset = calibrationData.reduce((a,b)=>a+b, 0) / 10;
                 localStorage.setItem('rhythm_offset', userOffset);
-                document.getElementById('calibValueDisplay').innerText = `Задержка: ${userOffset.toFixed(3)}s`;
+                document.getElementById('calibValueDisplay').innerText = `Сохранено: ${userOffset.toFixed(3)}s`;
+                document.getElementById('calibProgress').innerText = "ГОТОВО ✅";
+                document.getElementById('calibStartBtn').innerText = "ЕЩЕ РАЗ";
                 stopMetronome();
-                isCalibrating = false;
-                document.getElementById('calibStartBtn').innerText = "ПОВТОРИТЬ";
             }
             return;
         }
 
-        if(!isRunning || !isPlayingSequence) return;
-        
         let isHit = false;
         for(let i=0; i < targetTimings.length; i++) {
             const diff = Math.abs(now - (targetTimings[i] + userOffset));
@@ -370,15 +389,21 @@
                 targetTimings.splice(i, 1);
                 score += 100; isHit = true;
                 updateFeedback("PERFECT!", "#00cec9");
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 break;
             }
         }
-        if(!isHit) { score = Math.max(0, score - 50); updateFeedback("MISS!", "#ff4757"); }
+        if(!isHit) { 
+            score = Math.max(0, score - 50); 
+            updateFeedback("MISS!", "#ff4757"); 
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        }
         document.getElementById('scoreDisplay').innerText = score;
     }
 
     function stopMetronome() {
-        isRunning = false; isPlayingSequence = false;
+        isRunning = false;
+        isPlayingSequence = false;
         clearTimeout(timerID);
         const btn = document.getElementById('metronomeBtn');
         btn.innerText = "СТАРТ"; btn.style.background = "";
@@ -403,13 +428,30 @@
 
     document.getElementById('calibStartBtn').onclick = function() {
         if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        calibrationData = []; isCalibrating = true; isRunning = true; countdownBeats = 0;
-        nextBeatTime = audioCtx.currentTime; scheduler();
-        this.innerText = "ТАПАЙТЕ...";
+        savedBPM = document.getElementById('bpmRange').value;
+        document.getElementById('bpmRange').value = 70;
+        document.getElementById('bpmValue').innerText = 70;
+
+        calibrationData = []; 
+        isCalibrating = true; 
+        isRunning = true; 
+        isPlayingSequence = false;
+        countdownBeats = 4;
+        
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        nextBeatTime = audioCtx.currentTime; 
+        scheduler();
+        this.innerText = "СЛУШАЙТЕ...";
     };
 
-    document.getElementById('rollButton').onclick = () => roll();
-    document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value; };
+    document.getElementById('rollButton').onclick = () => {
+        roll();
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    };
+    
+    document.getElementById('bpmRange').oninput = function() { 
+        document.getElementById('bpmValue').innerText = this.value; 
+    };
 
     document.addEventListener('touchstart', (e) => {
         if(e.target.closest('button') || e.target.closest('input')) return;
