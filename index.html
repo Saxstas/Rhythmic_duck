@@ -88,7 +88,7 @@
         }
 
         .grid {
-            display: flex; justify(content): center; align-items: center; gap: 8px;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
             min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px;
             padding: 15px; margin-bottom: 15px; border: 2px solid #2d2d44;
         }
@@ -259,7 +259,6 @@
         }
     }
 
-    // ВОТ ОНИ — СОБЫТИЯ ДЛЯ КНОПОК НАВИГАЦИИ!
     document.getElementById('startGameBtn').onclick = () => {
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
@@ -401,7 +400,8 @@
         const nowTime = audioCtx.currentTime;
         if (!isCalibrating && isPlayingSequence) {
             for (let i = targetTimings.length - 1; i >= 0; i--) {
-                if (targetTimings[i] + userOffset < nowTime - 0.2) {
+                // Изменил с 0.2 до 0.3, чтобы "MISS" не срабатывал слишком рано
+                if (targetTimings[i] + userOffset < nowTime - 0.3) {
                     targetTimings.splice(i, 1);
                     score = Math.max(0, score - 50);
                     currentCycleMisses++;
@@ -441,7 +441,8 @@
         let isHit = false;
         for(let i=0; i < targetTimings.length; i++) {
             const diff = Math.abs(now - (targetTimings[i] + userOffset));
-            if(diff < 0.18) { 
+            // ИЗМЕНЕНО: Было 0.18 (180ms), стало 0.25 (250ms)
+            if(diff < 0.25) { 
                 targetTimings.splice(i, 1);
                 score += 100; isHit = true;
                 currentCycleHits++;
