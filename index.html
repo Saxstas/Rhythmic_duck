@@ -81,10 +81,28 @@
         .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; text-align: left; }
         .feedback-box { font-weight: bold; color: #00cec9; min-width: 120px; text-align: right; font-size: 0.9rem; }
 
+        /* СТИЛИ ДЛЯ ВЗРЫВАЮЩИХСЯ ЗВЕЗД */
         .stars-display {
             font-size: 1.2rem;
+            display: flex;
+            gap: 4px;
+        }
+        .star-item {
+            color: rgba(255, 255, 255, 0.15);
+            display: inline-block;
+            transition: color 0.2s ease;
+        }
+        .star-item.filled {
             color: #fdcb6e;
             text-shadow: 0 0 10px rgba(253, 203, 110, 0.5);
+        }
+        .star-pop {
+            animation: starPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes starPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(2); text-shadow: 0 0 25px #fdcb6e; }
+            100% { transform: scale(1); }
         }
 
         .grid {
@@ -145,7 +163,7 @@
     <div id="gameScreen" class="screen">
         <div class="nav-header">
             <button id="backBtn" class="secondary-btn" style="width:auto; margin-bottom:0;">← МЕНЮ</button>
-            <div class="stars-display" id="gameStarsDisplay">☆☆☆</div>
+            <div class="stars-display" id="gameStarsDisplay"></div>
             <h1 style="margin: 0; font-size: 1rem;">LVL <span id="currentLevelDisplay">1</span></h1>
         </div>
         <div class="game-panel">
@@ -206,6 +224,7 @@
     let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
 
     let perfectStreak = 0; 
+    let lastStarsCount = 0; // Для отслеживания новых звезд
     let levelStars = JSON.parse(localStorage.getItem('rhythm_level_stars')) || {};
 
     let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.17;
@@ -248,9 +267,25 @@
         else if (perfectStreak >= 3) currentStars = 2;
         else if (perfectStreak >= 1) currentStars = 1;
 
-        let str = '';
-        for(let s=0; s<3; s++) str += s < currentStars ? '★' : '☆';
-        display.innerText = str;
+        display.innerHTML = '';
+        for(let s = 0; s < 3; s++) {
+            const span = document.createElement('span');
+            span.className = 'star-item';
+            
+            if (s < currentStars) {
+                span.innerText = '★';
+                span.classList.add('filled');
+                // Если звезда только что заработана — взрываем её!
+                if (s >= lastStarsCount) {
+                    span.classList.add('star-pop');
+                }
+            } else {
+                span.innerText = '☆';
+            }
+            display.appendChild(span);
+        }
+
+        lastStarsCount = currentStars;
 
         const bestStars = levelStars[currentLevel] || 0;
         if (currentStars > bestStars) {
@@ -263,6 +298,7 @@
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
         perfectStreak = 0; 
+        lastStarsCount = 0; 
         updateGameStarsDisplay();
         roll();
     };
@@ -400,7 +436,6 @@
         const nowTime = audioCtx.currentTime;
         if (!isCalibrating && isPlayingSequence) {
             for (let i = targetTimings.length - 1; i >= 0; i--) {
-                // Изменил с 0.2 до 0.3, чтобы "MISS" не срабатывал слишком рано
                 if (targetTimings[i] + userOffset < nowTime - 0.3) {
                     targetTimings.splice(i, 1);
                     score = Math.max(0, score - 50);
@@ -441,7 +476,6 @@
         let isHit = false;
         for(let i=0; i < targetTimings.length; i++) {
             const diff = Math.abs(now - (targetTimings[i] + userOffset));
-            // ИЗМЕНЕНО: Было 0.18 (180ms), стало 0.25 (250ms)
             if(diff < 0.25) { 
                 targetTimings.splice(i, 1);
                 score += 100; isHit = true;
@@ -494,6 +528,7 @@
         if (isRunning) {
             startCountdown();
             perfectStreak = 0; 
+            lastStarsCount = 0; 
             updateGameStarsDisplay();
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         }
