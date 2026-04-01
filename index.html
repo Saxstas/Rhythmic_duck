@@ -81,7 +81,6 @@
         .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; text-align: left; }
         .feedback-box { font-weight: bold; color: #00cec9; min-width: 120px; text-align: right; font-size: 0.9rem; }
 
-        /* ИНДИКАТОР ЗВЕЗД В ИГРЕ */
         .stars-display {
             font-size: 1.2rem;
             color: #fdcb6e;
@@ -89,7 +88,7 @@
         }
 
         .grid {
-            display: flex; justify-content: center; align-items: center; gap: 8px;
+            display: flex; justify(content): center; align-items: center; gap: 8px;
             min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px;
             padding: 15px; margin-bottom: 15px; border: 2px solid #2d2d44;
         }
@@ -206,8 +205,7 @@
     
     let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
 
-    // СИСТЕМА ПРОГРЕССА
-    let perfectStreak = 0; // Сколько идеальных тактов подряд прошел игрок
+    let perfectStreak = 0; 
     let levelStars = JSON.parse(localStorage.getItem('rhythm_level_stars')) || {};
 
     let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.17;
@@ -220,15 +218,13 @@
         document.getElementById(id).style.display = 'block';
     }
 
-    // Инициализация уровней с отображением звезд
     function initLevels() {
         const grid = document.getElementById('levelsGrid');
-        grid.innerHTML = ''; // Очищаем старую сетку
+        grid.innerHTML = ''; 
         for(let i=1; i<=19; i++) {
             const b = document.createElement('button');
             b.className = 'level-btn' + (i === currentLevel ? ' active' : '');
             
-            // Получаем звезды из памяти
             const starsEarned = levelStars[i] || 0;
             let starsStr = '';
             for(let s=0; s<3; s++) starsStr += s < starsEarned ? '★' : '☆';
@@ -256,7 +252,6 @@
         for(let s=0; s<3; s++) str += s < currentStars ? '★' : '☆';
         display.innerText = str;
 
-        // Если побили рекорд уровня, сохраняем его
         const bestStars = levelStars[currentLevel] || 0;
         if (currentStars > bestStars) {
             levelStars[currentLevel] = currentStars;
@@ -264,22 +259,34 @@
         }
     }
 
+    // ВОТ ОНИ — СОБЫТИЯ ДЛЯ КНОПОК НАВИГАЦИИ!
     document.getElementById('startGameBtn').onclick = () => {
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
-        perfectStreak = 0; // Сбрасываем стрик при входе на уровень
+        perfectStreak = 0; 
         updateGameStarsDisplay();
         roll();
     };
 
     document.getElementById('backBtn').onclick = () => { 
         stopMetronome(); 
-        initLevels(); // Перерисовываем меню, чтобы обновились звезды
+        initLevels(); 
         showScreen('menuScreen'); 
     };
 
-    document.getElementById('calibOpenBtn').onclick = () => { showScreen('calibrationScreen'); document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`; document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ"; };
-    document.getElementById('calibBackBtn').onclick = () => { stopMetronome(); isCalibrating = false; document.getElementById('bpmRange').value = savedBPM; document.getElementById('bpmValue').innerText = savedBPM; showScreen('menuScreen'); };
+    document.getElementById('calibOpenBtn').onclick = () => { 
+        showScreen('calibrationScreen'); 
+        document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`; 
+        document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ"; 
+    };
+    
+    document.getElementById('calibBackBtn').onclick = () => { 
+        stopMetronome(); 
+        isCalibrating = false; 
+        document.getElementById('bpmRange').value = savedBPM; 
+        document.getElementById('bpmValue').innerText = savedBPM; 
+        showScreen('menuScreen'); 
+    };
 
     function roll() {
         const pool = [];
@@ -348,20 +355,16 @@
             return;
         }
 
-        // ПРОВЕРКА В КОНЦЕ ТАКТА
         if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
             if (currentCycleHits === expectedHits && currentCycleMisses === 0 && expectedHits > 0) {
-                // ИДЕАЛЬНО!
                 perfectStreak++;
                 updateGameStarsDisplay();
-                
                 roll();
                 startCountdown();
                 updateFeedback("EXCELLENT! READY?", "#00cec9");
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 return; 
             }
-            // Если была ошибка — сбрасываем счетчики и стрик
             perfectStreak = 0;
             updateGameStarsDisplay();
             currentCycleHits = 0;
@@ -402,7 +405,7 @@
                     targetTimings.splice(i, 1);
                     score = Math.max(0, score - 50);
                     currentCycleMisses++;
-                    perfectStreak = 0; // Ошибка сбрасывает стрик
+                    perfectStreak = 0; 
                     updateGameStarsDisplay();
                     updateFeedback("MISS!", "#ff4757");
                     document.getElementById('scoreDisplay').innerText = score;
@@ -450,7 +453,7 @@
         if(!isHit) { 
             score = Math.max(0, score - 50); 
             currentCycleMisses++; 
-            perfectStreak = 0; // Лишний тап сбрасывает стрик
+            perfectStreak = 0; 
             updateGameStarsDisplay();
             updateFeedback("MISS!", "#ff4757"); 
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
@@ -489,7 +492,7 @@
         roll();
         if (isRunning) {
             startCountdown();
-            perfectStreak = 0; // Смена карт вручную сбрасывает серию
+            perfectStreak = 0; 
             updateGameStarsDisplay();
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         }
