@@ -153,7 +153,6 @@
     let countdownBeats = 0, isPlayingSequence = false;
     let savedBPM = 120;
 
-    // ПЕРЕМЕННЫЕ ДЛЯ КЭШИРОВАННЫХ ЗВУКОВ
     let highClickBuffer, lowClickBuffer;
 
     function showScreen(id) {
@@ -161,11 +160,10 @@
         document.getElementById(id).style.display = 'block';
     }
 
-    // ГЕНЕРАЦИЯ ЗВУКОВ КЛИКА В ПАМЯТИ
     function createClickBuffers() {
         if (!audioCtx) return;
         const sampleRate = audioCtx.sampleRate;
-        const length = sampleRate * 0.05; // Длина 0.05 секунды
+        const length = sampleRate * 0.05;
 
         highClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
         lowClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
@@ -175,14 +173,12 @@
 
         for (let i = 0; i < length; i++) {
             const t = i / sampleRate;
-            // Экспоненциальное затухание для резкого клика
             const decay = Math.exp(-t * 100); 
             highData[i] = Math.sin(2 * Math.PI * 1200 * t) * decay * 0.5;
             lowData[i] = Math.sin(2 * Math.PI * 800 * t) * decay * 0.5;
         }
     }
 
-    // ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ ИЗ БУФЕРА
     function playBuffer(buffer) {
         if (!audioCtx || !buffer) return;
         const source = audioCtx.createBufferSource();
@@ -259,11 +255,18 @@
         }
     }
 
-    function triggerVisualError() {
-        const activeCard = document.querySelector('.image-card.active-slot');
-        if (activeCard) {
-            activeCard.classList.add('error-hit');
-            setTimeout(() => activeCard.classList.remove('error-hit'), 300);
+    function triggerVisualError(cardIdx = -1) {
+        let card;
+        if (cardIdx !== -1) {
+            const cards = document.querySelectorAll('.image-card');
+            card = cards[cardIdx];
+        } else {
+            card = document.querySelector('.image-card.active-slot');
+        }
+        
+        if (card) {
+            card.classList.add('error-hit');
+            setTimeout(() => card.classList.remove('error-hit'), 300);
         }
     }
 
@@ -372,7 +375,6 @@
         const secondsPerBeat = 60 / bpm;
 
         if (countdownBeats > 0) {
-            // Воспроизведение высокого или низкого клика из буфера
             playBuffer(countdownBeats === 1 ? highClickBuffer : lowClickBuffer);
             
             let msg = `ОТСЧЕТ: ${countdownBeats}`;
@@ -391,7 +393,7 @@
         }
 
         if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
-            if (currentCycleHits === expectedHits && currentCycleMisses === 0 && expectedHits > 0) {
+            if (currentCycleHits === expectedHits && currentCycleMisses === 0) {
                 perfectStreak++;
                 updateGameStarsDisplay();
                 roll();
@@ -407,10 +409,7 @@
         }
 
         currentSlotIndex = (currentSlotIndex + 1) % 4;
-        
-        // Воспроизведение закешированного звука
         playBuffer(currentSlotIndex === 0 ? highClickBuffer : lowClickBuffer);
-        
         lastBeatStartTime = audioCtx.currentTime;
 
         if (!isCalibrating) {
@@ -421,7 +420,10 @@
                 if(currentSlotIndex >= acc && currentSlotIndex < acc + item.size) {
                     cards[idx].classList.add('active-slot');
                     if(currentSlotIndex === acc) {
-                        const newTimings = item.pattern.map(p => lastBeatStartTime + (p * secondsPerBeat));
+                        const newTimings = item.pattern.map(p => ({
+                            time: lastBeatStartTime + (p * secondsPerBeat),
+                            cardIdx: idx
+                        }));
                         targetTimings.push(...newTimings);
                     }
                 }
@@ -435,14 +437,16 @@
         const nowTime = audioCtx.currentTime;
         if (!isCalibrating && isPlayingSequence) {
             for (let i = targetTimings.length - 1; i >= 0; i--) {
-                if (targetTimings[i] + userOffset < nowTime - 0.3) {
+                // ТЕПЕРЬ ОШИБКА ЗАСЧИТЫВАЕТСЯ ТОЛЬКО ЧЕРЕЗ 0.5 СЕКУНДЫ
+                if (targetTimings[i].time + userOffset < nowTime - 0.5) {
+                    const missedCardIdx = targetTimings[i].cardIdx;
                     targetTimings.splice(i, 1);
                     score = Math.max(0, score - 50);
                     currentCycleMisses++;
                     perfectStreak = 0; 
                     updateGameStarsDisplay();
                     updateFeedback("MISS!", "#ff4757");
-                    triggerVisualError();
+                    triggerVisualError(missedCardIdx);
                     document.getElementById('scoreDisplay').innerText = score;
                 }
             }
@@ -475,23 +479,34 @@
 
         let isHit = false;
         for(let i=0; i < targetTimings.length; i++) {
-            const diff = Math.abs(now - (targetTimings[i] + userOffset));
-            if(diff < 0.25) { 
+            const diff = Math.abs(now - (targetTimings[i].time + userOffset));
+            
+            if(diff < 0.30) { 
+                // РАСШИРЕННОЕ ОКНО PERFECT
                 targetTimings.splice(i, 1);
                 score += 100; isHit = true;
                 currentCycleHits++;
                 updateFeedback("PERFECT!", "#00cec9");
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 break;
+            } else if(diff < 0.45) { 
+                // НОВОЕ ОКНО GOOD
+                targetTimings.splice(i, 1);
+                score += 50; isHit = true;
+                currentCycleHits++;
+                updateFeedback("GOOD!", "#fdcb6e");
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                break;
             }
         }
+        
         if(!isHit) { 
             score = Math.max(0, score - 50); 
             currentCycleMisses++; 
             perfectStreak = 0; 
             updateGameStarsDisplay();
             updateFeedback("MISS!", "#ff4757"); 
-            triggerVisualError();
+            triggerVisualError(); 
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
         }
         document.getElementById('scoreDisplay').innerText = score;
@@ -517,7 +532,7 @@
     document.getElementById('metronomeBtn').onclick = function() {
         if(!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            createClickBuffers(); // Создаем буферы при первом жесте пользователя
+            createClickBuffers(); 
         }
         if(!isRunning) {
             isRunning = true;
