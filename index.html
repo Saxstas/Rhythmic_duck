@@ -13,13 +13,12 @@
         .screen { display: none; }
         #menuScreen { display: block; }
         
-        /* РЕЙТИНГ И ЗВЕЗДЫ */
         .rank-box { background: linear-gradient(135deg, rgba(0, 206, 201, 0.1), rgba(9, 132, 227, 0.1)); border: 1px solid rgba(0, 206, 201, 0.3); border-radius: 12px; padding: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .rank-title { font-weight: bold; color: #00cec9; }
         .total-stars { color: #fdcb6e; font-weight: bold; }
         
         .levels-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; }
-        .level-btn { background: #2d2d44; color: white; border: 1px solid #3d3d5c; padding: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .level-btn { background: #2d2d44; color: white; border: 1px solid #3d3d5c; padding: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
         .level-btn.active { background: #00cec9; color: #1a1a2e; border-color: #00cec9; box-shadow: 0 0 15px rgba(0, 206, 201, 0.5); }
         .level-stars { font-size: 10px; color: #fdcb6e; }
 
@@ -56,7 +55,6 @@
         </div>
         <div class="levels-container" id="levelsGrid"></div>
         <button id="startGameBtn" class="primary-btn">ИГРАТЬ</button>
-        <button id="calibOpenBtn" class="secondary-btn">⚙️ НАСТРОЙКА ЗАДЕРЖКИ</button>
     </div>
 
     <div id="gameScreen" class="screen">
@@ -69,6 +67,7 @@
             <div style="color:#fdcb6e; font-weight:bold">SCORE: <span id="scoreDisplay">0</span></div>
             <div id="feedbackDisplay" style="color:#00cec9; font-weight:bold">READY</div>
         </div>
+        <button id="shuffleBtn" class="primary-btn" style="padding: 10px; font-size: 14px;">ПЕРЕМЕШАТЬ КАРТЫ</button>
         <div id="imageContainer" class="grid"></div>
         <div id="tapArea" class="tap-area">ТАПАЙ В РИТМ</div>
         <div style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;">
@@ -80,7 +79,6 @@
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
     const levelPacks = {
         1: [{ src: "Lvl1/s1.png", size: 1, pattern: [0] }, { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }],
         2: [{ src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }],
@@ -93,10 +91,10 @@
     let targetTimings = [], isRunning = false, audioCtx, nextBeatTime, timerID;
     let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
     let perfectStreak = 0, lastStarsCount = 0;
+    let countdownBeats = 0, isPlayingSequence = false;
 
-    // Загрузка данных
     let levelStars = JSON.parse(localStorage.getItem('rhythm_stars')) || {};
-    let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.15;
+    let userOffset = 0.15;
 
     function updateRank() {
         let total = Object.values(levelStars).reduce((a, b) => a + b, 0);
@@ -160,15 +158,41 @@
             img.onload = () => img.classList.add('loaded');
             container.appendChild(img);
         });
+        startCountdown();
+    }
+
+    function startCountdown() {
+        isPlayingSequence = false;
+        countdownBeats = 4;
+        currentSlotIndex = -1;
+        currentCycleHits = 0;
+        currentCycleMisses = 0;
+        targetTimings = [];
+        document.getElementById('feedbackDisplay').innerText = "WAIT...";
     }
 
     function playTick() {
-        const bpm = document.getElementById('bpmRange').value;
-        const spb = 60 / bpm;
+        const spb = 60 / document.getElementById('bpmRange').value;
+        const now = audioCtx.currentTime;
 
-        if (isRunning && currentSlotIndex === 3) {
+        if (countdownBeats > 0) {
+            // Звук отсчета
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.value = countdownBeats === 1 ? 880 : 440;
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(now + 0.1);
+
+            document.getElementById('feedbackDisplay').innerText = countdownBeats;
+            countdownBeats--;
+            if(countdownBeats === 0) isPlayingSequence = true;
+            return;
+        }
+
+        if (isPlayingSequence && currentSlotIndex === 3) {
             if (currentCycleHits === expectedHits && currentCycleMisses === 0) {
-                perfectStreak++; updateStarsUI(); roll(); currentSlotIndex = -1;
+                perfectStreak++; updateStarsUI(); roll(); return;
             } else {
                 perfectStreak = 0; updateStarsUI();
             }
@@ -176,9 +200,9 @@
         }
 
         currentSlotIndex = (currentSlotIndex + 1) % 4;
-        const now = audioCtx.currentTime;
+        document.getElementById('feedbackDisplay').innerText = "GO!";
 
-        // Звук
+        // Обычный звук такта
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.frequency.value = currentSlotIndex === 0 ? 880 : 440;
@@ -210,7 +234,7 @@
     }
 
     function handleTap() {
-        if (!isRunning) return;
+        if (!isRunning || !isPlayingSequence) return;
         const now = audioCtx.currentTime;
         let isHit = false;
 
@@ -234,13 +258,14 @@
     }
 
     document.getElementById('metronomeBtn').onclick = function() {
-        if (!audioCtx) audioCtx = new AudioContext();
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (!isRunning) {
             isRunning = true; nextBeatTime = audioCtx.currentTime;
-            currentSlotIndex = -1; roll(); scheduler(); this.innerText = "СТОП";
+            roll(); scheduler(); this.innerText = "СТОП";
         } else { isRunning = false; clearTimeout(timerID); this.innerText = "СТАРТ"; }
     };
 
+    document.getElementById('shuffleBtn').onclick = () => { if(isRunning) roll(); };
     document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value + " BPM"; };
     document.getElementById('startGameBtn').onclick = () => { 
         document.getElementById('menuScreen').style.display = 'none'; 
@@ -249,8 +274,10 @@
         perfectStreak = 0; lastStarsCount = 0; updateStarsUI();
     };
     document.getElementById('backBtn').onclick = () => { location.reload(); };
-    document.getElementById('tapArea').onmousedown = (e) => { e.preventDefault(); handleTap(); };
-    document.getElementById('tapArea').ontouchstart = (e) => { e.preventDefault(); handleTap(); };
+    
+    const tapArea = document.getElementById('tapArea');
+    tapArea.onmousedown = (e) => { e.preventDefault(); handleTap(); };
+    tapArea.ontouchstart = (e) => { e.preventDefault(); handleTap(); };
 
     initLevels();
 </script>
