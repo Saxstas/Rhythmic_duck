@@ -42,7 +42,7 @@
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
         /* ЗОНА ТАПА И КАЛИБРОВКА */
-        .tap-area { background: rgba(0, 206, 201, 0.05); border: 2px dashed #00cec9; border-radius: 15px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; color: #00cec9; font-weight: bold; cursor: pointer; transition: 0.1s; }
+        .tap-area { background: rgba(0, 206, 201, 0.05); border: 2px dashed #00cec9; border-radius: 15px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; color: #00cec9; font-weight: bold; cursor: pointer; transition: 0.1s; touch-action: none; }
         .tap-area.active-tap { background: rgba(0, 206, 201, 0.2); transform: scale(0.98); border: 2px solid #00cec9; }
         
         #calibProgress { font-size: 1.5rem; color: #fdcb6e; margin: 20px 0; font-weight: bold; min-height: 2em; }
@@ -111,6 +111,7 @@
     let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
     let perfectStreak = 0, lastStarsCount = 0;
     let countdownBeats = 0, isPlayingSequence = false;
+    let currentSequence = [];
     
     // Переменные для калибровки
     let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.15;
@@ -233,7 +234,6 @@
             return;
         }
 
-        // Проверка завершения цикла только для игры
         if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
             if (currentCycleHits === expectedHits && currentCycleMisses === 0) {
                 perfectStreak++; updateStarsUI(); roll(); return;
@@ -244,7 +244,7 @@
         }
 
         currentSlotIndex = (currentSlotIndex + 1) % 4;
-        lastBeatStartTime = now; // Запоминаем время удара для калибровки
+        lastBeatStartTime = now; 
 
         if(!isCalibrating) document.getElementById('feedbackDisplay').innerText = "GO!";
 
@@ -295,7 +295,7 @@
         if (isCalibrating) {
             let diff = now - lastBeatStartTime;
             const spb = 60 / 70;
-            if (diff > spb / 2) diff -= spb; // Если тапнули чуть раньше следующего удара
+            if (diff > spb / 2) diff -= spb; 
             calibrationData.push(diff);
             
             document.getElementById('calibProgress').innerText = `ЗАПИСЬ: ${calibrationData.length} / 10`;
@@ -303,32 +303,56 @@
             if (calibrationData.length >= 10) {
                 userOffset = calibrationData.reduce((a,b) => a+b, 0) / 10;
                 localStorage.setItem('rhythm_offset', userOffset);
-                document.getElementById('calibValueDisplay').innerText = `Сохранено: ${userOffset.toFixed(3)}s`;
-                document.getElementById('calibProgress').innerText = "ОТКАЛИБРОВАНО!";
+                document.getElementById('calibValueDisplay').innerText = `Задержка: ${userOffset.toFixed(3)}s`;
+                document.getElementById('calibProgress').innerText = "ГОТОВО!";
                 stopMetronome();
                 isCalibrating = false;
             }
             return;
         }
 
-        // Обработка ИГРОВОГО режима
+        // Обработка ИГРОВОГО режима с системой PERFECT / GOOD / MISS
         let isHit = false;
+        let hitQuality = "";
+        const feedbackEl = document.getElementById('feedbackDisplay');
+
         for (let i = 0; i < targetTimings.length; i++) {
             const diff = Math.abs(now - (targetTimings[i].time + userOffset));
-            if (diff < 0.2) {
+            
+            if (diff <= 0.15) { // PERFECT
                 targetTimings.splice(i, 1);
-                score += 100; currentCycleHits++; isHit = true;
-                document.getElementById('feedbackDisplay').innerText = "PERFECT!";
+                score += 100; 
+                currentCycleHits++; 
+                isHit = true;
+                hitQuality = "PERFECT!";
+                feedbackEl.style.color = "#00cec9";
+                break;
+            } else if (diff <= 0.35) { // GOOD
+                targetTimings.splice(i, 1);
+                score += 50; 
+                currentCycleHits++; 
+                isHit = true;
+                hitQuality = "GOOD";
+                feedbackEl.style.color = "#fdcb6e";
                 break;
             }
         }
 
-        if (!isHit) {
-            score = Math.max(0, score - 30); currentCycleMisses++;
-            document.getElementById('feedbackDisplay').innerText = "MISS!";
+        if (isHit) {
+            feedbackEl.innerText = hitQuality;
+        } else {
+            // MISS
+            score = Math.max(0, score - 30); 
+            currentCycleMisses++;
+            feedbackEl.innerText = "MISS!";
+            feedbackEl.style.color = "#ff4757";
+            
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             const active = document.querySelector('.active-slot');
-            if (active) { active.classList.add('error-hit'); setTimeout(() => active.classList.remove('error-hit'), 300); }
+            if (active) { 
+                active.classList.add('error-hit'); 
+                setTimeout(() => active.classList.remove('error-hit'), 300); 
+            }
         }
         document.getElementById('scoreDisplay').innerText = score;
     }
@@ -380,12 +404,16 @@
     const tapArea = document.getElementById('tapArea');
     const calibTapArea = document.getElementById('calibTapArea');
     
-    // Обработка тач-событий для мгновенного срабатывания
-    tapArea.onmousedown = (e) => { e.preventDefault(); handleTap('tapArea'); };
-    tapArea.ontouchstart = (e) => { e.preventDefault(); handleTap('tapArea'); };
-    
-    calibTapArea.onmousedown = (e) => { e.preventDefault(); handleTap('calibTapArea'); };
-    calibTapArea.ontouchstart = (e) => { e.preventDefault(); handleTap('calibTapArea'); };
+    // Оптимизированный современный перехват касаний без микрозадержек
+    function bindFastTap(element, areaId) {
+        element.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            handleTap(areaId);
+        }, { passive: false });
+    }
+
+    bindFastTap(tapArea, 'tapArea');
+    bindFastTap(calibTapArea, 'calibTapArea');
 
     // Инициализация
     initLevels();
