@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rhythm Master Pro</title>
-    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; background-color: #1a1a2e; color: #ffffff; margin: 0; padding: 10px; overflow: hidden; user-select: none; touch-action: none; }
@@ -22,39 +20,24 @@
         .level-btn { background: #2d2d44; color: white; border: 1px solid #3d3d5c; padding: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
         .level-btn.active { background: #00cec9; color: #1a1a2e; border-color: #00cec9; box-shadow: 0 0 15px rgba(0, 206, 201, 0.5); }
         .level-stars { font-size: 10px; color: #fdcb6e; }
-        .level-btn.active .level-stars { color: #1a1a2e; }
         .primary-btn { background: linear-gradient(135deg, #00cec9, #0984e3); color: white; font-weight: bold; width: 100%; padding: 15px; font-size: 18px; border-radius: 12px; border: none; margin-bottom: 10px; cursor: pointer; }
         .secondary-btn { background: #2d2d44; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 10px; cursor: pointer; }
         .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
-        .game-panel { display: flex; flex-direction: column; gap: 5px; background: rgba(0, 0, 0, 0.3); padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; }
+        .game-panel { background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 12px; margin-bottom: 15px; }
         .panel-row { display: flex; justify-content: space-between; align-items: center; }
-        .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; text-align: left; }
-        .feedback-box { font-weight: bold; color: #00cec9; text-align: right; font-size: 0.9rem; }
-        .best-score-box { font-size: 0.8rem; color: #a4b0be; text-align: left; }
+        .score-box { font-weight: bold; color: #fdcb6e; }
         .stars-display { font-size: 1.2rem; display: flex; gap: 4px; }
-        .star-item { color: rgba(255, 255, 255, 0.15); display: inline-block; transition: color 0.2s ease; }
-        .star-item.filled { color: #fdcb6e; text-shadow: 0 0 10px rgba(253, 203, 110, 0.5); }
-        .star-pop { animation: starPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes starPop { 0% { transform: scale(1); } 50% { transform: scale(2); text-shadow: 0 0 25px #fdcb6e; } 100% { transform: scale(1); } }
-        .grid { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 2px solid #2d2d44; }
-
-        .image-card { width: 20vw; height: 20vw; max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c; opacity: 0; transition: transform 0.1s, border-color 0.1s; background: #2d2d44; }
+        .star-item { color: rgba(255, 255, 255, 0.15); }
+        .star-item.filled { color: #fdcb6e; }
+        .grid { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+        .image-card { width: 20vw; height: 20vw; max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c; opacity: 0; transition: transform 0.1s; background: #2d2d44; }
         .image-card.loaded { opacity: 1; }
         .image-card.double-size { width: 42vw; max-width: 170px; }
-        .active-slot { border-color: #00cec9 !important; transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 206, 201, 0.3); }
-        
-        .error-hit { border-color: #ff4757 !important; animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; box-shadow: 0 0 20px rgba(255, 71, 87, 0.6) !important; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0) scale(1.05); } 20%, 80% { transform: translate3d(2px, 0, 0) scale(1.05); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0) scale(1.05); } 40%, 60% { transform: translate3d(4px, 0, 0) scale(1.05); } }
-
-        .tap-area { background: rgba(0, 206, 201, 0.05); border: 2px dashed #00cec9; border-radius: 15px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; color: #00cec9; font-weight: bold; letter-spacing: 2px; margin-bottom: 15px; transition: 0.1s; cursor: pointer; }
-        .tap-area.active-tap { background: rgba(0, 206, 201, 0.2); transform: scale(0.98); border: 2px solid #00cec9; }
-        .metronome-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        #bpmRange { width: 100%; margin: 10px 0; accent-color: #00cec9; }
-        #calibProgress { font-size: 1.5rem; color: #fdcb6e; margin: 20px 0; font-weight: bold; min-height: 2em; }
-        #calibValueDisplay { margin-bottom: 20px; color: #a4b0be; font-family: monospace; }
-        
-        .records-list-item { display: flex; justify-content: space-between; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
-        .records-list-item:last-child { border-bottom: none; }
+        .active-slot { border-color: #00cec9 !important; transform: scale(1.05); }
+        .error-hit { border-color: #ff4757 !important; animation: shake 0.3s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .tap-area { background: rgba(0, 206, 201, 0.05); border: 2px dashed #00cec9; border-radius: 15px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; color: #00cec9; cursor: pointer; }
+        .tap-area.active-tap { background: rgba(0, 206, 201, 0.2); }
     </style>
 </head>
 <body>
@@ -62,265 +45,107 @@
 <div class="main-container">
     <div id="menuScreen" class="screen">
         <h1>RHYTHM MASTER</h1>
-        <h3>ВЫБЕРИТЕ УРОВЕНЬ</h3>
         <div class="rank-box">
             <div>Ранг: <span class="rank-title" id="playerRank">Новичок</span></div>
             <div class="total-stars" id="totalStarsDisplay">★ 0</div>
         </div>
         <div class="levels-container" id="levelsGrid"></div>
         <button id="startGameBtn" class="primary-btn">ИГРАТЬ</button>
-        <button id="recordsOpenBtn" class="secondary-btn">🏆 МОИ РЕКОРДЫ</button>
-        <button id="calibOpenBtn" class="secondary-btn">⚙️ НАСТРОИТЬ ЗАДЕРЖКУ</button>
+        <button id="calibOpenBtn" class="secondary-btn">⚙️ НАСТРОЙКА ЗАДЕРЖКИ</button>
     </div>
 
     <div id="gameScreen" class="screen">
         <div class="nav-header">
-            <button id="backBtn" class="secondary-btn" style="width:auto; margin-bottom:0;">← МЕНЮ</button>
+            <button id="backBtn" class="secondary-btn" style="width:auto;">← МЕНЮ</button>
             <div class="stars-display" id="gameStarsDisplay"></div>
-            <h1 style="margin: 0; font-size: 1rem;">LVL <span id="currentLevelDisplay">1</span></h1>
+            <h1 style="margin:0">LVL <span id="currentLevelDisplay">1</span></h1>
         </div>
         <div class="game-panel">
             <div class="panel-row">
                 <div class="score-box">SCORE: <span id="scoreDisplay">0</span></div>
-                <div class="feedback-box" id="feedbackDisplay">READY</div>
-            </div>
-            <div class="panel-row">
-                <div class="best-score-box">BEST: <span id="bestScoreDisplay">0</span></div>
+                <div id="feedbackDisplay" style="font-weight:bold">READY</div>
             </div>
         </div>
-        <button id="rollButton" class="primary-btn">ВРАЩАТЬ КАРТЫ</button>
         <div id="imageContainer" class="grid"></div>
         <div id="tapArea" class="tap-area">ТАПАЙ СЮДА</div>
-        <div class="metronome-box">
-            <div style="font-weight: bold;"><span id="bpmValue">120</span> BPM</div>
-            <input type="range" id="bpmRange" min="40" max="200" value="120">
-            <button id="metronomeBtn" class="primary-btn" style="margin:0;">СТАРТ</button>
+        <div style="margin-top:15px">
+            <button id="metronomeBtn" class="primary-btn">СТАРТ</button>
+            <input type="range" id="bpmRange" min="60" max="180" value="120" style="width:100%; accent-color:#00cec9">
+            <div id="bpmValue">120 BPM</div>
         </div>
     </div>
 
     <div id="calibrationScreen" class="screen">
         <h1>КАЛИБРОВКА</h1>
-        <p style="font-size: 0.8rem; color: #a4b0be;">Мы установим 70 BPM для точности.<br>Сначала 4 удара отсчета, затем тапайте в такт.</p>
         <div id="calibProgress">НАЖМИТЕ НАЧАТЬ</div>
-        <div id="calibTapArea" class="tap-area">ТАПАЙ В ТАКТ СЮДА</div>
-        <div id="calibValueDisplay">Задержка: --</div>
-        <button id="calibStartBtn" class="primary-btn">НАЧАТЬ</button>
+        <div id="calibTapArea" class="tap-area">ТАПАЙ В ТАКТ</div>
+        <button id="calibStartBtn" class="primary-btn" style="margin-top:15px">НАЧАТЬ</button>
         <button id="calibBackBtn" class="secondary-btn">ГОТОВО</button>
-    </div>
-
-    <div id="recordsScreen" class="screen">
-        <h1>ТВОИ РЕКОРДЫ</h1>
-        <div id="recordsList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;"></div>
-        <button id="recordsBackBtn" class="secondary-btn">← НАЗАД</button>
     </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand();
-
     const levelPacks = {
         1: [{ src: "Lvl1/s1.png", size: 1, pattern: [0] }, { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }],
         2: [{ src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }],
         3: [{ src: "Lvl3/4.png", size: 1, pattern: [] }, { src: "Lvl3/5.png", size: 1, pattern: [] }, { src: "Lvl3/Size2/30.png", size: 2, pattern: [] }],
         4: [{ src: "Lvl4/size2/9.png", size: 2, pattern: [0, 1, 1.5] }],
         5: [{ src: "Lvl5/3.png", size: 1, pattern: [0.5] }],
-        6: [{ src: "Lvl6/Size2/7.png", size: 2, pattern: [0, 1.5] }, { src: "Lvl6/Size2/8.png", size: 2, pattern: [0, 0.5] }],
-        7: [{ src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 1.5] }, { src: "Lvl7/Size2/11.png", size: 2, pattern: [0.5] }],
         8: [{ src: "Lvl8/24.png", size: 1, pattern: [0, 0.25, 0.5, 0.75] }],
-        9: [{ src: "Lvl9/27.png", size: 1, pattern: [0, 0.5, 0.75] }, { src: "Lvl9/26.png", size: 1, pattern: [0, 0.25, 0.5] }],
-        10: [{ src: "Lvl10/13.png", size: 1, pattern: [0, 0.25, 0.50] }, { src: "Lvl10/15.png", size: 1, pattern: [0, 0.50, 0.75] }],
-        11: [{ src: "Lvl11/18.png", size: 1, pattern: [0.50, 0.75] }, { src: "Lvl11/19.png", size: 1, pattern: [0, 0.25] }],
-        12: [{ src: "Lvl12/25.png", size: 1, pattern: [0.25, 0.5, 0.75] }],
-        13: [{ src: "Lvl13/14.png", size: 1, pattern: [0, 0.25, 0.75] }, { src: "Lvl13/31.png", size: 1, pattern: [0, 0.75] }],
-        14: [{ src: "Lvl14/20.png", size: 1, pattern: [0, 0.5] }],
-        15: [{ src: "Lvl15/17.png", size: 1, pattern: [0, 0.25] }, { src: "Lvl15/23.png", size: 1, pattern: [0, 0.75] }],
-        16: [{ src: "Lvl16/21.png", size: 1, pattern: [0.25, 0.5, 0.75] }],
-        17: [{ src: "Lvl17/16.png", size: 1, pattern: [0.25, 0.75] }, { src: "Lvl17/33.png", size: 1, pattern: [0.25] }],
-        18: [{ src: "Lvl18/34.png", size: 1, pattern: [0.75] }],
         19: [{ src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }]
     };
 
     let currentLevel = 1, score = 0, currentSequence = [], currentSlotIndex = -1;
-    let targetTimings = [], isRunning = false, audioCtx, nextBeatTime, timerID, lastBeatStartTime = 0;
-    let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
-    let perfectStreak = 0; 
-    let lastStarsCount = 0;
-    let levelStars = JSON.parse(localStorage.getItem('rhythm_level_stars')) || {};
-    let levelHighScores = JSON.parse(localStorage.getItem('rhythm_high_scores')) || {};
-    let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.17;
-    let calibrationData = [], isCalibrating = false;
-    let countdownBeats = 0, isPlayingSequence = false;
-    let savedBPM = 120;
-
+    let targetTimings = [], isRunning = false, audioCtx, nextBeatTime, timerID;
+    let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0, perfectStreak = 0;
+    let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.15;
+    let calibrationData = [], isCalibrating = false, countdownBeats = 0, isPlayingSequence = false;
     let highClickBuffer, lowClickBuffer;
 
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-    }
-
-    function createClickBuffers() {
+    function createBuffers() {
         if (!audioCtx) return;
-        const sampleRate = audioCtx.sampleRate;
-        const length = sampleRate * 0.05;
-        highClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
-        lowClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
-        const highData = highClickBuffer.getChannelData(0);
-        const lowData = lowClickBuffer.getChannelData(0);
-        for (let i = 0; i < length; i++) {
-            const t = i / sampleRate;
-            const decay = Math.exp(-t * 100); 
-            highData[i] = Math.sin(2 * Math.PI * 1200 * t) * decay * 0.5;
-            lowData[i] = Math.sin(2 * Math.PI * 800 * t) * decay * 0.5;
+        const sr = audioCtx.sampleRate;
+        highClickBuffer = audioCtx.createBuffer(1, sr * 0.05, sr);
+        lowClickBuffer = audioCtx.createBuffer(1, sr * 0.05, sr);
+        const hData = highClickBuffer.getChannelData(0), lData = lowClickBuffer.getChannelData(0);
+        for(let i=0; i<sr*0.05; i++) {
+            const t = i/sr;
+            hData[i] = Math.sin(2 * Math.PI * 1200 * t) * Math.exp(-t * 100) * 0.3;
+            lData[i] = Math.sin(2 * Math.PI * 800 * t) * Math.exp(-t * 100) * 0.3;
         }
     }
 
-    function playBuffer(buffer) {
-        if (!audioCtx || !buffer) return;
-        const source = audioCtx.createBufferSource();
-        source.buffer = buffer;
-        const g = audioCtx.createGain();
-        g.gain.value = 0.2;
-        source.connect(g);
-        g.connect(audioCtx.destination);
-        source.start(audioCtx.currentTime);
-    }
-
-    function updatePlayerRank() {
-        let totalStars = 0;
-        for (let key in levelStars) totalStars += levelStars[key];
-        document.getElementById('totalStarsDisplay').innerText = `★ ${totalStars}`;
-        let rank = "Новичок", color = "#a4b0be";
-        if (totalStars >= 50) { rank = "Бог Ритма"; color = "#ff4757"; }
-        else if (totalStars >= 35) { rank = "Мастер"; color = "#fdcb6e"; }
-        else if (totalStars >= 20) { rank = "Профи"; color = "#00cec9"; }
-        else if (totalStars >= 5) { rank = "Любитель"; color = "#0984e3"; }
-        const rankEl = document.getElementById('playerRank');
-        rankEl.innerText = rank;
-        rankEl.style.color = color;
+    function playSound(buf) {
+        const s = audioCtx.createBufferSource();
+        s.buffer = buf; s.connect(audioCtx.destination); s.start();
     }
 
     function initLevels() {
-        updatePlayerRank();
         const grid = document.getElementById('levelsGrid');
-        grid.innerHTML = ''; 
+        grid.innerHTML = '';
         for(let i=1; i<=19; i++) {
             const b = document.createElement('button');
             b.className = 'level-btn' + (i === currentLevel ? ' active' : '');
-            const starsEarned = levelStars[i] || 0;
-            let starsStr = '';
-            for(let s=0; s<3; s++) starsStr += s < starsEarned ? '★' : '☆';
-            b.innerHTML = `<span>${i}</span><span class="level-stars">${starsStr}</span>`;
-            b.onclick = () => {
-                document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
-                b.classList.add('active');
-                currentLevel = i;
-                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            };
+            b.innerHTML = `<span>${i}</span>`;
+            b.onclick = () => { currentLevel = i; initLevels(); };
             grid.appendChild(b);
         }
-    }
-
-    function updateGameStarsDisplay() {
-        const display = document.getElementById('gameStarsDisplay');
-        let currentStars = perfectStreak >= 5 ? 3 : (perfectStreak >= 3 ? 2 : (perfectStreak >= 1 ? 1 : 0));
-        display.innerHTML = '';
-        for(let s = 0; s < 3; s++) {
-            const span = document.createElement('span');
-            span.className = 'star-item';
-            if (s < currentStars) {
-                span.innerText = '★'; span.classList.add('filled');
-                if (s >= lastStarsCount) span.classList.add('star-pop');
-            } else span.innerText = '☆';
-            display.appendChild(span);
-        }
-        lastStarsCount = currentStars;
-        const bestStars = levelStars[currentLevel] || 0;
-        if (currentStars > bestStars) {
-            levelStars[currentLevel] = currentStars;
-            localStorage.setItem('rhythm_level_stars', JSON.stringify(levelStars));
-        }
-    }
-
-    function triggerVisualError(cardIdx = -1) {
-        let card;
-        if (cardIdx !== -1) {
-            const cards = document.querySelectorAll('.image-card');
-            card = cards[cardIdx];
-        } else card = document.querySelector('.image-card.active-slot');
-        if (card) {
-            card.classList.add('error-hit');
-            setTimeout(() => card.classList.remove('error-hit'), 300);
-        }
-    }
-
-    function updateFeedback(text, color) {
-        const fb = document.getElementById('feedbackDisplay');
-        fb.innerText = text; fb.style.color = color;
-    }
-
-    function showRecords() {
-        const list = document.getElementById('recordsList');
-        list.innerHTML = '';
-        for (let i = 1; i <= 19; i++) {
-            const score = levelHighScores[i] || 0, stars = levelStars[i] || 0;
-            let starsStr = '';
-            for(let s=0; s<3; s++) starsStr += s < stars ? '★' : '☆';
-            const item = document.createElement('div');
-            item.className = 'records-list-item';
-            item.innerHTML = `<span>Уровень ${i}</span><span style="color:#fdcb6e">${starsStr}</span><span style="font-family:monospace; color:#00cec9">${score}</span>`;
-            list.appendChild(item);
-        }
-        showScreen('recordsScreen');
-    }
-
-    document.getElementById('startGameBtn').onclick = () => {
-        showScreen('gameScreen');
-        document.getElementById('currentLevelDisplay').innerText = currentLevel;
-        document.getElementById('bestScoreDisplay').innerText = levelHighScores[currentLevel] || 0;
-        score = 0; document.getElementById('scoreDisplay').innerText = score;
-        perfectStreak = 0; lastStarsCount = 0; updateGameStarsDisplay();
-        roll();
-    };
-
-    document.getElementById('backBtn').onclick = () => { stopMetronome(); initLevels(); showScreen('menuScreen'); };
-    document.getElementById('calibOpenBtn').onclick = () => { showScreen('calibrationScreen'); document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`; document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ"; };
-    document.getElementById('calibBackBtn').onclick = () => { stopMetronome(); isCalibrating = false; showScreen('menuScreen'); };
-    document.getElementById('recordsOpenBtn').onclick = () => showRecords();
-    document.getElementById('recordsBackBtn').onclick = () => showScreen('menuScreen');
-
-    function startCountdown() {
-        isPlayingSequence = false;
-        countdownBeats = 4;
-        currentSlotIndex = -1;
-        currentCycleHits = 0;
-        currentCycleMisses = 0;
-        targetTimings = []; // ЧИСТИМ ПЕРЕД ОТСЧЕТОМ
-        document.querySelectorAll('.image-card').forEach(c => {
-            c.classList.remove('active-slot');
-            c.classList.remove('error-hit');
-        });
-        updateFeedback("ПРИГОТОВИТЬСЯ...", "#fdcb6e");
     }
 
     function roll() {
         const pool = [];
         for(let i=1; i<=currentLevel; i++) if(levelPacks[i]) pool.push(...levelPacks[i]);
-        let sequence = [], totalSize = 0;
-        const smalls = pool.filter(x => x.size === 1);
-        while(totalSize < 4) {
+        let seq = [], total = 0;
+        while(total < 4) {
             let item = pool[Math.floor(Math.random() * pool.length)];
-            if(totalSize + item.size > 4) item = smalls[Math.floor(Math.random() * smalls.length)];
-            if(!item) break;
-            sequence.push(item);
-            totalSize += item.size;
+            if(total + item.size <= 4) { seq.push(item); total += item.size; }
         }
-        currentSequence = sequence;
-        expectedHits = currentSequence.reduce((sum, item) => sum + item.pattern.length, 0);
+        currentSequence = seq;
+        expectedHits = seq.reduce((s, i) => s + i.pattern.length, 0);
         const container = document.getElementById('imageContainer');
         container.innerHTML = '';
-        currentSequence.forEach(item => {
+        seq.forEach(item => {
             const img = document.createElement('img');
             img.src = item.src;
             img.className = 'image-card' + (item.size === 2 ? ' double-size' : '');
@@ -329,53 +154,49 @@
         });
     }
 
+    function startCountdown() {
+        isPlayingSequence = false; countdownBeats = 4; currentSlotIndex = -1;
+        currentCycleHits = 0; currentCycleMisses = 0; targetTimings = [];
+        document.getElementById('feedbackDisplay').innerText = "READY...";
+    }
+
     function playTick() {
-        if (!audioCtx) return;
-        const secondsPerBeat = 60 / document.getElementById('bpmRange').value;
+        const bpm = document.getElementById('bpmRange').value;
+        const spb = 60 / bpm;
 
         if (countdownBeats > 0) {
-            playBuffer(countdownBeats === 1 ? highClickBuffer : lowClickBuffer);
-            let msg = `ОТСЧЕТ: ${countdownBeats}`;
-            if(isCalibrating) document.getElementById('calibProgress').innerText = msg;
-            else updateFeedback(msg, "#fdcb6e");
+            playSound(countdownBeats === 1 ? highClickBuffer : lowClickBuffer);
+            document.getElementById('feedbackDisplay').innerText = `GET READY: ${countdownBeats}`;
             countdownBeats--;
             if (countdownBeats === 0) {
-                currentSlotIndex = -1;
                 isPlayingSequence = true;
-                targetTimings = []; // ЕЩЕ РАЗ ЧИСТИМ ПЕРЕД СТАРТОМ
-                setTimeout(() => { if(!isCalibrating) updateFeedback("ИГРАЕМ!", "#00cec9"); }, 50);
+                setTimeout(() => document.getElementById('feedbackDisplay').innerText = "GO!", 50);
             }
             return;
         }
 
-        if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
-            if (currentCycleHits >= expectedHits && currentCycleMisses === 0) {
-                perfectStreak++;
-                updateGameStarsDisplay();
-                roll(); startCountdown();
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                return;
+        // Проверка завершения цикла ПЕРЕД сменой индекса
+        if (isPlayingSequence && currentSlotIndex === 3) {
+            if (currentCycleHits === expectedHits && currentCycleMisses === 0) {
+                perfectStreak++; roll(); startCountdown(); return;
             }
-            currentCycleHits = 0; currentCycleMisses = 0;
+            currentCycleHits = 0; currentCycleMisses = 0; perfectStreak = 0;
         }
 
         currentSlotIndex = (currentSlotIndex + 1) % 4;
-        playBuffer(currentSlotIndex === 0 ? highClickBuffer : lowClickBuffer);
-        lastBeatStartTime = audioCtx.currentTime;
+        playSound(currentSlotIndex === 0 ? highClickBuffer : lowClickBuffer);
+        const now = audioCtx.currentTime;
 
-        if (!isCalibrating && isPlayingSequence) {
+        if (isPlayingSequence) {
             const cards = document.querySelectorAll('.image-card');
             cards.forEach(c => c.classList.remove('active-slot'));
             let acc = 0;
             currentSequence.forEach((item, idx) => {
-                if(currentSlotIndex >= acc && currentSlotIndex < acc + item.size) {
-                    if (cards[idx]) cards[idx].classList.add('active-slot');
-                    if(currentSlotIndex === acc) {
-                        const newT = item.pattern.map(p => ({
-                            time: lastBeatStartTime + (p * secondsPerBeat),
-                            cardIdx: idx
-                        }));
-                        targetTimings.push(...newT);
+                if (currentSlotIndex >= acc && currentSlotIndex < acc + item.size) {
+                    cards[idx].classList.add('active-slot');
+                    // Генерируем цели ТОЛЬКО в момент начала карточки
+                    if (currentSlotIndex === acc) {
+                        targetTimings = item.pattern.map(p => ({ time: now + (p * spb), cardIdx: idx }));
                     }
                 }
                 acc += item.size;
@@ -384,22 +205,7 @@
     }
 
     function scheduler() {
-        if(!isRunning) return;
-        const nowTime = audioCtx.currentTime;
-        if (!isCalibrating && isPlayingSequence) {
-            for (let i = targetTimings.length - 1; i >= 0; i--) {
-                // Если нота просрочена более чем на 0.4 сек — это пропуск
-                if (targetTimings[i].time + userOffset < nowTime - 0.4) {
-                    const idx = targetTimings[i].cardIdx;
-                    targetTimings.splice(i, 1);
-                    score = Math.max(0, score - 50);
-                    currentCycleMisses++; perfectStreak = 0;
-                    updateGameStarsDisplay(); updateFeedback("MISS!", "#ff4757");
-                    triggerVisualError(idx);
-                    document.getElementById('scoreDisplay').innerText = score;
-                }
-            }
-        }
+        if (!isRunning) return;
         while(nextBeatTime < audioCtx.currentTime + 0.1) {
             playTick();
             nextBeatTime += 60 / document.getElementById('bpmRange').value;
@@ -408,92 +214,41 @@
     }
 
     function handleTap() {
-        if(!isRunning || !isPlayingSequence) return;
+        if (!isRunning || !isPlayingSequence) return;
         const now = audioCtx.currentTime;
-        if (isCalibrating) {
-            let diff = now - lastBeatStartTime;
-            const spb = 60 / 70;
-            if (diff > spb / 2) diff -= spb;
-            calibrationData.push(diff);
-            document.getElementById('calibProgress').innerText = `ЗАПИСЬ: ${calibrationData.length} / 10`;
-            if (calibrationData.length >= 10) {
-                userOffset = calibrationData.reduce((a,b)=>a+b, 0) / 10;
-                localStorage.setItem('rhythm_offset', userOffset);
-                document.getElementById('calibValueDisplay').innerText = `Сохранено: ${userOffset.toFixed(3)}s`;
-                stopMetronome();
+        let isHit = false;
+
+        for (let i = 0; i < targetTimings.length; i++) {
+            const diff = Math.abs(now - (targetTimings[i].time + userOffset));
+            if (diff < 0.25) {
+                targetTimings.splice(i, 1);
+                score += 100; currentCycleHits++; isHit = true;
+                document.getElementById('feedbackDisplay').innerText = "PERFECT!";
+                break;
             }
-            return;
         }
 
-        let isHit = false;
-        targetTimings.sort((a,b) => a.time - b.time);
-        for(let i=0; i < targetTimings.length; i++) {
-            const diff = Math.abs(now - (targetTimings[i].time + userOffset));
-            if(diff < 0.25) { 
-                targetTimings.splice(i, 1);
-                score += 100; isHit = true; currentCycleHits++;
-                updateFeedback("PERFECT!", "#00cec9");
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                break;
-            } else if(diff < 0.40) {
-                targetTimings.splice(i, 1);
-                score += 50; isHit = true; currentCycleHits++;
-                updateFeedback("GOOD!", "#fdcb6e");
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                break;
-            }
-        }
-        if(!isHit) { 
-            score = Math.max(0, score - 30); currentCycleMisses++; perfectStreak = 0; 
-            updateGameStarsDisplay(); updateFeedback("MISS!", "#ff4757"); triggerVisualError(); 
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        if (!isHit) {
+            score = Math.max(0, score - 50); currentCycleMisses++;
+            document.getElementById('feedbackDisplay').innerText = "MISS!";
+            const active = document.querySelector('.active-slot');
+            if (active) { active.classList.add('error-hit'); setTimeout(() => active.classList.remove('error-hit'), 300); }
         }
         document.getElementById('scoreDisplay').innerText = score;
-        const best = levelHighScores[currentLevel] || 0;
-        if (score > best) {
-            levelHighScores[currentLevel] = score;
-            localStorage.setItem('rhythm_high_scores', JSON.stringify(levelHighScores));
-            document.getElementById('bestScoreDisplay').innerText = score;
-        }
-    }
-
-    function stopMetronome() {
-        isRunning = false; isPlayingSequence = false;
-        clearTimeout(timerID);
-        document.getElementById('metronomeBtn').innerText = "СТАРТ";
-        document.getElementById('metronomeBtn').style.background = "";
-        document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
-        targetTimings = [];
     }
 
     document.getElementById('metronomeBtn').onclick = function() {
-        if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); createClickBuffers(); }
-        if(!isRunning) {
-            isRunning = true; if (audioCtx.state === 'suspended') audioCtx.resume();
-            nextBeatTime = audioCtx.currentTime; startCountdown(); scheduler();
-            this.innerText = "СТОП"; this.style.background = "#ff4757";
-        } else stopMetronome();
+        if (!audioCtx) { audioCtx = new AudioContext(); createBuffers(); }
+        if (!isRunning) {
+            isRunning = true; nextBeatTime = audioCtx.currentTime;
+            startCountdown(); scheduler(); this.innerText = "СТОП";
+        } else { isRunning = false; clearTimeout(timerID); this.innerText = "СТАРТ"; }
     };
 
-    document.getElementById('rollButton').onclick = () => {
-        roll(); if (isRunning) { startCountdown(); perfectStreak = 0; updateGameStarsDisplay(); }
-    };
-
-    document.getElementById('calibStartBtn').onclick = function() {
-        if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); createClickBuffers(); }
-        document.getElementById('bpmRange').value = 70; document.getElementById('bpmValue').innerText = 70;
-        calibrationData = []; isCalibrating = true; isRunning = true;
-        nextBeatTime = audioCtx.currentTime; startCountdown(); scheduler();
-    };
-
-    document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value; };
-
-    const tapArea = document.getElementById('tapArea'), calibTapArea = document.getElementById('calibTapArea');
-    function triggerTap(e) { e.preventDefault(); handleTap(); this.classList.add('active-tap'); setTimeout(() => this.classList.remove('active-tap'), 100); }
-    tapArea.addEventListener('touchstart', triggerTap, { passive: false });
-    tapArea.addEventListener('mousedown', triggerTap);
-    calibTapArea.addEventListener('touchstart', triggerTap, { passive: false });
-    calibTapArea.addEventListener('mousedown', triggerTap);
+    document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value + " BPM"; };
+    document.getElementById('startGameBtn').onclick = () => { document.getElementById('menuScreen').style.display = 'none'; document.getElementById('gameScreen').style.display = 'block'; roll(); };
+    document.getElementById('backBtn').onclick = () => { location.reload(); };
+    document.getElementById('tapArea').onclick = handleTap;
 
     initLevels();
 </script>
