@@ -8,133 +8,65 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
+        /* ... (предыдущие стили без изменений) ... */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            text-align: center;
-            background-color: #1a1a2e;
-            color: #ffffff;
-            margin: 0; padding: 10px;
-            overflow: hidden;
-            user-select: none;
-            touch-action: none;
-        }
-
-        .main-container {
-            width: 100%; max-width: 500px; margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px; border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; background-color: #1a1a2e; color: #ffffff; margin: 0; padding: 10px; overflow: hidden; user-select: none; touch-action: none; }
+        .main-container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h1 { font-size: 1.2rem; color: #00cec9; text-transform: uppercase; margin: 5px 0 5px 0; letter-spacing: 2px; }
         h3 { font-size: 0.9rem; color: #a4b0be; margin-bottom: 15px; }
-
         .screen { display: none; }
         #menuScreen { display: block; }
-
-        .rank-box {
-            background: linear-gradient(135deg, rgba(0, 206, 201, 0.1), rgba(9, 132, 227, 0.1));
-            border: 1px solid rgba(0, 206, 201, 0.3);
-            border-radius: 12px;
-            padding: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .rank-box { background: linear-gradient(135deg, rgba(0, 206, 201, 0.1), rgba(9, 132, 227, 0.1)); border: 1px solid rgba(0, 206, 201, 0.3); border-radius: 12px; padding: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .rank-title { font-weight: bold; color: #00cec9; }
         .total-stars { color: #fdcb6e; font-weight: bold; }
-
-        .levels-container {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-            margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;
-        }
-
-        .level-btn {
-            background: #2d2d44; color: white; border: 1px solid #3d3d5c;
-            padding: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px;
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 2px;
-        }
-
-        .level-btn.active {
-            background: #00cec9; color: #1a1a2e; border-color: #00cec9;
-            box-shadow: 0 0 15px rgba(0, 206, 201, 0.5);
-        }
-
-        .level-stars {
-            font-size: 10px;
-            color: #fdcb6e;
-        }
-
-        .level-btn.active .level-stars {
-            color: #1a1a2e;
-        }
-
-        .primary-btn {
-            background: linear-gradient(135deg, #00cec9, #0984e3);
-            color: white; font-weight: bold; width: 100%; padding: 15px;
-            font-size: 18px; border-radius: 12px; border: none; margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .secondary-btn {
-            background: #2d2d44; color: white; border: none; padding: 10px 15px;
-            border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 10px;
-            cursor: pointer;
-        }
-
+        .levels-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; }
+        .level-btn { background: #2d2d44; color: white; border: 1px solid #3d3d5c; padding: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+        .level-btn.active { background: #00cec9; color: #1a1a2e; border-color: #00cec9; box-shadow: 0 0 15px rgba(0, 206, 201, 0.5); }
+        .level-stars { font-size: 10px; color: #fdcb6e; }
+        .level-btn.active .level-stars { color: #1a1a2e; }
+        .primary-btn { background: linear-gradient(135deg, #00cec9, #0984e3); color: white; font-weight: bold; width: 100%; padding: 15px; font-size: 18px; border-radius: 12px; border: none; margin-bottom: 10px; cursor: pointer; }
+        .secondary-btn { background: #2d2d44; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 10px; cursor: pointer; }
         .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
-        
-        .game-panel {
-            display: flex; flex-direction: column; gap: 5px;
-            background: rgba(0, 0, 0, 0.3); padding: 10px 15px; border-radius: 12px; margin-bottom: 15px;
-        }
+        .game-panel { display: flex; flex-direction: column; gap: 5px; background: rgba(0, 0, 0, 0.3); padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; }
         .panel-row { display: flex; justify-content: space-between; align-items: center; }
-        
         .score-box { font-weight: bold; color: #fdcb6e; font-size: 1.1rem; text-align: left; }
         .feedback-box { font-weight: bold; color: #00cec9; text-align: right; font-size: 0.9rem; }
         .best-score-box { font-size: 0.8rem; color: #a4b0be; text-align: left; }
-
         .stars-display { font-size: 1.2rem; display: flex; gap: 4px; }
         .star-item { color: rgba(255, 255, 255, 0.15); display: inline-block; transition: color 0.2s ease; }
         .star-item.filled { color: #fdcb6e; text-shadow: 0 0 10px rgba(253, 203, 110, 0.5); }
         .star-pop { animation: starPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
-        @keyframes starPop {
-            0% { transform: scale(1); }
-            50% { transform: scale(2); text-shadow: 0 0 25px #fdcb6e; }
-            100% { transform: scale(1); }
-        }
+        @keyframes starPop { 0% { transform: scale(1); } 50% { transform: scale(2); text-shadow: 0 0 25px #fdcb6e; } 100% { transform: scale(1); } }
+        .grid { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 2px solid #2d2d44; }
 
-        .grid {
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-            min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px;
-            padding: 15px; margin-bottom: 15px; border: 2px solid #2d2d44;
-        }
-
+        /* ЭФФЕКТЫ ДЛЯ КАРТОЧЕК */
         .image-card {
             width: 20vw; height: 20vw; max-width: 80px; max-height: 80px;
             object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c;
-            opacity: 0; transition: 0.1s; background: #2d2d44;
+            opacity: 0; transition: transform 0.1s, border-color 0.1s; background: #2d2d44;
         }
         .image-card.loaded { opacity: 1; }
         .image-card.double-size { width: 42vw; max-width: 170px; }
-        .active-slot { border-color: #00cec9 !important; transform: scale(1.05); }
-
-        .tap-area {
-            background: rgba(0, 206, 201, 0.05); border: 2px dashed #00cec9; border-radius: 15px;
-            height: 100px; display: flex; justify-content: center; align-items: center;
-            font-size: 1.3rem; color: #00cec9; font-weight: bold; letter-spacing: 2px;
-            margin-bottom: 15px; transition: 0.1s; cursor: pointer;
+        .active-slot { border-color: #00cec9 !important; transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 206, 201, 0.3); }
+        
+        /* КЛАСС ОШИБКИ */
+        .error-hit { 
+            border-color: #ff4757 !important; 
+            animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.6) !important;
         }
-        .tap-area.active-tap { background: rgba(0, 206, 201, 0.2); transform: scale(0.98); border: 2px solid #00cec9; }
 
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0) scale(1.05); }
+            20%, 80% { transform: translate3d(2px, 0, 0) scale(1.05); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0) scale(1.05); }
+            40%, 60% { transform: translate3d(4px, 0, 0) scale(1.05); }
+        }
+
+        .tap-area { background: rgba(0, 206, 201, 0.05); border: 2px dashed #00cec9; border-radius: 15px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; color: #00cec9; font-weight: bold; letter-spacing: 2px; margin-bottom: 15px; transition: 0.1s; cursor: pointer; }
+        .tap-area.active-tap { background: rgba(0, 206, 201, 0.2); transform: scale(0.98); border: 2px solid #00cec9; }
         .metronome-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
         #bpmRange { width: 100%; margin: 10px 0; accent-color: #00cec9; }
-
         #calibProgress { font-size: 1.5rem; color: #fdcb6e; margin: 20px 0; font-weight: bold; min-height: 2em; }
         #calibValueDisplay { margin-bottom: 20px; color: #a4b0be; font-family: monospace; }
     </style>
@@ -145,12 +77,10 @@
     <div id="menuScreen" class="screen">
         <h1>RHYTHM MASTER</h1>
         <h3>ВЫБЕРИТЕ УРОВЕНЬ</h3>
-        
         <div class="rank-box">
             <div>Ранг: <span class="rank-title" id="playerRank">Новичок</span></div>
             <div class="total-stars" id="totalStarsDisplay">★ 0</div>
         </div>
-
         <div class="levels-container" id="levelsGrid"></div>
         <button id="startGameBtn" class="primary-btn">ИГРАТЬ</button>
         <button id="calibOpenBtn" class="secondary-btn">⚙️ НАСТРОИТЬ ЗАДЕРЖКУ</button>
@@ -173,9 +103,7 @@
         </div>
         <button id="rollButton" class="primary-btn">ВРАЩАТЬ КАРТЫ</button>
         <div id="imageContainer" class="grid"></div>
-        
         <div id="tapArea" class="tap-area">ТАПАЙ СЮДА</div>
-
         <div class="metronome-box">
             <div style="font-weight: bold;"><span id="bpmValue">120</span> BPM</div>
             <input type="range" id="bpmRange" min="40" max="200" value="120">
@@ -187,9 +115,7 @@
         <h1>КАЛИБРОВКА</h1>
         <p style="font-size: 0.8rem; color: #a4b0be;">Мы установим 70 BPM для точности.<br>Сначала 4 удара отсчета, затем тапайте в такт.</p>
         <div id="calibProgress">НАЖМИТЕ НАЧАТЬ</div>
-        
         <div id="calibTapArea" class="tap-area">ТАПАЙ В ТАКТ СЮДА</div>
-        
         <div id="calibValueDisplay">Задержка: --</div>
         <button id="calibStartBtn" class="primary-btn">НАЧАТЬ</button>
         <button id="calibBackBtn" class="secondary-btn">ГОТОВО</button>
@@ -197,6 +123,7 @@
 </div>
 
 <script>
+    /* ... (переменные и функции загрузки те же) ... */
     const tg = window.Telegram.WebApp;
     tg.expand();
 
@@ -224,238 +151,67 @@
 
     let currentLevel = 1, score = 0, currentSequence = [], currentSlotIndex = -1;
     let targetTimings = [], isRunning = false, audioCtx, nextBeatTime, timerID, lastBeatStartTime = 0;
-    
     let expectedHits = 0, currentCycleHits = 0, currentCycleMisses = 0;
-
     let perfectStreak = 0; 
     let lastStarsCount = 0;
-    
     let levelStars = JSON.parse(localStorage.getItem('rhythm_level_stars')) || {};
     let levelHighScores = JSON.parse(localStorage.getItem('rhythm_high_scores')) || {};
-
     let userOffset = parseFloat(localStorage.getItem('rhythm_offset')) || 0.17;
     let calibrationData = [], isCalibrating = false;
     let countdownBeats = 0, isPlayingSequence = false;
     let savedBPM = 120;
 
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-    }
-
+    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
     function updatePlayerRank() {
-        let totalStars = 0;
-        for (let key in levelStars) totalStars += levelStars[key];
-        
+        let totalStars = 0; for (let key in levelStars) totalStars += levelStars[key];
         document.getElementById('totalStarsDisplay').innerText = `★ ${totalStars}`;
-        
-        let rank = "Новичок";
-        let color = "#a4b0be";
-        
+        let rank = "Новичок", color = "#a4b0be";
         if (totalStars >= 50) { rank = "Бог Ритма"; color = "#ff4757"; }
         else if (totalStars >= 35) { rank = "Мастер"; color = "#fdcb6e"; }
         else if (totalStars >= 20) { rank = "Профи"; color = "#00cec9"; }
         else if (totalStars >= 5) { rank = "Любитель"; color = "#0984e3"; }
-        
-        const rankEl = document.getElementById('playerRank');
-        rankEl.innerText = rank;
-        rankEl.style.color = color;
+        const rankEl = document.getElementById('playerRank'); rankEl.innerText = rank; rankEl.style.color = color;
     }
 
     function initLevels() {
         updatePlayerRank();
-        const grid = document.getElementById('levelsGrid');
-        grid.innerHTML = ''; 
+        const grid = document.getElementById('levelsGrid'); grid.innerHTML = ''; 
         for(let i=1; i<=19; i++) {
             const b = document.createElement('button');
             b.className = 'level-btn' + (i === currentLevel ? ' active' : '');
-            
             const starsEarned = levelStars[i] || 0;
-            let starsStr = '';
-            for(let s=0; s<3; s++) starsStr += s < starsEarned ? '★' : '☆';
-
+            let starsStr = ''; for(let s=0; s<3; s++) starsStr += s < starsEarned ? '★' : '☆';
             b.innerHTML = `<span>${i}</span><span class="level-stars">${starsStr}</span>`;
-            
-            b.onclick = () => {
-                document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
-                b.classList.add('active');
-                currentLevel = i;
-                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            };
+            b.onclick = () => { document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active')); b.classList.add('active'); currentLevel = i; if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged(); };
             grid.appendChild(b);
         }
     }
 
     function updateGameStarsDisplay() {
         const display = document.getElementById('gameStarsDisplay');
-        let currentStars = 0;
-        if (perfectStreak >= 5) currentStars = 3;
-        else if (perfectStreak >= 3) currentStars = 2;
-        else if (perfectStreak >= 1) currentStars = 1;
-
+        let currentStars = perfectStreak >= 5 ? 3 : (perfectStreak >= 3 ? 2 : (perfectStreak >= 1 ? 1 : 0));
         display.innerHTML = '';
         for(let s = 0; s < 3; s++) {
-            const span = document.createElement('span');
-            span.className = 'star-item';
-            
-            if (s < currentStars) {
-                span.innerText = '★';
-                span.classList.add('filled');
-                if (s >= lastStarsCount) span.classList.add('star-pop');
-            } else {
-                span.innerText = '☆';
-            }
+            const span = document.createElement('span'); span.className = 'star-item';
+            if (s < currentStars) { span.innerText = '★'; span.classList.add('filled'); if (s >= lastStarsCount) span.classList.add('star-pop'); } 
+            else { span.innerText = '☆'; }
             display.appendChild(span);
         }
-
         lastStarsCount = currentStars;
-
         const bestStars = levelStars[currentLevel] || 0;
-        if (currentStars > bestStars) {
-            levelStars[currentLevel] = currentStars;
-            localStorage.setItem('rhythm_level_stars', JSON.stringify(levelStars));
+        if (currentStars > bestStars) { levelStars[currentLevel] = currentStars; localStorage.setItem('rhythm_level_stars', JSON.stringify(levelStars)); }
+    }
+
+    // НОВАЯ ФУНКЦИЯ ПОДСВЕТКИ ОШИБКИ
+    function triggerVisualError() {
+        const activeCard = document.querySelector('.image-card.active-slot');
+        if (activeCard) {
+            activeCard.classList.add('error-hit');
+            setTimeout(() => activeCard.classList.remove('error-hit'), 300);
         }
     }
 
-    document.getElementById('startGameBtn').onclick = () => {
-        showScreen('gameScreen');
-        document.getElementById('currentLevelDisplay').innerText = currentLevel;
-        document.getElementById('bestScoreDisplay').innerText = levelHighScores[currentLevel] || 0;
-        score = 0;
-        document.getElementById('scoreDisplay').innerText = score;
-        perfectStreak = 0; 
-        lastStarsCount = 0; 
-        updateGameStarsDisplay();
-        roll();
-    };
-
-    document.getElementById('backBtn').onclick = () => { 
-        stopMetronome(); 
-        initLevels(); 
-        showScreen('menuScreen'); 
-    };
-
-    document.getElementById('calibOpenBtn').onclick = () => { 
-        showScreen('calibrationScreen'); 
-        document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`; 
-        document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ"; 
-    };
-    
-    document.getElementById('calibBackBtn').onclick = () => { 
-        stopMetronome(); 
-        isCalibrating = false; 
-        document.getElementById('bpmRange').value = savedBPM; 
-        document.getElementById('bpmValue').innerText = savedBPM; 
-        showScreen('menuScreen'); 
-    };
-
-    function roll() {
-        const pool = [];
-        for(let i=1; i<=currentLevel; i++) if(levelPacks[i]) pool.push(...levelPacks[i]);
-        let sequence = [], totalSize = 0;
-        const smalls = pool.filter(x => x.size === 1);
-        while(totalSize < 4) {
-            let item = pool[Math.floor(Math.random() * pool.length)];
-            if(totalSize + item.size > 4) item = smalls[Math.floor(Math.random() * smalls.length)];
-            if(!item) break;
-            sequence.push(item);
-            totalSize += item.size;
-        }
-        currentSequence = sequence;
-        expectedHits = currentSequence.reduce((sum, item) => sum + item.pattern.length, 0);
-
-        const container = document.getElementById('imageContainer');
-        container.innerHTML = '';
-        currentSequence.forEach(item => {
-            const img = document.createElement('img');
-            img.src = item.src;
-            img.className = 'image-card' + (item.size === 2 ? ' double-size' : '');
-            img.onload = () => img.classList.add('loaded');
-            container.appendChild(img);
-        });
-    }
-
-    function startCountdown() {
-        isPlayingSequence = false;
-        countdownBeats = 4;
-        currentSlotIndex = -1;
-        currentCycleHits = 0;
-        currentCycleMisses = 0;
-        targetTimings = [];
-        document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
-        updateFeedback("ПРИГОТОВИТЬСЯ...", "#fdcb6e");
-    }
-
-    function playTick() {
-        if (!audioCtx) return;
-        const bpm = document.getElementById('bpmRange').value;
-        const secondsPerBeat = 60 / bpm;
-
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-
-        if (countdownBeats > 0) {
-            osc.frequency.value = countdownBeats === 1 ? 1200 : 800;
-            g.gain.value = 0.1;
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            osc.connect(g); g.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            
-            let msg = `ОТСЧЕТ: ${countdownBeats}`;
-            if(isCalibrating) document.getElementById('calibProgress').innerText = msg;
-            else updateFeedback(msg, "#fdcb6e");
-
-            countdownBeats--;
-            if (countdownBeats === 0) {
-                currentSlotIndex = -1;
-                isPlayingSequence = true;
-                setTimeout(() => {
-                    if(!isCalibrating) updateFeedback("ИГРАЕМ!", "#00cec9");
-                }, (secondsPerBeat * 1000) - 50);
-            }
-            return;
-        }
-
-        if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
-            if (currentCycleHits === expectedHits && currentCycleMisses === 0 && expectedHits > 0) {
-                perfectStreak++;
-                updateGameStarsDisplay();
-                roll();
-                startCountdown();
-                updateFeedback("EXCELLENT! READY?", "#00cec9");
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                return; 
-            }
-            perfectStreak = 0;
-            updateGameStarsDisplay();
-            currentCycleHits = 0;
-            currentCycleMisses = 0;
-        }
-
-        currentSlotIndex = (currentSlotIndex + 1) % 4;
-        osc.frequency.value = currentSlotIndex === 0 ? 1000 : 600;
-        g.gain.value = 0.1;
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-        osc.connect(g); g.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        lastBeatStartTime = audioCtx.currentTime;
-
-        if (!isCalibrating) {
-            const cards = document.querySelectorAll('.image-card');
-            cards.forEach(c => c.classList.remove('active-slot'));
-            let acc = 0;
-            currentSequence.forEach((item, idx) => {
-                if(currentSlotIndex >= acc && currentSlotIndex < acc + item.size) {
-                    cards[idx].classList.add('active-slot');
-                    if(currentSlotIndex === acc) {
-                        const newTimings = item.pattern.map(p => lastBeatStartTime + (p * secondsPerBeat));
-                        targetTimings.push(...newTimings);
-                    }
-                }
-                acc += item.size;
-            });
-        }
-    }
+    /* ... (остальная логика) ... */
 
     function scheduler() {
         if(!isRunning) return;
@@ -469,33 +225,22 @@
                     perfectStreak = 0; 
                     updateGameStarsDisplay();
                     updateFeedback("MISS!", "#ff4757");
+                    triggerVisualError(); // Вызов подсветки при пропуске
                     document.getElementById('scoreDisplay').innerText = score;
                 }
             }
         }
-        while(nextBeatTime < audioCtx.currentTime + 0.1) {
-            playTick();
-            nextBeatTime += 60 / document.getElementById('bpmRange').value;
-        }
+        while(nextBeatTime < audioCtx.currentTime + 0.1) { playTick(); nextBeatTime += 60 / document.getElementById('bpmRange').value; }
         timerID = setTimeout(scheduler, 25);
     }
 
     function handleTap() {
         if(!isRunning || !isPlayingSequence) return;
         const now = audioCtx.currentTime;
-
-        if (isCalibrating) {
-            let diff = now - lastBeatStartTime;
-            const spb = 60 / 70;
-            if (diff > spb / 2) diff -= spb;
-            calibrationData.push(diff);
-            document.getElementById('calibProgress').innerText = `ЗАПИСЬ: ${calibrationData.length} / 10`;
-            if (calibrationData.length >= 10) {
-                userOffset = calibrationData.reduce((a,b)=>a+b, 0) / 10;
-                localStorage.setItem('rhythm_offset', userOffset);
-                document.getElementById('calibValueDisplay').innerText = `Сохранено: ${userOffset.toFixed(3)}s`;
-                stopMetronome();
-            }
+        if (isCalibrating) { /* ... (код калибровки без изменений) ... */ 
+            let diff = now - lastBeatStartTime; const spb = 60 / 70; if (diff > spb / 2) diff -= spb;
+            calibrationData.push(diff); document.getElementById('calibProgress').innerText = `ЗАПИСЬ: ${calibrationData.length} / 10`;
+            if (calibrationData.length >= 10) { userOffset = calibrationData.reduce((a,b)=>a+b, 0) / 10; localStorage.setItem('rhythm_offset', userOffset); document.getElementById('calibValueDisplay').innerText = `Сохранено: ${userOffset.toFixed(3)}s`; stopMetronome(); }
             return;
         }
 
@@ -504,8 +249,7 @@
             const diff = Math.abs(now - (targetTimings[i] + userOffset));
             if(diff < 0.25) { 
                 targetTimings.splice(i, 1);
-                score += 100; isHit = true;
-                currentCycleHits++;
+                score += 100; isHit = true; currentCycleHits++;
                 updateFeedback("PERFECT!", "#00cec9");
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 break;
@@ -513,93 +257,78 @@
         }
         if(!isHit) { 
             score = Math.max(0, score - 50); 
-            currentCycleMisses++; 
-            perfectStreak = 0; 
+            currentCycleMisses++; perfectStreak = 0; 
             updateGameStarsDisplay();
             updateFeedback("MISS!", "#ff4757"); 
+            triggerVisualError(); // Вызов подсветки при неправильном тапе
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
         }
         document.getElementById('scoreDisplay').innerText = score;
-        
         const currentBest = levelHighScores[currentLevel] || 0;
-        if (score > currentBest) {
-            levelHighScores[currentLevel] = score;
-            localStorage.setItem('rhythm_high_scores', JSON.stringify(levelHighScores));
-            document.getElementById('bestScoreDisplay').innerText = score;
-        }
+        if (score > currentBest) { levelHighScores[currentLevel] = score; localStorage.setItem('rhythm_high_scores', JSON.stringify(levelHighScores)); document.getElementById('bestScoreDisplay').innerText = score; }
     }
 
-    function stopMetronome() {
-        isRunning = false;
-        isPlayingSequence = false;
-        clearTimeout(timerID);
-        document.getElementById('metronomeBtn').innerText = "СТАРТ";
-        document.getElementById('metronomeBtn').style.background = "";
-        document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
-        targetTimings = [];
-    }
-
-    function updateFeedback(text, color) {
-        const fb = document.getElementById('feedbackDisplay');
-        fb.innerText = text; fb.style.color = color;
-    }
-
-    document.getElementById('metronomeBtn').onclick = function() {
-        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if(!isRunning) {
-            isRunning = true;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            nextBeatTime = audioCtx.currentTime;
-            startCountdown();
-            scheduler();
-            this.innerText = "СТОП"; this.style.background = "#ff4757";
-        } else { stopMetronome(); }
-    };
-
-    document.getElementById('rollButton').onclick = () => {
-        roll();
-        if (isRunning) {
-            startCountdown();
-            perfectStreak = 0; 
-            lastStarsCount = 0; 
-            updateGameStarsDisplay();
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        }
-    };
-
-    document.getElementById('calibStartBtn').onclick = function() {
-        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        document.getElementById('bpmRange').value = 70;
-        document.getElementById('bpmValue').innerText = 70;
-        calibrationData = []; 
-        isCalibrating = true; 
-        isRunning = true;
-        nextBeatTime = audioCtx.currentTime; 
-        startCountdown();
-        scheduler();
-    };
-    
-    document.getElementById('bpmRange').oninput = function() { 
-        document.getElementById('bpmValue').innerText = this.value; 
-    };
-
+    /* ... (вспомогательные функции те же) ... */
+    function stopMetronome() { isRunning = false; isPlayingSequence = false; clearTimeout(timerID); document.getElementById('metronomeBtn').innerText = "СТАРТ"; document.getElementById('metronomeBtn').style.background = ""; document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot')); targetTimings = []; }
+    function updateFeedback(text, color) { const fb = document.getElementById('feedbackDisplay'); fb.innerText = text; fb.style.color = color; }
+    document.getElementById('metronomeBtn').onclick = function() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(!isRunning) { isRunning = true; if (audioCtx.state === 'suspended') audioCtx.resume(); nextBeatTime = audioCtx.currentTime; startCountdown(); scheduler(); this.innerText = "СТОП"; this.style.background = "#ff4757"; } else { stopMetronome(); } };
+    document.getElementById('rollButton').onclick = () => { roll(); if (isRunning) { startCountdown(); perfectStreak = 0; lastStarsCount = 0; updateGameStarsDisplay(); if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); } };
+    document.getElementById('calibStartBtn').onclick = function() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); document.getElementById('bpmRange').value = 70; document.getElementById('bpmValue').innerText = 70; calibrationData = []; isCalibrating = true; isRunning = true; nextBeatTime = audioCtx.currentTime; startCountdown(); scheduler(); };
+    document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value; };
     const tapArea = document.getElementById('tapArea');
     const calibTapArea = document.getElementById('calibTapArea');
-    
-    function triggerTap(e) {
-        e.preventDefault(); 
-        handleTap();
-        this.classList.add('active-tap');
-        setTimeout(() => this.classList.remove('active-tap'), 100);
-    }
-    
+    function triggerTap(e) { e.preventDefault(); handleTap(); this.classList.add('active-tap'); setTimeout(() => this.classList.remove('active-tap'), 100); }
     tapArea.addEventListener('touchstart', triggerTap, { passive: false });
     tapArea.addEventListener('mousedown', triggerTap);
-    
     calibTapArea.addEventListener('touchstart', triggerTap, { passive: false });
     calibTapArea.addEventListener('mousedown', triggerTap);
-
     initLevels();
+    function startCountdown() {
+        isPlayingSequence = false; countdownBeats = 4; currentSlotIndex = -1; currentCycleHits = 0; currentCycleMisses = 0; targetTimings = [];
+        document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
+        updateFeedback("ПРИГОТОВИТЬСЯ...", "#fdcb6e");
+    }
+    function roll() {
+        const pool = []; for(let i=1; i<=currentLevel; i++) if(levelPacks[i]) pool.push(...levelPacks[i]);
+        let sequence = [], totalSize = 0; const smalls = pool.filter(x => x.size === 1);
+        while(totalSize < 4) {
+            let item = pool[Math.floor(Math.random() * pool.length)];
+            if(totalSize + item.size > 4) item = smalls[Math.floor(Math.random() * smalls.length)];
+            if(!item) break; sequence.push(item); totalSize += item.size;
+        }
+        currentSequence = sequence; expectedHits = currentSequence.reduce((sum, item) => sum + item.pattern.length, 0);
+        const container = document.getElementById('imageContainer'); container.innerHTML = '';
+        currentSequence.forEach(item => {
+            const img = document.createElement('img'); img.src = item.src;
+            img.className = 'image-card' + (item.size === 2 ? ' double-size' : '');
+            img.onload = () => img.classList.add('loaded'); container.appendChild(img);
+        });
+    }
+    function playTick() {
+        if (!audioCtx) return; const bpm = document.getElementById('bpmRange').value; const secondsPerBeat = 60 / bpm;
+        const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        if (countdownBeats > 0) {
+            osc.frequency.value = countdownBeats === 1 ? 1200 : 800; g.gain.value = 0.1; g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            osc.connect(g); g.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            let msg = `ОТСЧЕТ: ${countdownBeats}`; if(isCalibrating) document.getElementById('calibProgress').innerText = msg; else updateFeedback(msg, "#fdcb6e");
+            countdownBeats--; if (countdownBeats === 0) { currentSlotIndex = -1; isPlayingSequence = true; setTimeout(() => { if(!isCalibrating) updateFeedback("ИГРАЕМ!", "#00cec9"); }, (secondsPerBeat * 1000) - 50); } return;
+        }
+        if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
+            if (currentCycleHits === expectedHits && currentCycleMisses === 0 && expectedHits > 0) { perfectStreak++; updateGameStarsDisplay(); roll(); startCountdown(); updateFeedback("EXCELLENT! READY?", "#00cec9"); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); return; }
+            perfectStreak = 0; updateGameStarsDisplay(); currentCycleHits = 0; currentCycleMisses = 0;
+        }
+        currentSlotIndex = (currentSlotIndex + 1) % 4; osc.frequency.value = currentSlotIndex === 0 ? 1000 : 600; g.gain.value = 0.1;
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.connect(g); g.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1); lastBeatStartTime = audioCtx.currentTime;
+        if (!isCalibrating) {
+            const cards = document.querySelectorAll('.image-card'); cards.forEach(c => c.classList.remove('active-slot'));
+            let acc = 0; currentSequence.forEach((item, idx) => {
+                if(currentSlotIndex >= acc && currentSlotIndex < acc + item.size) { cards[idx].classList.add('active-slot'); if(currentSlotIndex === acc) { const newTimings = item.pattern.map(p => lastBeatStartTime + (p * secondsPerBeat)); targetTimings.push(...newTimings); } }
+                acc += item.size;
+            });
+        }
+    }
+    document.getElementById('calibBackBtn').onclick = () => { stopMetronome(); isCalibrating = false; document.getElementById('bpmRange').value = savedBPM; document.getElementById('bpmValue').innerText = savedBPM; showScreen('menuScreen'); };
 </script>
 </body>
 </html>
