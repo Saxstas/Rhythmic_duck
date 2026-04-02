@@ -164,13 +164,10 @@
         if (!audioCtx) return;
         const sampleRate = audioCtx.sampleRate;
         const length = sampleRate * 0.05;
-
         highClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
         lowClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
-
         const highData = highClickBuffer.getChannelData(0);
         const lowData = lowClickBuffer.getChannelData(0);
-
         for (let i = 0; i < length; i++) {
             const t = i / sampleRate;
             const decay = Math.exp(-t * 100); 
@@ -193,16 +190,12 @@
     function updatePlayerRank() {
         let totalStars = 0;
         for (let key in levelStars) totalStars += levelStars[key];
-        
         document.getElementById('totalStarsDisplay').innerText = `★ ${totalStars}`;
-        
-        let rank = "Новичок";
-        let color = "#a4b0be";
+        let rank = "Новичок", color = "#a4b0be";
         if (totalStars >= 50) { rank = "Бог Ритма"; color = "#ff4757"; }
         else if (totalStars >= 35) { rank = "Мастер"; color = "#fdcb6e"; }
         else if (totalStars >= 20) { rank = "Профи"; color = "#00cec9"; }
         else if (totalStars >= 5) { rank = "Любитель"; color = "#0984e3"; }
-        
         const rankEl = document.getElementById('playerRank');
         rankEl.innerText = rank;
         rankEl.style.color = color;
@@ -232,22 +225,17 @@
     function updateGameStarsDisplay() {
         const display = document.getElementById('gameStarsDisplay');
         let currentStars = perfectStreak >= 5 ? 3 : (perfectStreak >= 3 ? 2 : (perfectStreak >= 1 ? 1 : 0));
-        
         display.innerHTML = '';
         for(let s = 0; s < 3; s++) {
             const span = document.createElement('span');
             span.className = 'star-item';
             if (s < currentStars) {
-                span.innerText = '★';
-                span.classList.add('filled');
+                span.innerText = '★'; span.classList.add('filled');
                 if (s >= lastStarsCount) span.classList.add('star-pop');
-            } else {
-                span.innerText = '☆';
-            }
+            } else span.innerText = '☆';
             display.appendChild(span);
         }
         lastStarsCount = currentStars;
-
         const bestStars = levelStars[currentLevel] || 0;
         if (currentStars > bestStars) {
             levelStars[currentLevel] = currentStars;
@@ -260,10 +248,7 @@
         if (cardIdx !== -1) {
             const cards = document.querySelectorAll('.image-card');
             card = cards[cardIdx];
-        } else {
-            card = document.querySelector('.image-card.active-slot');
-        }
-        
+        } else card = document.querySelector('.image-card.active-slot');
         if (card) {
             card.classList.add('error-hit');
             setTimeout(() => card.classList.remove('error-hit'), 300);
@@ -278,20 +263,13 @@
     function showRecords() {
         const list = document.getElementById('recordsList');
         list.innerHTML = '';
-        
         for (let i = 1; i <= 19; i++) {
-            const score = levelHighScores[i] || 0;
-            const stars = levelStars[i] || 0;
+            const score = levelHighScores[i] || 0, stars = levelStars[i] || 0;
             let starsStr = '';
             for(let s=0; s<3; s++) starsStr += s < stars ? '★' : '☆';
-
             const item = document.createElement('div');
             item.className = 'records-list-item';
-            item.innerHTML = `
-                <span>Уровень ${i}</span>
-                <span style="color:#fdcb6e">${starsStr}</span>
-                <span style="font-family:monospace; color:#00cec9">${score}</span>
-            `;
+            item.innerHTML = `<span>Уровень ${i}</span><span style="color:#fdcb6e">${starsStr}</span><span style="font-family:monospace; color:#00cec9">${score}</span>`;
             list.appendChild(item);
         }
         showScreen('recordsScreen');
@@ -301,34 +279,14 @@
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
         document.getElementById('bestScoreDisplay').innerText = levelHighScores[currentLevel] || 0;
-        score = 0;
-        document.getElementById('scoreDisplay').innerText = score;
-        perfectStreak = 0; 
-        lastStarsCount = 0; 
-        updateGameStarsDisplay();
+        score = 0; document.getElementById('scoreDisplay').innerText = score;
+        perfectStreak = 0; lastStarsCount = 0; updateGameStarsDisplay();
         roll();
     };
 
-    document.getElementById('backBtn').onclick = () => { 
-        stopMetronome(); 
-        initLevels(); 
-        showScreen('menuScreen'); 
-    };
-
-    document.getElementById('calibOpenBtn').onclick = () => { 
-        showScreen('calibrationScreen'); 
-        document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`; 
-        document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ"; 
-    };
-    
-    document.getElementById('calibBackBtn').onclick = () => { 
-        stopMetronome(); 
-        isCalibrating = false; 
-        document.getElementById('bpmRange').value = savedBPM; 
-        document.getElementById('bpmValue').innerText = savedBPM; 
-        showScreen('menuScreen'); 
-    };
-
+    document.getElementById('backBtn').onclick = () => { stopMetronome(); initLevels(); showScreen('menuScreen'); };
+    document.getElementById('calibOpenBtn').onclick = () => { showScreen('calibrationScreen'); document.getElementById('calibValueDisplay').innerText = `Текущая задержка: ${userOffset.toFixed(3)}s`; document.getElementById('calibProgress').innerText = "ГОТОВ К ТЕСТУ"; };
+    document.getElementById('calibBackBtn').onclick = () => { stopMetronome(); isCalibrating = false; showScreen('menuScreen'); };
     document.getElementById('recordsOpenBtn').onclick = () => showRecords();
     document.getElementById('recordsBackBtn').onclick = () => showScreen('menuScreen');
 
@@ -338,8 +296,11 @@
         currentSlotIndex = -1;
         currentCycleHits = 0;
         currentCycleMisses = 0;
-        targetTimings = [];
-        document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
+        targetTimings = []; // ЧИСТИМ ПЕРЕД ОТСЧЕТОМ
+        document.querySelectorAll('.image-card').forEach(c => {
+            c.classList.remove('active-slot');
+            c.classList.remove('error-hit');
+        });
         updateFeedback("ПРИГОТОВИТЬСЯ...", "#fdcb6e");
     }
 
@@ -357,7 +318,6 @@
         }
         currentSequence = sequence;
         expectedHits = currentSequence.reduce((sum, item) => sum + item.pattern.length, 0);
-
         const container = document.getElementById('imageContainer');
         container.innerHTML = '';
         currentSequence.forEach(item => {
@@ -371,60 +331,51 @@
 
     function playTick() {
         if (!audioCtx) return;
-        const bpm = document.getElementById('bpmRange').value;
-        const secondsPerBeat = 60 / bpm;
+        const secondsPerBeat = 60 / document.getElementById('bpmRange').value;
 
         if (countdownBeats > 0) {
             playBuffer(countdownBeats === 1 ? highClickBuffer : lowClickBuffer);
-            
             let msg = `ОТСЧЕТ: ${countdownBeats}`;
             if(isCalibrating) document.getElementById('calibProgress').innerText = msg;
             else updateFeedback(msg, "#fdcb6e");
-
             countdownBeats--;
             if (countdownBeats === 0) {
                 currentSlotIndex = -1;
                 isPlayingSequence = true;
-                setTimeout(() => {
-                    if(!isCalibrating) updateFeedback("ИГРАЕМ!", "#00cec9");
-                }, (secondsPerBeat * 1000) - 50);
+                targetTimings = []; // ЕЩЕ РАЗ ЧИСТИМ ПЕРЕД СТАРТОМ
+                setTimeout(() => { if(!isCalibrating) updateFeedback("ИГРАЕМ!", "#00cec9"); }, 50);
             }
             return;
         }
 
         if (!isCalibrating && isPlayingSequence && currentSlotIndex === 3) {
-            if (currentCycleHits === expectedHits && currentCycleMisses === 0) {
+            if (currentCycleHits >= expectedHits && currentCycleMisses === 0) {
                 perfectStreak++;
                 updateGameStarsDisplay();
-                roll();
-                startCountdown();
-                updateFeedback("EXCELLENT! READY?", "#00cec9");
+                roll(); startCountdown();
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 return;
             }
-            perfectStreak = 0;
-            updateGameStarsDisplay();
-            currentCycleHits = 0;
-            currentCycleMisses = 0;
+            currentCycleHits = 0; currentCycleMisses = 0;
         }
 
         currentSlotIndex = (currentSlotIndex + 1) % 4;
         playBuffer(currentSlotIndex === 0 ? highClickBuffer : lowClickBuffer);
         lastBeatStartTime = audioCtx.currentTime;
 
-        if (!isCalibrating) {
+        if (!isCalibrating && isPlayingSequence) {
             const cards = document.querySelectorAll('.image-card');
             cards.forEach(c => c.classList.remove('active-slot'));
             let acc = 0;
             currentSequence.forEach((item, idx) => {
                 if(currentSlotIndex >= acc && currentSlotIndex < acc + item.size) {
-                    cards[idx].classList.add('active-slot');
+                    if (cards[idx]) cards[idx].classList.add('active-slot');
                     if(currentSlotIndex === acc) {
-                        const newTimings = item.pattern.map(p => ({
+                        const newT = item.pattern.map(p => ({
                             time: lastBeatStartTime + (p * secondsPerBeat),
                             cardIdx: idx
                         }));
-                        targetTimings.push(...newTimings);
+                        targetTimings.push(...newT);
                     }
                 }
                 acc += item.size;
@@ -437,16 +388,14 @@
         const nowTime = audioCtx.currentTime;
         if (!isCalibrating && isPlayingSequence) {
             for (let i = targetTimings.length - 1; i >= 0; i--) {
-                // ТЕПЕРЬ ОШИБКА ЗАСЧИТЫВАЕТСЯ ТОЛЬКО ЧЕРЕЗ 0.5 СЕКУНДЫ
-                if (targetTimings[i].time + userOffset < nowTime - 0.5) {
-                    const missedCardIdx = targetTimings[i].cardIdx;
+                // Если нота просрочена более чем на 0.4 сек — это пропуск
+                if (targetTimings[i].time + userOffset < nowTime - 0.4) {
+                    const idx = targetTimings[i].cardIdx;
                     targetTimings.splice(i, 1);
                     score = Math.max(0, score - 50);
-                    currentCycleMisses++;
-                    perfectStreak = 0; 
-                    updateGameStarsDisplay();
-                    updateFeedback("MISS!", "#ff4757");
-                    triggerVisualError(missedCardIdx);
+                    currentCycleMisses++; perfectStreak = 0;
+                    updateGameStarsDisplay(); updateFeedback("MISS!", "#ff4757");
+                    triggerVisualError(idx);
                     document.getElementById('scoreDisplay').innerText = score;
                 }
             }
@@ -461,7 +410,6 @@
     function handleTap() {
         if(!isRunning || !isPlayingSequence) return;
         const now = audioCtx.currentTime;
-
         if (isCalibrating) {
             let diff = now - lastBeatStartTime;
             const spb = 60 / 70;
@@ -478,41 +426,31 @@
         }
 
         let isHit = false;
+        targetTimings.sort((a,b) => a.time - b.time);
         for(let i=0; i < targetTimings.length; i++) {
             const diff = Math.abs(now - (targetTimings[i].time + userOffset));
-            
-            if(diff < 0.30) { 
-                // РАСШИРЕННОЕ ОКНО PERFECT
+            if(diff < 0.25) { 
                 targetTimings.splice(i, 1);
-                score += 100; isHit = true;
-                currentCycleHits++;
+                score += 100; isHit = true; currentCycleHits++;
                 updateFeedback("PERFECT!", "#00cec9");
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 break;
-            } else if(diff < 0.45) { 
-                // НОВОЕ ОКНО GOOD
+            } else if(diff < 0.40) {
                 targetTimings.splice(i, 1);
-                score += 50; isHit = true;
-                currentCycleHits++;
+                score += 50; isHit = true; currentCycleHits++;
                 updateFeedback("GOOD!", "#fdcb6e");
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 break;
             }
         }
-        
         if(!isHit) { 
-            score = Math.max(0, score - 50); 
-            currentCycleMisses++; 
-            perfectStreak = 0; 
-            updateGameStarsDisplay();
-            updateFeedback("MISS!", "#ff4757"); 
-            triggerVisualError(); 
+            score = Math.max(0, score - 30); currentCycleMisses++; perfectStreak = 0; 
+            updateGameStarsDisplay(); updateFeedback("MISS!", "#ff4757"); triggerVisualError(); 
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
         }
         document.getElementById('scoreDisplay').innerText = score;
-        
-        const currentBest = levelHighScores[currentLevel] || 0;
-        if (score > currentBest) {
+        const best = levelHighScores[currentLevel] || 0;
+        if (score > best) {
             levelHighScores[currentLevel] = score;
             localStorage.setItem('rhythm_high_scores', JSON.stringify(levelHighScores));
             document.getElementById('bestScoreDisplay').innerText = score;
@@ -520,8 +458,7 @@
     }
 
     function stopMetronome() {
-        isRunning = false;
-        isPlayingSequence = false;
+        isRunning = false; isPlayingSequence = false;
         clearTimeout(timerID);
         document.getElementById('metronomeBtn').innerText = "СТАРТ";
         document.getElementById('metronomeBtn').style.background = "";
@@ -530,63 +467,31 @@
     }
 
     document.getElementById('metronomeBtn').onclick = function() {
-        if(!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            createClickBuffers(); 
-        }
+        if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); createClickBuffers(); }
         if(!isRunning) {
-            isRunning = true;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            nextBeatTime = audioCtx.currentTime;
-            startCountdown();
-            scheduler();
+            isRunning = true; if (audioCtx.state === 'suspended') audioCtx.resume();
+            nextBeatTime = audioCtx.currentTime; startCountdown(); scheduler();
             this.innerText = "СТОП"; this.style.background = "#ff4757";
-        } else { stopMetronome(); }
+        } else stopMetronome();
     };
 
     document.getElementById('rollButton').onclick = () => {
-        roll();
-        if (isRunning) {
-            startCountdown();
-            perfectStreak = 0; 
-            lastStarsCount = 0; 
-            updateGameStarsDisplay();
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        }
+        roll(); if (isRunning) { startCountdown(); perfectStreak = 0; updateGameStarsDisplay(); }
     };
 
     document.getElementById('calibStartBtn').onclick = function() {
-        if(!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            createClickBuffers();
-        }
-        document.getElementById('bpmRange').value = 70;
-        document.getElementById('bpmValue').innerText = 70;
-        calibrationData = []; 
-        isCalibrating = true; 
-        isRunning = true;
-        nextBeatTime = audioCtx.currentTime; 
-        startCountdown();
-        scheduler();
+        if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); createClickBuffers(); }
+        document.getElementById('bpmRange').value = 70; document.getElementById('bpmValue').innerText = 70;
+        calibrationData = []; isCalibrating = true; isRunning = true;
+        nextBeatTime = audioCtx.currentTime; startCountdown(); scheduler();
     };
 
-    document.getElementById('bpmRange').oninput = function() { 
-        document.getElementById('bpmValue').innerText = this.value; 
-    };
+    document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value; };
 
-    const tapArea = document.getElementById('tapArea');
-    const calibTapArea = document.getElementById('calibTapArea');
-    
-    function triggerTap(e) {
-        e.preventDefault(); 
-        handleTap();
-        this.classList.add('active-tap');
-        setTimeout(() => this.classList.remove('active-tap'), 100);
-    }
-    
+    const tapArea = document.getElementById('tapArea'), calibTapArea = document.getElementById('calibTapArea');
+    function triggerTap(e) { e.preventDefault(); handleTap(); this.classList.add('active-tap'); setTimeout(() => this.classList.remove('active-tap'), 100); }
     tapArea.addEventListener('touchstart', triggerTap, { passive: false });
     tapArea.addEventListener('mousedown', triggerTap);
-    
     calibTapArea.addEventListener('touchstart', triggerTap, { passive: false });
     calibTapArea.addEventListener('mousedown', triggerTap);
 
