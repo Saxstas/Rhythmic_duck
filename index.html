@@ -27,46 +27,57 @@
             touch-action: manipulation;
         }
 
-        /* Панель настроек и выбора уровня */
-        .top-menu {
+        /* Верхнее меню управления */
+        .top-nav {
             width: 100%;
             background: #16161e;
-            padding: 10px 0;
+            padding: 15px 0;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             gap: 10px;
             border-bottom: 1px solid #333;
+            z-index: 100;
         }
+
+        .controls-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .control-group { display: flex; flex-direction: column; align-items: center; }
 
         select, input[type="range"] {
             background: #2d2d3a;
             color: white;
             border: 1px solid #444;
-            padding: 5px;
-            border-radius: 5px;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.9rem;
         }
 
-        .stat-row {
+        .stats-bar {
             width: 90%;
             display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
+            justify-content: space-around;
+            margin: 15px 0;
         }
 
-        .score-box {
+        .stat-item {
             background: var(--card-bg);
-            padding: 5px 12px;
-            border-radius: 10px;
+            padding: 8px 15px;
+            border-radius: 12px;
             text-align: center;
-            min-width: 60px;
+            min-width: 80px;
+            border: 1px solid #333;
         }
 
-        .label { font-size: 0.6rem; color: #888; text-transform: uppercase; }
-        .value { font-size: 1rem; font-weight: 800; display: block; }
+        .label { font-size: 0.65rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-size: 1.1rem; font-weight: 800; display: block; color: var(--accent-color); }
 
-        /* Игровое поле */
-        .game-zone {
+        /* Игровая зона */
+        .game-area {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -76,108 +87,116 @@
         }
 
         #feedback {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 900;
-            height: 30px;
-            margin-bottom: 20px;
+            height: 40px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
 
-        .cards-row {
+        .cards-container {
             display: flex;
-            gap: 10px;
-            height: 120px;
+            gap: 12px;
+            height: 130px;
             align-items: center;
             justify-content: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .card {
-            height: 100px;
+            height: 110px;
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 16px;
             border: 3px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
-            transition: 0.1s;
         }
 
-        .card img { max-width: 85%; max-height: 85%; }
-        .card.active { border-color: var(--accent-color); background: #252530; transform: scale(1.05); }
-        .card.error { border-color: var(--error-color); animation: shake 0.3s; }
+        .card img { max-width: 85%; max-height: 85%; pointer-events: none; }
+        .card.active { border-color: var(--accent-color); transform: scale(1.08); background: #252530; }
+        .card.error { border-color: var(--error-color); animation: shake 0.4s; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
         }
 
-        .tap-area {
-            width: 150px;
-            height: 150px;
+        .tap-circle {
+            width: 160px;
+            height: 160px;
             background: linear-gradient(135deg, var(--accent-color), #0984e3);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: 900;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 30px rgba(0, 206, 201, 0.4);
+            cursor: pointer;
             user-select: none;
         }
 
-        /* Кнопки управления */
-        .controls {
+        /* Футер */
+        .action-bar {
             width: 100%;
             padding: 20px;
             background: #16161e;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .btn {
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 14px 28px;
+            border-radius: 12px;
             border: none;
             font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
+            transition: 0.2s;
         }
 
-        .btn-start { background: var(--accent-color); color: #000; }
-        .btn-calib { background: #333; color: #fff; }
+        .btn-play { background: var(--accent-color); color: #000; }
+        .btn-alt { background: #333; color: #fff; }
+        .btn:active { transform: scale(0.95); opacity: 0.9; }
     </style>
 </head>
 <body>
 
-<div class="top-menu">
-    <div>
-        <span class="label">Level:</span>
-        <select id="levelSelect" onchange="changeLevel(this.value)">
-            </select>
+<div class="top-nav">
+    <div class="controls-row">
+        <div class="control-group">
+            <span class="label">Уровень</span>
+            <select id="lvlSelect" onchange="setLevel(this.value)"></select>
+        </div>
+        <div class="control-group">
+            <span class="label">BPM: <span id="bpmVal">70</span></span>
+            <input type="range" id="bpmRange" min="40" max="180" value="70" oninput="setBPM(this.value)">
+        </div>
     </div>
-    <div>
-        <span class="label">BPM: <span id="bpmDisplay">70</span></span><br>
-        <input type="range" id="bpmSlider" min="40" max="180" value="70" oninput="updateBPM(this.value)">
-    </div>
 </div>
 
-<div class="stat-row">
-    <div class="score-box"><span class="label">Score</span><span id="scoreVal" class="value">0</span></div>
-    <div class="score-box"><span class="label">Offset</span><span id="offVal" class="value">0.000</span></div>
+<div class="stats-bar">
+    <div class="stat-item"><span class="label">Счет</span><span id="score" class="value">0</span></div>
+    <div class="stat-item"><span class="label">Смещение</span><span id="offset" class="value">0.000</span></div>
 </div>
 
-<div class="game-zone">
-    <div id="feedback">READY?</div>
-    <div class="cards-row" id="cardsRow"></div>
-    <div class="tap-area" id="mainBtn">TAP</div>
+<div class="game-area">
+    <div id="feedback">ГОТОВ?</div>
+    <div class="cards-container" id="cardsRow"></div>
+    <div class="tap-circle" id="tapBtn">TAP</div>
 </div>
 
-<div class="controls">
-    <button class="btn btn-calib" onclick="startCalibration()">CALIBRATE</button>
-    <button class="btn btn-start" onclick="startGame()">START</button>
-    <button class="btn btn-calib" onclick="stopGame()">STOP</button>
+<div class="action-bar">
+    <button class="btn btn-alt" onclick="calibrate()">КАЛИБРОВКА</button>
+    <button class="btn btn-play" onclick="start()">ИГРАТЬ</button>
+    <button class="btn btn-alt" onclick="stop()">СТОП</button>
 </div>
 
 <script>
@@ -198,41 +217,32 @@
 
     let targets = [];
     let sequence = [];
-    let hitsInCycle = 0;
-    let expectedInCycle = 0;
+    let cycleHits = 0;
+    let expectedHits = 0;
 
     function init() {
-        // Заполняем выбор уровней
-        const select = document.getElementById('levelSelect');
-        Object.keys(levelPacks).forEach(lvl => {
+        const select = document.getElementById('lvlSelect');
+        Object.keys(levelPacks).forEach(l => {
             const opt = document.createElement('option');
-            opt.value = lvl; opt.innerText = "Level " + lvl;
+            opt.value = l; opt.innerText = "Уровень " + l;
             select.appendChild(opt);
         });
 
-        document.getElementById('offVal').innerText = userOffset.toFixed(3);
-        const btn = document.getElementById('mainBtn');
-        btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleTap(); });
-        btn.addEventListener('mousedown', handleTap);
-        generateLevel();
+        document.getElementById('offset').innerText = userOffset.toFixed(3);
+        const tapBtn = document.getElementById('tapBtn');
+        tapBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleTap(); });
+        tapBtn.addEventListener('mousedown', handleTap);
+        generate();
     }
 
-    function updateBPM(val) {
-        bpm = parseInt(val);
-        document.getElementById('bpmDisplay').innerText = bpm;
-    }
+    function setLevel(v) { currentLvl = v; stop(); generate(); }
+    function setBPM(v) { bpm = v; document.getElementById('bpmVal').innerText = v; }
 
-    function changeLevel(val) {
-        currentLvl = parseInt(val);
-        stopGame();
-        generateLevel();
-    }
-
-    function generateLevel() {
+    function generate() {
         const row = document.getElementById('cardsRow');
         row.innerHTML = '';
         sequence = [];
-        expectedInCycle = 0;
+        expectedHits = 0;
         let filled = 0;
         const pack = levelPacks[currentLvl];
 
@@ -244,53 +254,50 @@
             const el = document.createElement('div');
             el.className = 'card';
             el.id = `c-${filled}`;
-            el.style.width = item.size === 2 ? '170px' : '80px';
+            el.style.width = item.size === 2 ? '180px' : '85px';
             el.innerHTML = `<img src="${item.src}" onerror="this.style.opacity='0.2'">`;
             row.appendChild(el);
-            expectedInCycle += item.pattern.length;
+            expectedHits += item.pattern.length;
             filled += item.size;
         }
     }
 
     function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    function startGame() {
+    function start() {
         initAudio();
         if (isRunning) return;
         isRunning = true;
         score = 0;
+        document.getElementById('score').innerText = "0";
         slotIdx = -1;
         isPlaying = false;
         nextBeatTime = audioCtx.currentTime + 0.1;
-        updateFeedback("READY", "#fff");
+        updateFeedback("ПРИГОТОВИТЬСЯ", "#fff");
         loop();
     }
 
-    function stopGame() {
+    function stop() {
         isRunning = false;
         isPlaying = false;
         targets = [];
-        updateFeedback("STOPPED", "#888");
+        updateFeedback("СТОП", "#888");
     }
 
     function loop() {
         if (!isRunning) return;
         const spb = 60 / bpm;
         while (nextBeatTime < audioCtx.currentTime + 0.1) {
-            processTick(nextBeatTime, spb);
+            tick(nextBeatTime, spb);
             nextBeatTime += spb;
         }
         requestAnimationFrame(loop);
     }
 
-    function processTick(t, spb) {
+    function tick(t, spb) {
         slotIdx++;
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
 
@@ -314,19 +321,19 @@
             if (!isPlaying) {
                 isPlaying = true;
                 slotIdx = -1;
-                updateFeedback("GO!", "#00cec9");
+                updateFeedback("ПОШЛИ!", var(--accent-color));
             } else {
-                setTimeout(validateCycle, 150);
+                setTimeout(check, 150);
             }
         }
     }
 
-    function validateCycle() {
-        if (hitsInCycle >= expectedInCycle) {
-            updateFeedback("PERFECT!", "#f1c40f");
-            generateLevel();
+    function check() {
+        if (cycleHits >= expectedHits) {
+            updateFeedback("ОТЛИЧНО!", "#f1c40f");
+            generate();
         }
-        hitsInCycle = 0; slotIdx = -1; isPlaying = false; targets = [];
+        cycleHits = 0; slotIdx = -1; isPlaying = false; targets = [];
     }
 
     function handleTap() {
@@ -338,14 +345,15 @@
             const diff = Math.abs(now - (targets[i].time + userOffset));
             if (diff < 0.2) {
                 targets.splice(i, 1);
-                score += 100; hitsInCycle++; hit = true;
-                updateFeedback("HIT!", "#00cec9");
+                score += 100; cycleHits++; hit = true;
+                updateFeedback("HIT!", var(--accent-color));
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 break;
             }
         }
 
         if (!hit) {
-            updateFeedback("MISS!", "#ff4757");
+            updateFeedback("MISS!", var(--error-color));
             const active = sequence.find(c => slotIdx >= c.startSlot && slotIdx < c.startSlot + c.size);
             if (active) {
                 const el = document.getElementById(`c-${active.startSlot}`);
@@ -353,7 +361,7 @@
                 setTimeout(() => el.classList.remove('error'), 300);
             }
         }
-        document.getElementById('scoreVal').innerText = score;
+        document.getElementById('score').innerText = score;
     }
 
     function playClick(t, f) {
@@ -366,24 +374,23 @@
         osc.start(t); osc.stop(t + 0.05);
     }
 
-    function startCalibration() {
+    function calibrate() {
         initAudio();
         userOffset = 0;
         let samples = [];
-        updateFeedback("TAP 4 TIMES", "#f1c40f");
-        // Простая калибровка: первые 4 тапа записывают разницу
-        const calibHandler = () => {
+        updateFeedback("НАЖМИ 4 РАЗА В ТАКТ", "#f1c40f");
+        const h = () => {
             samples.push(audioCtx.currentTime - nextBeatTime);
             if (samples.length >= 4) {
                 userOffset = samples.reduce((a,b)=>a+b)/4;
                 localStorage.setItem('r_off', userOffset);
-                document.getElementById('offVal').innerText = userOffset.toFixed(3);
-                window.removeEventListener('mousedown', calibHandler);
-                updateFeedback("DONE!", "#00cec9");
+                document.getElementById('offset').innerText = userOffset.toFixed(3);
+                window.removeEventListener('mousedown', h);
+                updateFeedback("ГОТОВО!", var(--accent-color));
             }
         };
-        window.addEventListener('mousedown', calibHandler);
-        startGame();
+        window.addEventListener('mousedown', h);
+        start();
     }
 
     function updateFeedback(t, c) {
