@@ -153,9 +153,45 @@
     let countdownBeats = 0, isPlayingSequence = false;
     let savedBPM = 120;
 
+    // ПЕРЕМЕННЫЕ ДЛЯ КЭШИРОВАННЫХ ЗВУКОВ
+    let highClickBuffer, lowClickBuffer;
+
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
+    }
+
+    // ГЕНЕРАЦИЯ ЗВУКОВ КЛИКА В ПАМЯТИ
+    function createClickBuffers() {
+        if (!audioCtx) return;
+        const sampleRate = audioCtx.sampleRate;
+        const length = sampleRate * 0.05; // Длина 0.05 секунды
+
+        highClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
+        lowClickBuffer = audioCtx.createBuffer(1, length, sampleRate);
+
+        const highData = highClickBuffer.getChannelData(0);
+        const lowData = lowClickBuffer.getChannelData(0);
+
+        for (let i = 0; i < length; i++) {
+            const t = i / sampleRate;
+            // Экспоненциальное затухание для резкого клика
+            const decay = Math.exp(-t * 100); 
+            highData[i] = Math.sin(2 * Math.PI * 1200 * t) * decay * 0.5;
+            lowData[i] = Math.sin(2 * Math.PI * 800 * t) * decay * 0.5;
+        }
+    }
+
+    // ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ ИЗ БУФЕРА
+    function playBuffer(buffer) {
+        if (!audioCtx || !buffer) return;
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        const g = audioCtx.createGain();
+        g.gain.value = 0.2;
+        source.connect(g);
+        g.connect(audioCtx.destination);
+        source.start(audioCtx.currentTime);
     }
 
     function updatePlayerRank() {
@@ -334,15 +370,10 @@
         if (!audioCtx) return;
         const bpm = document.getElementById('bpmRange').value;
         const secondsPerBeat = 60 / bpm;
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
 
         if (countdownBeats > 0) {
-            osc.frequency.value = countdownBeats === 1 ? 1200 : 800;
-            g.gain.value = 0.1;
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            osc.connect(g); g.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            // Воспроизведение высокого или низкого клика из буфера
+            playBuffer(countdownBeats === 1 ? highClickBuffer : lowClickBuffer);
             
             let msg = `ОТСЧЕТ: ${countdownBeats}`;
             if(isCalibrating) document.getElementById('calibProgress').innerText = msg;
@@ -376,11 +407,10 @@
         }
 
         currentSlotIndex = (currentSlotIndex + 1) % 4;
-        osc.frequency.value = currentSlotIndex === 0 ? 1000 : 600;
-        g.gain.value = 0.1;
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-        osc.connect(g); g.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        
+        // Воспроизведение закешированного звука
+        playBuffer(currentSlotIndex === 0 ? highClickBuffer : lowClickBuffer);
+        
         lastBeatStartTime = audioCtx.currentTime;
 
         if (!isCalibrating) {
@@ -485,7 +515,10 @@
     }
 
     document.getElementById('metronomeBtn').onclick = function() {
-        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if(!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            createClickBuffers(); // Создаем буферы при первом жесте пользователя
+        }
         if(!isRunning) {
             isRunning = true;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -508,7 +541,10 @@
     };
 
     document.getElementById('calibStartBtn').onclick = function() {
-        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if(!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            createClickBuffers();
+        }
         document.getElementById('bpmRange').value = 70;
         document.getElementById('bpmValue').innerText = 70;
         calibrationData = []; 
