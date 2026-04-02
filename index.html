@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Rhythm Master Pro</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --bg-color: #0f0f13;
@@ -18,35 +17,25 @@
             margin: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             flex-direction: column;
-            align-items: center;
             height: 100vh;
             overflow: hidden;
-            touch-action: manipulation;
         }
 
-        /* Верхнее меню управления */
-        .top-nav {
-            width: 100%;
+        /* Навигация */
+        .nav-panel {
             background: #16161e;
-            padding: 15px 0;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 10px;
             border-bottom: 1px solid #333;
-            z-index: 100;
-        }
-
-        .controls-row {
-            display: flex;
-            gap: 20px;
             align-items: center;
         }
 
-        .control-group { display: flex; flex-direction: column; align-items: center; }
+        .row { display: flex; gap: 15px; align-items: center; justify-content: center; width: 100%; }
 
         select, input[type="range"] {
             background: #2d2d3a;
@@ -54,189 +43,162 @@
             border: 1px solid #444;
             padding: 8px;
             border-radius: 8px;
-            font-size: 0.9rem;
         }
 
-        .stats-bar {
-            width: 90%;
-            display: flex;
-            justify-content: space-around;
-            margin: 15px 0;
-        }
-
-        .stat-item {
+        .stat-card {
             background: var(--card-bg);
-            padding: 8px 15px;
-            border-radius: 12px;
+            padding: 5px 15px;
+            border-radius: 8px;
             text-align: center;
-            min-width: 80px;
             border: 1px solid #333;
+            min-width: 70px;
         }
 
-        .label { font-size: 0.65rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .value { font-size: 1.1rem; font-weight: 800; display: block; color: var(--accent-color); }
+        .label { font-size: 0.6rem; color: #888; text-transform: uppercase; display: block; }
+        .value { font-size: 1rem; font-weight: bold; color: var(--accent-color); }
 
         /* Игровая зона */
-        .game-area {
+        .game-world {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 100%;
         }
 
         #feedback {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 900;
-            height: 40px;
-            margin-bottom: 25px;
-            text-shadow: 0 0 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            height: 30px;
         }
 
-        .cards-container {
+        .cards-display {
             display: flex;
-            gap: 12px;
-            height: 130px;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 40px;
+            gap: 10px;
+            margin-bottom: 30px;
+            min-height: 110px;
         }
 
         .card {
-            height: 110px;
+            height: 100px;
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 12px;
             border: 3px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
+            transition: 0.1s;
+            position: relative;
         }
 
-        .card img { max-width: 85%; max-height: 85%; pointer-events: none; }
-        .card.active { border-color: var(--accent-color); transform: scale(1.08); background: #252530; }
-        .card.error { border-color: var(--error-color); animation: shake 0.4s; }
+        .card img { max-width: 80%; max-height: 80%; }
+        .card.active { border-color: var(--accent-color); transform: scale(1.05); box-shadow: 0 0 15px rgba(0,206,201,0.2); }
+        .card.error { border-color: var(--error-color); animation: shake 0.3s; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-8px); }
-            40% { transform: translateX(8px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
-        .tap-circle {
-            width: 160px;
-            height: 160px;
+        .main-btn {
+            width: 140px;
+            height: 140px;
             background: linear-gradient(135deg, var(--accent-color), #0984e3);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
             font-weight: 900;
-            box-shadow: 0 10px 30px rgba(0, 206, 201, 0.4);
+            font-size: 1.2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
             cursor: pointer;
             user-select: none;
         }
 
-        /* Футер */
-        .action-bar {
-            width: 100%;
+        /* Кнопки внизу */
+        .bottom-actions {
             padding: 20px;
             background: #16161e;
             display: flex;
+            gap: 10px;
             justify-content: center;
-            gap: 15px;
         }
 
         .btn {
-            padding: 14px 28px;
-            border-radius: 12px;
+            padding: 12px 20px;
+            border-radius: 10px;
             border: none;
             font-weight: bold;
-            font-size: 1rem;
             cursor: pointer;
-            transition: 0.2s;
+            background: #333;
+            color: white;
         }
 
-        .btn-play { background: var(--accent-color); color: #000; }
-        .btn-alt { background: #333; color: #fff; }
-        .btn:active { transform: scale(0.95); opacity: 0.9; }
+        .btn-primary { background: var(--accent-color); color: black; }
     </style>
 </head>
 <body>
 
-<div class="top-nav">
-    <div class="controls-row">
-        <div class="control-group">
+<div class="nav-panel">
+    <div class="row">
+        <div style="text-align:center">
             <span class="label">Уровень</span>
-            <select id="lvlSelect" onchange="setLevel(this.value)"></select>
+            <select id="lvlSelector" onchange="updateLvl(this.value)"></select>
         </div>
-        <div class="control-group">
-            <span class="label">BPM: <span id="bpmVal">70</span></span>
-            <input type="range" id="bpmRange" min="40" max="180" value="70" oninput="setBPM(this.value)">
+        <div style="text-align:center">
+            <span class="label">BPM: <span id="bpmText">70</span></span>
+            <input type="range" id="bpmSlider" min="40" max="200" value="70" oninput="updateBpm(this.value)">
         </div>
     </div>
 </div>
 
-<div class="stats-bar">
-    <div class="stat-item"><span class="label">Счет</span><span id="score" class="value">0</span></div>
-    <div class="stat-item"><span class="label">Смещение</span><span id="offset" class="value">0.000</span></div>
+<div class="row" style="margin-top: 15px;">
+    <div class="stat-card"><span class="label">Счет</span><span id="score" class="value">0</span></div>
+    <div class="stat-card"><span class="label">Оффсет</span><span id="offset" class="value">0.000</span></div>
 </div>
 
-<div class="game-area">
-    <div id="feedback">ГОТОВ?</div>
-    <div class="cards-container" id="cardsRow"></div>
-    <div class="tap-circle" id="tapBtn">TAP</div>
+<div class="game-world">
+    <div id="feedback">НАЖМИ START</div>
+    <div class="cards-display" id="cardsRow"></div>
+    <div class="main-btn" id="hitBtn">HIT</div>
 </div>
 
-<div class="action-bar">
-    <button class="btn btn-alt" onclick="calibrate()">КАЛИБРОВКА</button>
-    <button class="btn btn-play" onclick="start()">ИГРАТЬ</button>
-    <button class="btn btn-alt" onclick="stop()">СТОП</button>
+<div class="bottom-actions">
+    <button class="btn" onclick="calibrate()">CALIB</button>
+    <button class="btn btn-primary" onclick="startApp()">START</button>
+    <button class="btn" onclick="stopApp()">STOP</button>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    let audioCtx;
-
-    // ТВОЯ БАЗА ДАННЫХ
+    // ТВОЯ БАЗА ДАННЫХ (БЕЗ ИЗМЕНЕНИЙ)
     const levelPacks = { 1: [{ src: "Lvl1/s1.png", size: 1, pattern: [0] }, { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }], 2: [{ src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }], 3: [{ src: "Lvl3/4.png", size: 1, pattern: [] }, { src: "Lvl3/5.png", size: 1, pattern: [] }, { src: "Lvl3/Size2/30.png", size: 2, pattern: [] }], 4: [{ src: "Lvl4/size2/9.png", size: 2, pattern: [0, 1, 1.5] }], 5: [{ src: "Lvl5/3.png", size: 1, pattern: [0.5] }], 6: [{ src: "Lvl6/Size2/7.png", size: 2, pattern: [0, 1.5] }, { src: "Lvl6/Size2/8.png", size: 2, pattern: [0, 0.5] }], 7: [{ src: "Lvl7/Size2/10.png", size: 2, pattern: [0.5, 1.5] }, { src: "Lvl7/Size2/11.png", size: 2, pattern: [0.5] }], 8: [{ src: "Lvl8/24.png", size: 1, pattern: [0, 0.25, 0.5, 0.75] }], 9: [{ src: "Lvl9/27.png", size: 1, pattern: [0, 0.5, 0.75] }, { src: "Lvl9/26.png", size: 1, pattern: [0, 0.25, 0.5] }], 10: [{ src: "Lvl10/13.png", size: 1, pattern: [0, 0.25, 0.50] }, { src: "Lvl10/15.png", size: 1, pattern: [0, 0.50, 0.75] }], 11: [{ src: "Lvl11/18.png", size: 1, pattern: [0.50, 0.75] }, { src: "Lvl11/19.png", size: 1, pattern: [0, 0.25] }], 12: [{ src: "Lvl12/25.png", size: 1, pattern: [0.25, 0.5, 0.75] }], 13: [{ src: "Lvl13/14.png", size: 1, pattern: [0, 0.25, 0.75] }, { src: "Lvl13/31.png", size: 1, pattern: [0, 0.75] }], 14: [{ src: "Lvl14/20.png", size: 1, pattern: [0, 0.5] }], 15: [{ src: "Lvl15/17.png", size: 1, pattern: [0, 0.25] }, { src: "Lvl15/23.png", size: 1, pattern: [0, 0.75] }], 16: [{ src: "Lvl16/21.png", size: 1, pattern: [0.25, 0.5, 0.75] }], 17: [{ src: "Lvl17/16.png", size: 1, pattern: [0.25, 0.75] }, { src: "Lvl17/33.png", size: 1, pattern: [0.25] }], 18: [{ src: "Lvl18/34.png", size: 1, pattern: [0.75] }], 19: [{ src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }] };
 
-    let currentLvl = 1;
+    let audioCtx;
+    let curLvl = 1;
     let bpm = 70;
     let score = 0;
     let isRunning = false;
     let isPlaying = false;
-    let nextBeatTime = 0;
-    let slotIdx = -1;
-    let userOffset = parseFloat(localStorage.getItem('r_off') || '0');
+    let nextTime = 0;
+    let slot = -1;
+    let offset = parseFloat(localStorage.getItem('r_off') || '0');
 
     let targets = [];
     let sequence = [];
     let cycleHits = 0;
     let expectedHits = 0;
 
-    function init() {
-        const select = document.getElementById('lvlSelect');
-        Object.keys(levelPacks).forEach(l => {
-            const opt = document.createElement('option');
-            opt.value = l; opt.innerText = "Уровень " + l;
-            select.appendChild(opt);
-        });
+    // Инициализация меню
+    const sel = document.getElementById('lvlSelector');
+    Object.keys(levelPacks).forEach(l => {
+        let o = document.createElement('option'); o.value = l; o.innerText = "Lvl " + l;
+        sel.appendChild(o);
+    });
 
-        document.getElementById('offset').innerText = userOffset.toFixed(3);
-        const tapBtn = document.getElementById('tapBtn');
-        tapBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleTap(); });
-        tapBtn.addEventListener('mousedown', handleTap);
-        generate();
-    }
-
-    function setLevel(v) { currentLvl = v; stop(); generate(); }
-    function setBPM(v) { bpm = v; document.getElementById('bpmVal').innerText = v; }
+    function updateLvl(v) { curLvl = v; stopApp(); generate(); }
+    function updateBpm(v) { bpm = v; document.getElementById('bpmText').innerText = v; }
 
     function generate() {
         const row = document.getElementById('cardsRow');
@@ -244,119 +206,110 @@
         sequence = [];
         expectedHits = 0;
         let filled = 0;
-        const pack = levelPacks[currentLvl];
+        const pack = levelPacks[curLvl];
 
         while(filled < 4) {
             let item = pack[Math.floor(Math.random() * pack.length)];
             if (filled + item.size > 4) item = pack.find(p => p.size === 1) || pack[0];
 
-            sequence.push({ ...item, startSlot: filled });
+            sequence.push({ ...item, start: filled });
             const el = document.createElement('div');
             el.className = 'card';
             el.id = `c-${filled}`;
-            el.style.width = item.size === 2 ? '180px' : '85px';
-            el.innerHTML = `<img src="${item.src}" onerror="this.style.opacity='0.2'">`;
+            el.style.width = item.size === 2 ? '170px' : '80px';
+            // Если картинка не загрузится, покажем текст
+            el.innerHTML = `<img src="${item.src}" onerror="this.style.display='none'; this.parentNode.innerText='${item.src.split('/').pop()}'">`;
             row.appendChild(el);
             expectedHits += item.pattern.length;
             filled += item.size;
         }
     }
 
-    function initAudio() {
+    function unlockAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    function start() {
-        initAudio();
+    function startApp() {
+        unlockAudio();
         if (isRunning) return;
-        isRunning = true;
-        score = 0;
+        isRunning = true; score = 0; slot = -1; isPlaying = false;
         document.getElementById('score').innerText = "0";
-        slotIdx = -1;
-        isPlaying = false;
-        nextBeatTime = audioCtx.currentTime + 0.1;
-        updateFeedback("ПРИГОТОВИТЬСЯ", "#fff");
-        loop();
+        nextTime = audioCtx.currentTime + 0.1;
+        tickLoop();
     }
 
-    function stop() {
-        isRunning = false;
-        isPlaying = false;
-        targets = [];
-        updateFeedback("СТОП", "#888");
-    }
+    function stopApp() { isRunning = false; isPlaying = false; targets = []; }
 
-    function loop() {
+    function tickLoop() {
         if (!isRunning) return;
         const spb = 60 / bpm;
-        while (nextBeatTime < audioCtx.currentTime + 0.1) {
-            tick(nextBeatTime, spb);
-            nextBeatTime += spb;
+        while (nextTime < audioCtx.currentTime + 0.1) {
+            runTick(nextTime, spb);
+            nextTime += spb;
         }
-        requestAnimationFrame(loop);
+        requestAnimationFrame(tickLoop);
     }
 
-    function tick(t, spb) {
-        slotIdx++;
+    function runTick(t, spb) {
+        slot++;
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
 
-        if (slotIdx >= 0 && slotIdx < 4) {
-            const activeCard = sequence.find(c => slotIdx >= c.startSlot && slotIdx < c.startSlot + c.size);
-            if (activeCard) document.getElementById(`c-${activeCard.startSlot}`).classList.add('active');
+        if (slot >= 0 && slot < 4) {
+            const active = sequence.find(c => slot >= c.start && slot < c.start + c.size);
+            if (active) document.getElementById(`c-${active.start}`).classList.add('active');
 
             if (isPlaying) {
-                const cardStarted = sequence.find(c => c.startSlot === slotIdx);
-                if (cardStarted) {
-                    cardStarted.pattern.forEach(p => {
-                        targets.push({ time: t + (p * spb), id: `c-${cardStarted.startSlot}` });
+                const card = sequence.find(c => c.start === slot);
+                if (card) {
+                    card.pattern.forEach(p => {
+                        targets.push({ time: t + (p * spb), id: `c-${card.start}` });
                     });
                 }
             }
         }
 
-        playClick(t, slotIdx === 0 ? 880 : 440);
+        // Звук метронома
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.connect(g); g.connect(audioCtx.destination);
+        osc.frequency.value = slot === 0 ? 880 : 440;
+        g.gain.setValueAtTime(0.05, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.start(t); osc.stop(t + 0.05);
 
-        if (slotIdx === 3) {
-            if (!isPlaying) {
-                isPlaying = true;
-                slotIdx = -1;
-                updateFeedback("ПОШЛИ!", var(--accent-color));
-            } else {
-                setTimeout(check, 150);
-            }
+        if (slot === 3) {
+            if (!isPlaying) { isPlaying = true; slot = -1; setF("GO!", "#00cec9"); }
+            else { setTimeout(validate, 150); }
         }
     }
 
-    function check() {
-        if (cycleHits >= expectedHits) {
-            updateFeedback("ОТЛИЧНО!", "#f1c40f");
-            generate();
-        }
-        cycleHits = 0; slotIdx = -1; isPlaying = false; targets = [];
+    function validate() {
+        if (cycleHits >= expectedHits) { setF("PERFECT!", "#f1c40f"); generate(); }
+        cycleHits = 0; slot = -1; isPlaying = false; targets = [];
     }
 
     function handleTap() {
+        unlockAudio();
         if (!isRunning || !isPlaying) return;
         const now = audioCtx.currentTime;
         let hit = false;
 
         for (let i = 0; i < targets.length; i++) {
-            const diff = Math.abs(now - (targets[i].time + userOffset));
+            const diff = Math.abs(now - (targets[i].time + offset));
             if (diff < 0.2) {
                 targets.splice(i, 1);
                 score += 100; cycleHits++; hit = true;
-                updateFeedback("HIT!", var(--accent-color));
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                setF("HIT!", "#00cec9");
                 break;
             }
         }
 
         if (!hit) {
-            updateFeedback("MISS!", var(--error-color));
-            const active = sequence.find(c => slotIdx >= c.startSlot && slotIdx < c.startSlot + c.size);
+            setF("MISS!", "#ff4757");
+            const active = sequence.find(c => slot >= c.start && slot < c.start + c.size);
             if (active) {
-                const el = document.getElementById(`c-${active.startSlot}`);
+                const el = document.getElementById(`c-${active.start}`);
                 el.classList.add('error');
                 setTimeout(() => el.classList.remove('error'), 300);
             }
@@ -364,41 +317,32 @@
         document.getElementById('score').innerText = score;
     }
 
-    function playClick(t, f) {
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.connect(g); g.connect(audioCtx.destination);
-        osc.frequency.value = f;
-        g.gain.setValueAtTime(0.06, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-        osc.start(t); osc.stop(t + 0.05);
-    }
+    function setF(t, c) { const f = document.getElementById('feedback'); f.innerText = t; f.style.color = c; }
 
     function calibrate() {
-        initAudio();
-        userOffset = 0;
-        let samples = [];
-        updateFeedback("НАЖМИ 4 РАЗА В ТАКТ", "#f1c40f");
+        unlockAudio();
+        offset = 0; let s = [];
+        setF("TAP 4 TIMES", "#f1c40f");
         const h = () => {
-            samples.push(audioCtx.currentTime - nextBeatTime);
-            if (samples.length >= 4) {
-                userOffset = samples.reduce((a,b)=>a+b)/4;
-                localStorage.setItem('r_off', userOffset);
-                document.getElementById('offset').innerText = userOffset.toFixed(3);
+            s.push(audioCtx.currentTime - nextTime);
+            if (s.length >= 4) {
+                offset = s.reduce((a,b)=>a+b)/4;
+                localStorage.setItem('r_off', offset);
+                document.getElementById('offset').innerText = offset.toFixed(3);
                 window.removeEventListener('mousedown', h);
-                updateFeedback("ГОТОВО!", var(--accent-color));
+                setF("READY", "#00cec9");
             }
         };
         window.addEventListener('mousedown', h);
-        start();
+        startApp();
     }
 
-    function updateFeedback(t, c) {
-        const f = document.getElementById('feedback');
-        f.innerText = t; f.style.color = c;
-    }
-
-    init();
+    document.getElementById('hitBtn').addEventListener('touchstart', (e) => { e.preventDefault(); handleTap(); });
+    document.getElementById('hitBtn').addEventListener('mousedown', handleTap);
+    
+    document.getElementById('offset').innerText = offset.toFixed(3);
+    generate();
 </script>
+
 </body>
 </html>
