@@ -38,13 +38,11 @@
         @keyframes starPop { 0% { transform: scale(1); } 50% { transform: scale(2); text-shadow: 0 0 25px #fdcb6e; } 100% { transform: scale(1); } }
         .grid { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 2px solid #2d2d44; }
 
-        /* ЭФФЕКТЫ ДЛЯ КАРТОЧЕК */
         .image-card { width: 20vw; height: 20vw; max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c; opacity: 0; transition: transform 0.1s, border-color 0.1s; background: #2d2d44; }
         .image-card.loaded { opacity: 1; }
         .image-card.double-size { width: 42vw; max-width: 170px; }
         .active-slot { border-color: #00cec9 !important; transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 206, 201, 0.3); }
         
-        /* КЛАСС ОШИБКИ */
         .error-hit { border-color: #ff4757 !important; animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; box-shadow: 0 0 20px rgba(255, 71, 87, 0.6) !important; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0) scale(1.05); } 20%, 80% { transform: translate3d(2px, 0, 0) scale(1.05); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0) scale(1.05); } 40%, 60% { transform: translate3d(4px, 0, 0) scale(1.05); } }
 
@@ -54,6 +52,9 @@
         #bpmRange { width: 100%; margin: 10px 0; accent-color: #00cec9; }
         #calibProgress { font-size: 1.5rem; color: #fdcb6e; margin: 20px 0; font-weight: bold; min-height: 2em; }
         #calibValueDisplay { margin-bottom: 20px; color: #a4b0be; font-family: monospace; }
+        
+        .records-list-item { display: flex; justify-content: space-between; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        .records-list-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -68,6 +69,7 @@
         </div>
         <div class="levels-container" id="levelsGrid"></div>
         <button id="startGameBtn" class="primary-btn">ИГРАТЬ</button>
+        <button id="recordsOpenBtn" class="secondary-btn">🏆 МОИ РЕКОРДЫ</button>
         <button id="calibOpenBtn" class="secondary-btn">⚙️ НАСТРОИТЬ ЗАДЕРЖКУ</button>
     </div>
 
@@ -104,6 +106,12 @@
         <div id="calibValueDisplay">Задержка: --</div>
         <button id="calibStartBtn" class="primary-btn">НАЧАТЬ</button>
         <button id="calibBackBtn" class="secondary-btn">ГОТОВО</button>
+    </div>
+
+    <div id="recordsScreen" class="screen">
+        <h1>ТВОИ РЕКОРДЫ</h1>
+        <div id="recordsList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;"></div>
+        <button id="recordsBackBtn" class="secondary-btn">← НАЗАД</button>
     </div>
 </div>
 
@@ -228,6 +236,28 @@
         fb.innerText = text; fb.style.color = color;
     }
 
+    function showRecords() {
+        const list = document.getElementById('recordsList');
+        list.innerHTML = '';
+        
+        for (let i = 1; i <= 19; i++) {
+            const score = levelHighScores[i] || 0;
+            const stars = levelStars[i] || 0;
+            let starsStr = '';
+            for(let s=0; s<3; s++) starsStr += s < stars ? '★' : '☆';
+
+            const item = document.createElement('div');
+            item.className = 'records-list-item';
+            item.innerHTML = `
+                <span>Уровень ${i}</span>
+                <span style="color:#fdcb6e">${starsStr}</span>
+                <span style="font-family:monospace; color:#00cec9">${score}</span>
+            `;
+            list.appendChild(item);
+        }
+        showScreen('recordsScreen');
+    }
+
     document.getElementById('startGameBtn').onclick = () => {
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
@@ -259,6 +289,9 @@
         document.getElementById('bpmValue').innerText = savedBPM; 
         showScreen('menuScreen'); 
     };
+
+    document.getElementById('recordsOpenBtn').onclick = () => showRecords();
+    document.getElementById('recordsBackBtn').onclick = () => showScreen('menuScreen');
 
     function startCountdown() {
         isPlayingSequence = false;
