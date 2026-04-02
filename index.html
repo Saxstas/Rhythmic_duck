@@ -34,7 +34,7 @@
         @keyframes starPop { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1); } }
 
         .grid { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 140px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 2px solid #2d2d44; }
-        .image-card { width: 20vw; height: 20vw; max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c; opacity: 0; transition: 0.1s; background: #2d2d44; }
+        .image-card { width: 20vw; height: 20vw; max-width: 80px; max-height: 80px; object-fit: cover; border-radius: 10px; border: 3px solid #3d3d5c; opacity: 0; transition: 0.1s; background: #2d2d44; display: none; }
         .image-card.loaded { opacity: 1; }
         .image-card.double-size { width: 42vw; max-width: 170px; }
         .active-slot { border-color: #00cec9 !important; transform: scale(1.05); }
@@ -74,7 +74,14 @@
             <div id="feedbackDisplay" style="color:#00cec9; font-weight:bold">READY</div>
         </div>
         <button id="shuffleBtn" class="primary-btn" style="padding: 10px; font-size: 14px;">ПЕРЕМЕШАТЬ КАРТЫ</button>
-        <div id="imageContainer" class="grid"></div>
+        
+        <div id="imageContainer" class="grid">
+            <img class="image-card">
+            <img class="image-card">
+            <img class="image-card">
+            <img class="image-card">
+        </div>
+
         <div id="tapArea" class="tap-area">ТАПАЙ В РИТМ</div>
         <div style="margin-top:15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;">
             <button id="metronomeBtn" class="primary-btn" style="margin:0">СТАРТ</button>
@@ -188,15 +195,23 @@
         }
         currentSequence = seq;
         expectedHits = seq.reduce((s, i) => s + i.pattern.length, 0);
-        const container = document.getElementById('imageContainer');
-        container.innerHTML = '';
-        seq.forEach(item => {
-            const img = document.createElement('img');
+
+        // Оптимизированный рендер без перегрузки DOM
+        const images = document.querySelectorAll('#imageContainer .image-card');
+        images.forEach(img => {
+            img.style.display = 'none';
+            img.classList.remove('loaded');
+            img.classList.remove('active-slot');
+        });
+
+        seq.forEach((item, idx) => {
+            const img = images[idx];
             img.src = item.src;
             img.className = 'image-card' + (item.size === 2 ? ' double-size' : '');
+            img.style.display = 'block';
             img.onload = () => img.classList.add('loaded');
-            container.appendChild(img);
         });
+
         startCountdown();
     }
 
@@ -207,7 +222,10 @@
         currentCycleHits = 0;
         currentCycleMisses = 0;
         targetTimings = [];
-        if(!isCalibrating) document.getElementById('feedbackDisplay').innerText = "WAIT...";
+        if(!isCalibrating) {
+            // Подсказка статуса, если перемешивали во время паузы
+            document.getElementById('feedbackDisplay').innerText = isRunning ? "WAIT..." : "READY";
+        }
     }
 
     function playTick() {
@@ -285,13 +303,11 @@
         if (!isRunning || !isPlayingSequence) return;
         const now = audioCtx.currentTime;
 
-        // Визуальный и тактильный отклик для кнопки
         const btn = document.getElementById(areaId);
         btn.classList.add('active-tap');
         setTimeout(() => btn.classList.remove('active-tap'), 100);
         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-        // Обработка режима КАЛИБРОВКИ
         if (isCalibrating) {
             let diff = now - lastBeatStartTime;
             const spb = 60 / 70;
@@ -311,7 +327,6 @@
             return;
         }
 
-        // Обработка ИГРОВОГО режима с системой PERFECT / GOOD / MISS
         let isHit = false;
         let hitQuality = "";
         const feedbackEl = document.getElementById('feedbackDisplay');
@@ -319,7 +334,7 @@
         for (let i = 0; i < targetTimings.length; i++) {
             const diff = Math.abs(now - (targetTimings[i].time + userOffset));
             
-            if (diff <= 0.15) { // PERFECT
+            if (diff <= 0.20) { // Новое окно PERFECT (0.20s)
                 targetTimings.splice(i, 1);
                 score += 100; 
                 currentCycleHits++; 
@@ -327,7 +342,7 @@
                 hitQuality = "PERFECT!";
                 feedbackEl.style.color = "#00cec9";
                 break;
-            } else if (diff <= 0.35) { // GOOD
+            } else if (diff <= 0.45) { // Новое окно GOOD (0.45s)
                 targetTimings.splice(i, 1);
                 score += 50; 
                 currentCycleHits++; 
@@ -341,7 +356,6 @@
         if (isHit) {
             feedbackEl.innerText = hitQuality;
         } else {
-            // MISS
             score = Math.max(0, score - 30); 
             currentCycleMisses++;
             feedbackEl.innerText = "MISS!";
@@ -376,6 +390,7 @@
 
     document.getElementById('calibStartBtn').onclick = function() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         calibrationData = []; 
         isCalibrating = true;
         
@@ -391,20 +406,20 @@
 
     document.getElementById('metronomeBtn').onclick = function() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Оптимизация мгновенного старта на мобильных
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
         if (!isRunning) {
             isRunning = true; nextBeatTime = audioCtx.currentTime;
             roll(); scheduler(); this.innerText = "СТОП";
         } else { stopMetronome(); }
     };
 
-    document.getElementById('shuffleBtn').onclick = () => { if(isRunning) roll(); };
+    // Теперь тасует в любое время
+    document.getElementById('shuffleBtn').onclick = () => { roll(); };
+    
     document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value + " BPM"; };
 
-    // Подключаем зоны тапа
-    const tapArea = document.getElementById('tapArea');
-    const calibTapArea = document.getElementById('calibTapArea');
-    
-    // Оптимизированный современный перехват касаний без микрозадержек
     function bindFastTap(element, areaId) {
         element.addEventListener('pointerdown', (e) => {
             e.preventDefault();
@@ -415,7 +430,6 @@
     bindFastTap(tapArea, 'tapArea');
     bindFastTap(calibTapArea, 'calibTapArea');
 
-    // Инициализация
     initLevels();
 </script>
 </body>
