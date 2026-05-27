@@ -90,7 +90,6 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // ВАЖНО: СЮДА ВСТАВЬ ПОЛНЫЙ СПИСОК УРОВНЕЙ
     const levelPacks = {
         1: [{ src: "Lvl1/s1.png", size: 1, pattern: [0] }, { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }],
         2: [{ src: "lvl2/2.png", size: 1, pattern: [0, 0.5] }],
@@ -113,12 +112,12 @@
         19: [{ src: "Lvl19/12.png", size: 1, pattern: [0, 0.33, 0.66] }]
     };
 
+
     let currentLevel = 1, score = 0;
     let audioCtx, nextBeatTime, timerID;
     let perfectStreak = 0, lastStarsCount = 0;
     let currentSequence = [];
     
-    // Аудиодвижок
     let micStream = null;
     let mediaRecorder = null;
     let audioChunks = [];
@@ -127,7 +126,6 @@
     
     let levelStars = JSON.parse(localStorage.getItem('rhythm_stars')) || {};
 
-    // --- НАВИГАЦИЯ ---
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
         document.getElementById(id).style.display = 'block';
@@ -176,17 +174,12 @@
         lastStarsCount = currentStars;
     }
 
-    // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ВЫБОРА КАРТОЧЕК ---
     function roll() {
         const pool = [];
         
         for(let i = 1; i <= currentLevel; i++) {
             if(levelPacks[i]) {
-                // Добавляем карточки в пул 1 раз
                 pool.push(...levelPacks[i]);
-                
-                // Если это текущий (новый) уровень, добавляем их еще 1 раз (а не 2, как было)
-                // Шанс удваивается, оставляя хороший баланс со старым материалом
                 if (i === currentLevel) {
                     pool.push(...levelPacks[i]); 
                 }
@@ -215,7 +208,6 @@
         });
     }
 
-    // --- ДОСТУП К МИКРОФОНУ ---
     async function initMic() {
         if (micStream) return true;
         try {
@@ -229,7 +221,6 @@
         }
     }
 
-    // --- ЦИКЛ МЕТРОНОМА И ЗАПИСИ ---
     function startEngine() {
         state = 'COUNTDOWN';
         beatCount = 0;
@@ -319,7 +310,6 @@
         }
     }
 
-    // --- АНАЛИЗ АУДИО ---
     async function processAudio() {
         const blob = new Blob(audioChunks, { type: 'audio/webm' });
         const arrayBuffer = await blob.arrayBuffer();
@@ -333,7 +323,8 @@
         const threshold = Math.max(0.03, maxVol * 0.25);
         const peaks = [];
         
-        const debounceFrames = sampleRate * 0.10; 
+        // Уменьшенное окно "склейки" хлопков, чтобы ловить быстрые ноты (было 0.10, стало 0.08)
+        const debounceFrames = sampleRate * 0.08; 
         let lastPeakFrame = -debounceFrames;
         
         for (let i = 0; i < data.length; i++) {
@@ -355,10 +346,10 @@
             acc += item.size;
         });
 
-        evaluateGameplay(peaks, expectedTargets);
+        evaluateGameplay(peaks, expectedTargets, spb);
     }
 
-    function evaluateGameplay(peaks, expectedTargets) {
+    function evaluateGameplay(peaks, expectedTargets, spb) {
         const fb = document.getElementById('feedbackDisplay');
 
         if (expectedTargets.length === 0) {
@@ -391,7 +382,8 @@
         const firstPlayedNote = peaks[0];               
         let shift = firstPlayedNote - firstExpectedTarget; 
 
-        if (Math.abs(shift) > 0.35) {
+        // Динамический предел сдвига грува (чтобы не ломать ритм при долгом опоздании)
+        if (Math.abs(shift) > spb * 0.6) {
             shift = 0;
         }
 
@@ -399,6 +391,10 @@
         let cycleMisses = 0;
         const matchedPeaks = new Set();
         
+        // НОВЫЕ, СТРОГИЕ ОКНА ПОГРЕШНОСТИ, ЗАВИСЯЩИЕ ОТ ТЕМПА (BPM)
+        const perfectWindow = spb * 0.15; // 15% от доли (очень точно)
+        const goodWindow = spb * 0.28;    // 28% от доли (прощает мелкие огрехи, но отличает ритмы)
+
         expectedTargets.forEach(target => {
             let bestDiff = Infinity;
             let bestPeakIdx = -1;
@@ -411,9 +407,13 @@
                 if (diff < bestDiff) { bestDiff = diff; bestPeakIdx = pIdx; }
             });
             
-            if (bestDiff <= 0.25) { cycleHits++; score += 100; matchedPeaks.add(bestPeakIdx); } // PERFECT
-            else if (bestDiff <= 0.45) { cycleHits++; score += 50; matchedPeaks.add(bestPeakIdx); } // GOOD
-            else { cycleMisses++; score = Math.max(0, score - 30); } // MISS
+            if (bestDiff <= perfectWindow) { 
+                cycleHits++; score += 100; matchedPeaks.add(bestPeakIdx); 
+            } else if (bestDiff <= goodWindow) { 
+                cycleHits++; score += 50; matchedPeaks.add(bestPeakIdx); 
+            } else { 
+                cycleMisses++; score = Math.max(0, score - 30); 
+            }
         });
         
         const extraPeaks = peaks.length - matchedPeaks.size;
@@ -445,7 +445,6 @@
         document.querySelectorAll('.image-card').forEach(c => c.classList.remove('active-slot'));
     }
 
-    // --- СОБЫТИЯ КНОПОК ---
     document.getElementById('startGameBtn').onclick = () => { 
         showScreen('gameScreen');
         document.getElementById('currentLevelDisplay').innerText = currentLevel;
