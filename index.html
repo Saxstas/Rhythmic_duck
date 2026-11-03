@@ -579,7 +579,11 @@
         lastStarsCount = 0; updateStarsUI(); roll();
     };
 
-    document.getElementById('backBtn').onclick = () => { initLevels(); showScreen('menuScreen'); };
+    document.getElementById('backBtn').onclick = () => {
+        if (state !== 'IDLE') resetEngine('statusArea', 'metronomeBtn');
+        initLevels();
+        showScreen('menuScreen');
+    };
 
     document.getElementById('metronomeBtn').onclick = function() {
         if (state !== 'IDLE') {
