@@ -26,13 +26,16 @@
         .duck-count { flex:none; padding:6px 9px; color:#4d5c91; background:#e8eaff; border:1px solid #cbd0ed; border-radius:999px; font-size:11px; font-weight:900; }
         .duck-collection-preview { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; margin-bottom:10px; }
          .duck-preview { display:grid; place-items:center; aspect-ratio:1; min-width:0; overflow:hidden; border-radius:12px; background:linear-gradient(145deg,#fff,#f0f2ff); border:1px solid #dfe2f2; }
-        .duck-preview img { width:100%; height:100%; padding:2px; object-fit:contain; }
-        .duck-preview.locked img { filter:grayscale(1); opacity:.42; }
+         .duck-preview img { width:100%; height:100%; padding:2px; object-fit:contain; }
+        .duck-preview.locked { position:relative; border-color:#a72f3c; background:repeating-linear-gradient(90deg,#7f2330 0 5px,#a72f3c 5px 10px,#c24750 10px 14px,#9a2b39 14px 19px); box-shadow:inset 0 2px 0 rgba(255,225,171,.8),inset 0 -4px 8px rgba(60,8,18,.35); }
+        .duck-preview.locked::before { content:"?"; position:absolute; inset:0; display:grid; place-items:center; color:#fff1cd; font-size:17px; font-weight:900; text-shadow:0 2px 4px rgba(38,9,13,.7); }
+        .duck-preview.locked img { display:none; }
         .duck-collection-btn { width:100%; margin:0; display:flex; align-items:center; justify-content:center; gap:7px; }
         .duck-collection-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; max-height:min(58vh,480px); overflow-y:auto; margin-top:13px; padding:2px; }
         .duck-card { min-width:0; padding:10px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.82); }
         .duck-card.unlocked { border-color:rgba(61,154,120,.34); background:linear-gradient(145deg,#fff,#eff8ef); }
-        .duck-card.locked { opacity:.7; }
+         .duck-card.locked { opacity:.86; }
+        .duck-card.locked .duck-card-avatar { color:#fff1cd; font-size:21px; font-weight:900; text-shadow:0 2px 4px rgba(38,9,13,.7); background:repeating-linear-gradient(90deg,#7f2330 0 5px,#a72f3c 5px 10px,#c24750 10px 14px,#9a2b39 14px 19px); border:1px solid #842330; box-shadow:inset 0 2px 0 rgba(255,225,171,.8),inset 0 -4px 8px rgba(60,8,18,.35); }
         .duck-card.selected { box-shadow:0 0 0 2px #687bc2; }
         .duck-card-top { display:flex; align-items:center; gap:8px; min-height:42px; }
         .duck-card-avatar { flex:none; width:40px; height:40px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:#eef2ff; }
@@ -170,7 +173,7 @@
         <button id="startGameBtn" class="primary-btn">НАЧАТЬ ЗАНЯТИЕ <span aria-hidden="true">→</span></button>
         <section class="duck-collection-panel" aria-labelledby="duckCollectionTitle">
             <div class="duck-collection-heading">
-                <div><h2 id="duckCollectionTitle">Коллекция уточек</h2><p>Собирай три звезды на контрольных уровнях и знакомься с новыми уточками.</p></div>
+                <div><h2 id="duckCollectionTitle">Коллекция уточек</h2><p>Открывай уточек за три звезды — в шапке появится самая последняя достигнутая.</p></div>
                 <div id="duckCollectionCount" class="duck-count">0 / 6</div>
             </div>
             <div id="duckCollectionPreview" class="duck-collection-preview" aria-label="Собранные уточки"></div>
@@ -234,7 +237,7 @@
             <h2 id="duckModalTitle">Коллекция уточек</h2>
             <button id="closeDuckBtn" class="secondary-btn" type="button" aria-label="Закрыть">✕</button>
         </div>
-        <p style="color:var(--muted);font-size:12px;line-height:1.45;margin:0">Новые уточки открываются за три звезды на контрольных уровнях. Выбери, кто будет с тобой сегодня.</p>
+        <p style="color:var(--muted);font-size:12px;line-height:1.45;margin:0">Новые уточки открываются за три звезды на контрольных уровнях. Закрытые персонажи ждут за занавесом, а в шапке всегда последняя достигнутая уточка.</p>
         <div id="duckCollectionList" class="duck-collection-list"></div>
     </section>
 </div>
@@ -461,7 +464,8 @@
         duckCollection.forEach(duck => {
             if (Number(levelStars[duck.level] || 0) === 3 && !unlockedDucks.includes(duck.id)) unlockedDucks.push(duck.id);
         });
-        if (!unlockedDucks.includes(selectedDuckId)) selectedDuckId = unlockedDucks[0] || 'rhythm-duck';
+        const latest = duckCollection.filter(duck => unlockedDucks.includes(duck.id)).at(-1);
+        selectedDuckId = latest ? latest.id : '';
     }
 
     function unlockCompletedMilestoneDuck() {
@@ -472,10 +476,10 @@
     }
 
     function renderDuckCollection() {
-        const selected = duckCollection.find(duck => duck.id === selectedDuckId) || duckCollection[0];
+        const selected = duckCollection.find(duck => duck.id === selectedDuckId && unlockedDucks.includes(duck.id));
         const image = document.querySelector('.brand-mascot');
-        if (image && selected) {
-            image.src = selected.asset;
+        if (image) {
+            image.src = selected ? selected.asset : 'assets/duck-mascot.png';
             image.style.filter = '';
         }
         const count = document.getElementById('duckCollectionCount');
@@ -485,11 +489,16 @@
         duckCollection.forEach(duck => {
             const token = document.createElement('span');
             token.className = 'duck-preview' + (unlockedDucks.includes(duck.id) ? '' : ' locked');
-            const image = document.createElement('img');
-            image.src = duck.asset;
-            image.alt = '';
-            token.appendChild(image);
-            token.title = unlockedDucks.includes(duck.id) ? duck.name : 'Уровень ' + duck.level;
+            const unlocked = unlockedDucks.includes(duck.id);
+            if (unlocked) {
+                const previewImage = document.createElement('img');
+                previewImage.src = duck.asset;
+                previewImage.alt = '';
+                token.appendChild(previewImage);
+            } else {
+                token.setAttribute('aria-label', 'Уточка скрыта за занавесом');
+            }
+            token.title = unlocked ? duck.name : 'Уровень ' + duck.level;
             preview.appendChild(token);
         });
     }
@@ -512,7 +521,7 @@
                 image.alt = '';
                 avatar.appendChild(image);
             } else {
-                avatar.textContent = '？';
+                avatar.textContent = '?';
             }
             const name = document.createElement('span');
             name.className = 'duck-card-name';
@@ -524,9 +533,8 @@
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'duck-card-action';
-            button.disabled = !unlocked;
-            button.textContent = !unlocked ? 'Пока закрыта' : selected ? 'Выбрана' : 'Выбрать';
-            button.onclick = () => selectDuck(duck.id);
+            button.disabled = true;
+            button.textContent = !unlocked ? 'За занавесом' : selected ? 'Сейчас в шапке' : 'Уже открыта';
             card.append(top, condition, button);
             list.appendChild(card);
         });
@@ -539,14 +547,6 @@
 
     function closeDuckModal() {
         document.getElementById('duckModal').hidden = true;
-    }
-
-    function selectDuck(id) {
-        if (!unlockedDucks.includes(id)) return;
-        selectedDuckId = id;
-        persistActiveStudent();
-        renderDuckCollection();
-        renderDuckCards();
     }
 
     function showRewardToast(duck) {
