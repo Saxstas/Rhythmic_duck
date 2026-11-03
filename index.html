@@ -40,6 +40,33 @@
         .rank-box { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:14px; padding:11px 14px; margin:0 0 10px; display:flex; justify-content:space-between; align-items:center; font-size:13px; }
         .rank-title { font-weight:800; color:var(--mint); }
         .total-stars { color:var(--gold); font-weight:800; }
+        .pond-panel { margin:0 0 14px; padding:14px; text-align:left; background:linear-gradient(145deg,#effaf1,#e3f4e9); border:1px solid rgba(72,131,105,.2); border-radius:18px; box-shadow:0 6px 18px rgba(49,92,70,.07); }
+        .pond-heading { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+        .pond-heading h2 { margin:0; color:#35664f; font-size:15px; }
+        .pond-heading p { margin:4px 0 0; color:var(--muted); font-size:11px; line-height:1.4; }
+        .pond-count { flex:none; padding:6px 9px; color:#35664f; background:#d7edda; border:1px solid #b9d9bf; border-radius:999px; font-size:11px; font-weight:900; }
+        .pond-scene { position:relative; overflow:hidden; width:100%; aspect-ratio:2/1; margin:11px 0; background:#78c5ba; border:1px solid rgba(45,120,100,.28); border-radius:16px; box-shadow:0 5px 14px rgba(34,88,77,.12); }
+        .pond-scene > img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 35%; }
+        .pond-decoration-layer { position:absolute; inset:0; pointer-events:none; }
+        .pond-decoration { position:absolute; display:grid; place-items:center; width:36px; height:36px; border:1px solid rgba(255,255,255,.8); border-radius:13px; background:rgba(255,255,249,.92); box-shadow:0 4px 12px rgba(23,52,44,.22); font-size:21px; transform:translate(-50%,-50%); animation:pondItemPop .3s ease-out; }
+        @keyframes pondItemPop { from { opacity:0; transform:translate(-50%,-50%) scale(.6); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+        .pond-collection-btn { width:100%; margin:0; display:flex; align-items:center; justify-content:center; gap:7px; }
+        .pond-rewards-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; max-height:min(58vh,480px); overflow-y:auto; margin-top:13px; padding:2px; }
+        .pond-reward-card { min-width:0; padding:10px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.82); }
+        .pond-reward-card.unlocked { border-color:rgba(61,154,120,.34); background:linear-gradient(145deg,#fff,#eff8ef); }
+        .pond-reward-card.locked { opacity:.72; }
+        .pond-reward-top { display:flex; align-items:center; gap:8px; min-height:42px; }
+        .pond-reward-icon { flex:none; width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:#e8f2e7; font-size:22px; }
+        .pond-reward-name { color:var(--ink); font-size:11px; font-weight:800; line-height:1.25; }
+        .pond-reward-condition { min-height:28px; margin:7px 0; color:var(--muted); font-size:10px; line-height:1.35; }
+        .pond-reward-action { width:100%; min-height:34px; padding:7px; border:1px solid rgba(72,131,105,.18); border-radius:9px; color:#35664f; background:#edf6eb; font-size:10px; font-weight:800; cursor:pointer; }
+        .pond-reward-action:disabled { color:#8d998f; background:#f0f1ed; cursor:not-allowed; }
+        .reward-toast { position:fixed; z-index:20; bottom:18px; left:50%; transform:translateX(-50%); width:min(92vw,470px); display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; color:var(--ink); background:#fffdf4; border:1px solid rgba(229,180,95,.55); border-radius:15px; box-shadow:0 12px 36px rgba(32,57,43,.23); text-align:left; }
+        .reward-toast[hidden] { display:none; }
+        .reward-toast-copy { font-size:12px; line-height:1.4; }
+        .reward-toast-copy strong { color:#95681c; }
+        .reward-toast button { flex:none; padding:8px 10px; border:0; border-radius:9px; color:#17211a; background:linear-gradient(135deg,#e9c374,#d79c41); font-size:11px; font-weight:900; cursor:pointer; }
+
         .levels-heading { display:flex; align-items:center; justify-content:space-between; margin:17px 2px 9px; text-align:left; }
         .levels-heading strong { font-size:13px; letter-spacing:.3px; }
         .levels-heading span { font-size:11px; color:var(--muted); }
@@ -138,6 +165,17 @@
             <div class="total-stars" id="totalStarsDisplay">★ 0</div>
         </div>
         <button id="leaderboardBtn" class="secondary-btn leaderboard-trigger" type="button"><span>🏆 Турнирная таблица</span><span id="leaderboardCount">0 учеников</span></button>
+        <section class="pond-panel" aria-labelledby="pondTitle">
+            <div class="pond-heading">
+                <div><h2 id="pondTitle">Пруд уточки</h2><p>За три звезды на ключевых уровнях открываются музыкальные награды.</p></div>
+                <div id="pondCollectionCount" class="pond-count">0 / 6</div>
+            </div>
+            <div class="pond-scene">
+                <img src="assets/duck-pond-scene.jpg" alt="Уточка плавает в пруду среди музыкальных нот" width="900" height="506" loading="lazy">
+                <div id="pondDecorationLayer" class="pond-decoration-layer" aria-label="Выбранные украшения уточки и пруда"></div>
+            </div>
+            <button id="pondCollectionBtn" class="secondary-btn pond-collection-btn" type="button">♫ Музыкальная коллекция</button>
+        </section>
         <div class="levels-heading"><strong>Карта музыкальных уровней</strong><span>Все уровни доступны</span></div>
         <div class="level-groups" id="levelsGrid"></div>
         <a class="channel-link" href="https://t.me/saxstass" target="_blank" rel="noopener noreferrer" aria-label="Поддержать подпиской на Telegram-канал Saxstass">
@@ -196,6 +234,17 @@
     </form>
 </div>
 
+<div id="pondModal" class="student-dialog-backdrop" hidden>
+    <section class="student-dialog pond-dialog" role="dialog" aria-modal="true" aria-labelledby="pondModalTitle">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <h2 id="pondModalTitle">Музыкальная коллекция</h2>
+            <button id="closePondBtn" class="secondary-btn" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <p style="color:var(--muted);font-size:12px;line-height:1.45;margin:0">Каждая награда открывается после трёх звёзд на своём уровне. Выбирай, что надеть уточке или поставить на пруд.</p>
+        <div id="pondRewardsList" class="pond-rewards-list"></div>
+    </section>
+</div>
+
 <div id="leaderboardModal" class="student-dialog-backdrop" hidden>
     <section class="student-dialog" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
         <span class="section-label">ТВОИ УЧЕНИКИ</span>
@@ -208,6 +257,7 @@
     </section>
 </div>
 
+<div id="rewardToast" class="reward-toast" role="status" aria-live="polite" hidden></div>
 <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
@@ -240,6 +290,15 @@
     };
 
 
+    const pondRewards = [
+        { id: 'note-pin', level: 1, name: 'Брошь-нотка', icon: '🎵', kind: 'wear', left: 43, top: 58 },
+        { id: 'conductor-cap', level: 4, name: 'Берет дирижёра', icon: '🎩', kind: 'wear', left: 38, top: 15 },
+        { id: 'drum-lily', level: 7, name: 'Барабанная кувшинка', icon: '🥁', kind: 'pond', left: 77, top: 61 },
+        { id: 'keyboard-lily', level: 12, name: 'Клавиши на кувшинке', icon: '🎹', kind: 'pond', left: 15, top: 64 },
+        { id: 'music-badge', level: 16, name: 'Значок с нотами', icon: '🎼', kind: 'wear', left: 47, top: 68 },
+        { id: 'music-fountain', level: 19, name: 'Фонтан из нот', icon: '🎶', kind: 'pond', left: 83, top: 45 }
+    ];
+
     const readStored = (key, fallback) => {
         try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
         catch (error) { return fallback; }
@@ -257,6 +316,9 @@
     if (!students.some(student => student.id === activeStudentId)) activeStudentId = students[0].id;
     let activeStudent = students.find(student => student.id === activeStudentId);
     let currentLevel = Math.min(19, Math.max(1, Number(activeStudent.level) || 1));
+    let unlockedPondRewards = Array.isArray(activeStudent.unlockedPondRewards) ? activeStudent.unlockedPondRewards : [];
+    let placedPondRewards = Array.isArray(activeStudent.placedPondRewards) ? activeStudent.placedPondRewards : [];
+    let rewardToastTimer;
     let audioCtx, nextBeatTime, timerID;
     let lastStarsCount = 0;
     let currentSequence = [];
@@ -336,12 +398,15 @@
     function applyLevelPoints(delta) {
         levelPoints[currentLevel] = Math.max(0, Math.round((pointsForLevel(currentLevel) + delta) * 10) / 10);
         levelStars = starsFromPoints(levelPoints);
+        const newReward = unlockCompletedMilestoneReward();
         persistActiveStudent();
         updateCurrentLevelPoints();
         updateStarsUI();
         updateStudentSummary();
         initLevels();
         renderLeaderboard();
+        renderPondScene();
+        if (newReward) showRewardToast(newReward);
     }
 
     let levelPoints = activeStudent.levelPoints || pointsFromStars(activeStudent.stars);
@@ -350,6 +415,8 @@
         activeStudent.level = currentLevel;
         activeStudent.levelPoints = levelPoints;
         activeStudent.stars = levelStars;
+        activeStudent.unlockedPondRewards = unlockedPondRewards;
+        activeStudent.placedPondRewards = placedPondRewards;
         localStorage.setItem(storageKey('rhythmic_students'), JSON.stringify(students));
         localStorage.setItem(storageKey('rhythmic_active_student_id'), activeStudentId);
     }
@@ -384,12 +451,118 @@
         currentLevel = Math.min(19, Math.max(1, Number(activeStudent.level) || 1));
         levelPoints = activeStudent.levelPoints || pointsFromStars(activeStudent.stars);
         levelStars = starsFromPoints(levelPoints);
+        unlockedPondRewards = Array.isArray(activeStudent.unlockedPondRewards) ? activeStudent.unlockedPondRewards : [];
+        placedPondRewards = Array.isArray(activeStudent.placedPondRewards) ? activeStudent.placedPondRewards : [];
         lastStarsCount = 0;
+        syncMilestoneRewards();
         persistActiveStudent();
+        renderPondScene();
         renderStudentSelector();
         initLevels();
         renderLeaderboard();
         updateCurrentLevelPoints();
+    }
+
+    function syncMilestoneRewards() {
+        pondRewards.forEach(reward => {
+            if (Number(levelStars[reward.level] || 0) === 3 && !unlockedPondRewards.includes(reward.id)) unlockedPondRewards.push(reward.id);
+        });
+    }
+
+    function unlockCompletedMilestoneReward() {
+        const reward = pondRewards.find(item => item.level === currentLevel && Number(levelStars[currentLevel] || 0) === 3 && !unlockedPondRewards.includes(item.id));
+        if (!reward) return null;
+        unlockedPondRewards.push(reward.id);
+        return reward;
+    }
+
+    function renderPondScene() {
+        const layer = document.getElementById('pondDecorationLayer');
+        if (!layer) return;
+        layer.innerHTML = '';
+        document.getElementById('pondCollectionCount').innerText = unlockedPondRewards.length + ' / ' + pondRewards.length + ' открыто';
+        placedPondRewards.forEach(id => {
+            const reward = pondRewards.find(item => item.id === id && unlockedPondRewards.includes(id));
+            if (!reward) return;
+            const token = document.createElement('span');
+            token.className = 'pond-decoration ' + reward.kind;
+            token.textContent = reward.icon;
+            token.title = reward.name;
+            token.setAttribute('aria-label', reward.name);
+            token.style.left = reward.left + '%';
+            token.style.top = reward.top + '%';
+            layer.appendChild(token);
+        });
+    }
+
+    function renderPondRewards() {
+        const list = document.getElementById('pondRewardsList');
+        list.innerHTML = '';
+        pondRewards.forEach(reward => {
+            const unlocked = unlockedPondRewards.includes(reward.id);
+            const placed = placedPondRewards.includes(reward.id);
+            const card = document.createElement('article');
+            card.className = 'pond-reward-card ' + (unlocked ? 'unlocked' : 'locked');
+            const top = document.createElement('div');
+            top.className = 'pond-reward-top';
+            const icon = document.createElement('span');
+            icon.className = 'pond-reward-icon';
+            icon.textContent = reward.icon;
+            const name = document.createElement('span');
+            name.className = 'pond-reward-name';
+            name.textContent = reward.name;
+            top.append(icon, name);
+            const condition = document.createElement('div');
+            condition.className = 'pond-reward-condition';
+            condition.textContent = unlocked
+                ? (reward.kind === 'wear' ? 'Открыто · надеть на уточку' : 'Открыто · поставить на пруд')
+                : 'Уровень ' + reward.level + ' · нужно 3 звезды';
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'pond-reward-action';
+            button.disabled = !unlocked;
+            button.textContent = !unlocked ? 'Пока закрыто' : placed
+                ? (reward.kind === 'wear' ? 'Снять' : 'Убрать с пруда')
+                : (reward.kind === 'wear' ? 'Надеть' : 'Поставить на пруд');
+            button.onclick = () => togglePondReward(reward.id);
+            card.append(top, condition, button);
+            list.appendChild(card);
+        });
+    }
+
+    function openPondModal() {
+        renderPondRewards();
+        document.getElementById('pondModal').hidden = false;
+    }
+
+    function closePondModal() {
+        document.getElementById('pondModal').hidden = true;
+    }
+
+    function togglePondReward(id) {
+        if (!unlockedPondRewards.includes(id)) return;
+        placedPondRewards = placedPondRewards.includes(id)
+            ? placedPondRewards.filter(itemId => itemId !== id)
+            : [...placedPondRewards, id];
+        persistActiveStudent();
+        renderPondScene();
+        renderPondRewards();
+    }
+
+    function showRewardToast(reward) {
+        const toast = document.getElementById('rewardToast');
+        toast.innerHTML = '';
+        const copy = document.createElement('div');
+        copy.className = 'reward-toast-copy';
+        copy.innerHTML = '<strong>Открыта награда!</strong><br>' + reward.icon + ' ' + reward.name + ' · ' + (reward.kind === 'wear' ? 'можно надеть на уточку' : 'можно поставить на пруд');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Выбрать';
+        button.onclick = openPondModal;
+        toast.append(copy, button);
+        toast.hidden = false;
+        window.clearTimeout(rewardToastTimer);
+        rewardToastTimer = window.setTimeout(() => { toast.hidden = true; }, 7000);
     }
 
     let studentDialogMode = 'add';
@@ -649,7 +822,7 @@
         const name = document.getElementById('studentNameInput').value.trim().slice(0, 32);
         if (!name) return;
         if (studentDialogMode === 'add') {
-            const student = { id: `student-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name, level: 1, levelPoints: {}, stars: {} };
+            const student = { id: `student-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name, level: 1, levelPoints: {}, stars: {}, unlockedPondRewards: [], placedPondRewards: [] };
             students.push(student);
             setActiveStudent(student.id);
         } else {
@@ -667,6 +840,7 @@
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
             closeStudentDialog();
+            closePondModal();
             document.getElementById('leaderboardModal').hidden = true;
         }
     });
@@ -677,6 +851,11 @@
         activeStudentId = students[0].id;
         setActiveStudent(activeStudentId);
     };
+    document.getElementById('pondCollectionBtn').onclick = openPondModal;
+    document.getElementById('closePondBtn').onclick = closePondModal;
+    document.getElementById('pondModal').onclick = event => {
+        if (event.target === event.currentTarget) closePondModal();
+    };
     document.getElementById('leaderboardBtn').onclick = () => {
         renderLeaderboard();
         document.getElementById('leaderboardModal').hidden = false;
@@ -686,7 +865,9 @@
         if (event.target === event.currentTarget) event.currentTarget.hidden = true;
     };
 
+    syncMilestoneRewards();
     renderStudentSelector();
+    renderPondScene();
     initLevels();
     updateCurrentLevelPoints();
     renderLeaderboard();
