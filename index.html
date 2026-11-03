@@ -23,6 +23,12 @@
         select:focus, input[type=text]:focus { border-color:var(--gold); }
         .student-actions { display:flex; gap:7px; margin-top:11px; }
         .student-meta { display:flex; justify-content:space-between; gap:8px; margin-top:12px; color:var(--muted); font-size:12px; }
+        .student-dialog-backdrop { position:fixed; inset:0; z-index:10; place-items:center; padding:18px; background:rgba(8,13,11,.76); backdrop-filter:blur(8px); }
+        .student-dialog-backdrop:not([hidden]) { display:grid; }
+        .student-dialog { width:min(100%,380px); padding:22px; text-align:left; background:linear-gradient(160deg,#2a3a30,#19251f); border:1px solid var(--line); border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,.45); }
+        .student-dialog h2 { margin:0 0 17px; color:var(--ink); font-size:20px; }
+        .student-dialog label { display:block; margin-bottom:7px; color:var(--muted); font-size:12px; font-weight:700; }
+        .student-dialog-actions { display:grid; grid-template-columns:1fr 1.4fr; gap:9px; margin-top:15px; }
         .channel-link { display:flex; align-items:center; justify-content:center; gap:9px; color:var(--mint); text-decoration:none; font-size:12px; font-weight:800; padding:11px; border:1px solid rgba(141,211,180,.16); background:rgba(141,211,180,.045); border-radius:12px; margin:0 0 10px; transition:.18s; }
         .channel-link:hover { color:#b8efd4; border-color:rgba(141,211,180,.38); background:rgba(141,211,180,.08); }
         .rank-box { background:rgba(0,0,0,.13); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:11px 14px; margin:0 0 16px; display:flex; justify-content:space-between; align-items:center; font-size:13px; }
@@ -55,10 +61,10 @@
         .star-pop { animation: starPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.49); }
         @keyframes starPop { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1); } }
 
-        .grid { display:flex; justify-content:center; align-items:center; gap:8px; min-height:150px; background:radial-gradient(ellipse,rgba(229,180,95,.08),rgba(0,0,0,.23)); border-radius:18px; padding:15px; margin-bottom:13px; border:1px solid var(--line); }
-        .image-card { width:20vw; height:20vw; max-width:80px; max-height:80px; object-fit:cover; border-radius:12px; border:3px solid rgba(229,180,95,.24); opacity:0; transition:.16s; background:#26342c; display:none; }
+        .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); justify-items:center; align-items:center; gap:6px; min-height:150px; background:radial-gradient(ellipse,rgba(229,180,95,.08),rgba(0,0,0,.23)); border-radius:18px; padding:12px; margin-bottom:13px; border:1px solid var(--line); }
+        .image-card { grid-column:span 1; width:100%; max-width:80px; aspect-ratio:1/1; height:auto; object-fit:cover; border-radius:12px; border:3px solid rgba(229,180,95,.24); opacity:0; transition:.16s; background:#26342c; display:none; }
         .image-card.loaded { opacity: 1; }
-        .image-card.double-size { width: 42vw; max-width: 170px; }
+        .image-card.double-size { grid-column:span 2; width:100%; max-width:170px; aspect-ratio:2/1; height:auto; }
         .active-slot { border-color:var(--mint)!important; transform:scale(1.05); }
         .tap-area { background:rgba(141,211,180,.045); border:1px dashed rgba(141,211,180,.5); border-radius:15px; min-height:72px; display:flex; justify-content:center; align-items:center; font-size:14px; color:var(--mint); font-weight:800; transition:.3s; padding:10px; }
         .tap-area.recording { background:rgba(215,121,98,.16); border:1px solid var(--red); color:#f1a18c; }
@@ -150,9 +156,25 @@
     </div>
 </div>
 
+<div id="studentModal" class="student-dialog-backdrop" hidden>
+    <form id="studentForm" class="student-dialog">
+        <span class="section-label">ПРОФИЛЬ УЧЕНИКА</span>
+        <h2 id="studentDialogTitle">Новый ученик</h2>
+        <label for="studentNameInput">Имя или короткий псевдоним</label>
+        <input id="studentNameInput" type="text" maxlength="32" autocomplete="off" autocapitalize="words" required placeholder="Например, Саша">
+        <div class="student-dialog-actions">
+            <button id="cancelStudentBtn" class="secondary-btn" type="button">Отмена</button>
+            <button class="primary-btn" type="submit" style="margin:0">Сохранить</button>
+        </div>
+    </form>
+</div>
+
 <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
+    const telegramUserId = tg?.initDataUnsafe?.user?.id;
+    const storageScope = telegramUserId ? `telegram_${telegramUserId}` : 'browser';
+    const storageKey = key => `${key}_${storageScope}`;
 
     const levelPacks = {
         1: [{ src: "Lvl1/s1.png", size: 1, pattern: [0] }, { src: "Lvl1/Size2/6.png", size: 2, pattern: [0] }],
@@ -181,13 +203,16 @@
         try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
         catch (error) { return fallback; }
     };
-    const legacyStars = readStored('rhythm_stars', {});
-    let students = readStored('rhythmic_students', []);
+    const migrationKey = storageKey('rhythm_stars_migrated');
+    const wasMigrated = localStorage.getItem(migrationKey) === '1';
+    const legacyStars = wasMigrated ? {} : readStored('rhythm_stars', {});
+    let students = readStored(storageKey('rhythmic_students'), []);
     if (!Array.isArray(students)) students = [];
     if (students.length === 0) {
         students = [{ id: `student-${Date.now()}`, name: 'Ученик 1', level: 1, stars: legacyStars }];
     }
-    let activeStudentId = localStorage.getItem('rhythmic_active_student_id');
+    if (!wasMigrated) localStorage.setItem(migrationKey, '1');
+    let activeStudentId = localStorage.getItem(storageKey('rhythmic_active_student_id'));
     if (!students.some(student => student.id === activeStudentId)) activeStudentId = students[0].id;
     let activeStudent = students.find(student => student.id === activeStudentId);
     let currentLevel = Math.min(19, Math.max(1, Number(activeStudent.level) || 1)), score = 0;
@@ -203,13 +228,13 @@
     let currentPatternReviewed = false;
     
     let levelStars = activeStudent.stars || {};
-    let lessonMode = localStorage.getItem('rhythmic_mode') || 'teacher';
+    let lessonMode = localStorage.getItem(storageKey('rhythmic_mode')) || 'teacher';
 
     function persistActiveStudent() {
         activeStudent.level = currentLevel;
         activeStudent.stars = levelStars;
-        localStorage.setItem('rhythmic_students', JSON.stringify(students));
-        localStorage.setItem('rhythmic_active_student_id', activeStudentId);
+        localStorage.setItem(storageKey('rhythmic_students'), JSON.stringify(students));
+        localStorage.setItem(storageKey('rhythmic_active_student_id'), activeStudentId);
     }
 
     function updateStudentSummary() {
@@ -250,13 +275,27 @@
 
     function setLessonMode(mode) {
         lessonMode = mode;
-        localStorage.setItem('rhythmic_mode', mode);
+        localStorage.setItem(storageKey('rhythmic_mode'), mode);
         document.getElementById('teacherModeBtn').classList.toggle('active', mode === 'teacher');
         document.getElementById('autoModeBtn').classList.toggle('active', mode === 'auto');
         document.getElementById('teacherActions').classList.toggle('visible', mode === 'teacher');
         document.getElementById('statusArea').innerText = mode === 'teacher'
             ? 'Сыграй или проговори ритм'
             : '🎙️ Готов к записи';
+    }
+
+    let studentDialogMode = 'add';
+    function openStudentDialog(mode) {
+        studentDialogMode = mode;
+        document.getElementById('studentDialogTitle').innerText = mode === 'add' ? 'Новый ученик' : 'Переименовать ученика';
+        const input = document.getElementById('studentNameInput');
+        input.value = mode === 'rename' ? activeStudent.name : '';
+        document.getElementById('studentModal').hidden = false;
+        input.focus();
+    }
+
+    function closeStudentDialog() {
+        document.getElementById('studentModal').hidden = true;
     }
 
     function showScreen(id) {
@@ -658,20 +697,30 @@
     };
 
     document.getElementById('studentSelect').onchange = event => setActiveStudent(event.target.value);
-    document.getElementById('addStudentBtn').onclick = () => {
-        const name = prompt('Имя ученика:');
-        if (!name || !name.trim()) return;
-        const student = { id: `student-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: name.trim().slice(0, 32), level: 1, stars: {} };
-        students.push(student);
-        setActiveStudent(student.id);
+    document.getElementById('addStudentBtn').onclick = () => openStudentDialog('add');
+    document.getElementById('renameStudentBtn').onclick = () => openStudentDialog('rename');
+    document.getElementById('studentForm').onsubmit = event => {
+        event.preventDefault();
+        const name = document.getElementById('studentNameInput').value.trim().slice(0, 32);
+        if (!name) return;
+        if (studentDialogMode === 'add') {
+            const student = { id: `student-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name, level: 1, stars: {} };
+            students.push(student);
+            setActiveStudent(student.id);
+        } else {
+            activeStudent.name = name;
+            persistActiveStudent();
+            renderStudentSelector();
+        }
+        closeStudentDialog();
     };
-    document.getElementById('renameStudentBtn').onclick = () => {
-        const name = prompt('Новое имя ученика:', activeStudent.name);
-        if (!name || !name.trim()) return;
-        activeStudent.name = name.trim().slice(0, 32);
-        persistActiveStudent();
-        renderStudentSelector();
+    document.getElementById('cancelStudentBtn').onclick = closeStudentDialog;
+    document.getElementById('studentModal').onclick = event => {
+        if (event.target === event.currentTarget) closeStudentDialog();
     };
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeStudentDialog();
+    });
     document.getElementById('deleteStudentBtn').onclick = () => {
         if (students.length === 1) { alert('Оставь хотя бы один профиль ученика.'); return; }
         if (!confirm(`Удалить профиль «${activeStudent.name}» и его прогресс?`)) return;
