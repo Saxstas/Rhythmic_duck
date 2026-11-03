@@ -197,6 +197,7 @@
 <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
+    const imageBaseUrl = 'https://raw.githubusercontent.com/Saxstas/Rhythmic_duck/codex/teacher-student-profiles/';
     const telegramUserId = tg?.initDataUnsafe?.user?.id;
     const storageScope = telegramUserId ? `telegram_${telegramUserId}` : 'browser';
     const storageKey = key => `${key}_${storageScope}`;
@@ -489,7 +490,7 @@
                 img.classList.add('loaded');
                 img.alt = 'Не удалось загрузить карточку';
             };
-            img.src = item.src;
+            img.src = new URL(item.src, imageBaseUrl).href;
         });
     }
 
