@@ -197,7 +197,7 @@
 <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
-    const imageBaseUrl = 'https://cdn.jsdelivr.net/gh/Saxstas/Rhythmic_duck@8c82d68322afc7d72c75a8beaea5e0896e2fd12e/';
+    const imageBaseUrl = new URL('./', window.location.href);
     const telegramUserId = tg?.initDataUnsafe?.user?.id;
     const storageScope = telegramUserId ? `telegram_${telegramUserId}` : 'browser';
     const storageKey = key => `${key}_${storageScope}`;
