@@ -18,7 +18,33 @@
         .brand-header h1 { font-size:clamp(1rem,4vw,1.25rem); letter-spacing:2px; }
         .brand-header .brand-kicker { line-height:1.5; letter-spacing:2px; }
         .brand-header .intro { margin:6px 0 0; }
-        .brand-mascot { width:116px; height:122px; flex:none; object-fit:contain; filter:drop-shadow(0 5px 8px rgba(49,92,70,.12)); }
+        .brand-mascot { width:116px; height:122px; flex:none; object-fit:contain; filter:drop-shadow(0 5px 8px rgba(49,92,70,.12)); transition:filter .25s ease; }
+        .duck-collection-panel { margin:0 0 14px; padding:14px; text-align:left; background:linear-gradient(145deg,#fff9e9,#f5f0ff); border:1px solid rgba(115,110,169,.2); border-radius:18px; box-shadow:0 6px 18px rgba(49,72,92,.07); }
+        .duck-collection-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+        .duck-collection-heading h2 { margin:0; color:#4d5c91; font-size:15px; }
+        .duck-collection-heading p { margin:4px 0 0; color:var(--muted); font-size:11px; line-height:1.4; }
+        .duck-count { flex:none; padding:6px 9px; color:#4d5c91; background:#e8eaff; border:1px solid #cbd0ed; border-radius:999px; font-size:11px; font-weight:900; }
+        .duck-collection-preview { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; margin-bottom:10px; }
+         .duck-preview { display:grid; place-items:center; aspect-ratio:1; min-width:0; overflow:hidden; border-radius:12px; background:linear-gradient(145deg,#fff,#f0f2ff); border:1px solid #dfe2f2; }
+         .duck-preview img { width:100%; height:100%; padding:2px; object-fit:contain; }
+        .duck-preview.locked { position:relative; border-color:#a72f3c; background:repeating-linear-gradient(90deg,#7f2330 0 5px,#a72f3c 5px 10px,#c24750 10px 14px,#9a2b39 14px 19px); box-shadow:inset 0 2px 0 rgba(255,225,171,.8),inset 0 -4px 8px rgba(60,8,18,.35); }
+        .duck-preview.locked::before { content:"?"; position:absolute; inset:0; display:grid; place-items:center; color:#fff1cd; font-size:17px; font-weight:900; text-shadow:0 2px 4px rgba(38,9,13,.7); }
+        .duck-preview.locked img { display:none; }
+        .duck-collection-btn { width:100%; margin:0; display:flex; align-items:center; justify-content:center; gap:7px; }
+        .duck-collection-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; max-height:min(58vh,480px); overflow-y:auto; margin-top:13px; padding:2px; }
+        .duck-card { min-width:0; padding:10px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.82); }
+        .duck-card.unlocked { border-color:rgba(61,154,120,.34); background:linear-gradient(145deg,#fff,#eff8ef); }
+         .duck-card.locked { opacity:.86; }
+        .duck-card.locked .duck-card-avatar { color:#fff1cd; font-size:21px; font-weight:900; text-shadow:0 2px 4px rgba(38,9,13,.7); background:repeating-linear-gradient(90deg,#7f2330 0 5px,#a72f3c 5px 10px,#c24750 10px 14px,#9a2b39 14px 19px); border:1px solid #842330; box-shadow:inset 0 2px 0 rgba(255,225,171,.8),inset 0 -4px 8px rgba(60,8,18,.35); }
+        .duck-card.selected { box-shadow:0 0 0 2px #687bc2; }
+        .duck-card-top { display:flex; align-items:center; gap:8px; min-height:42px; }
+        .duck-card-avatar { flex:none; width:40px; height:40px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:#eef2ff; }
+         .duck-card-avatar img { width:100%; height:100%; padding:2px; object-fit:contain; }
+        .duck-card.locked .duck-card-avatar img { filter:grayscale(1); opacity:.5; }
+        .duck-card-name { color:var(--ink); font-size:11px; font-weight:800; line-height:1.25; }
+        .duck-card-condition { min-height:28px; margin:7px 0; color:var(--muted); font-size:10px; line-height:1.35; }
+        .duck-card-action { width:100%; min-height:34px; padding:7px; border:1px solid rgba(72,131,105,.18); border-radius:9px; color:#35664f; background:#edf6eb; font-size:10px; font-weight:800; cursor:pointer; }
+        .duck-card-action:disabled { color:#8d998f; background:#f0f1ed; cursor:not-allowed; }
         .screen { display: none; }
         #menuScreen { display: block; }
         .student-panel { text-align:left; padding:17px; margin:0 0 14px; border:1px solid var(--line); border-radius:18px; background:linear-gradient(135deg,rgba(255,229,173,.48),rgba(216,241,226,.6)); }
@@ -44,18 +70,25 @@
         .levels-heading strong { font-size:13px; letter-spacing:.3px; }
         .levels-heading span { font-size:11px; color:var(--muted); }
         .level-groups { display:grid; gap:10px; margin-bottom:14px; }
-        .level-section { padding:11px 12px 8px; text-align:left; background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(237,241,231,.92)); border:1px solid var(--line); border-radius:16px; }
-        .level-section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin:0 2px 3px; }
-        .level-section-heading strong { font-size:12px; color:var(--ink); }
-        .level-section-heading span { flex:none; color:var(--muted); font-size:10px; }
-        .level-section-description { margin:0 2px 5px; color:var(--muted); font-size:11px; }
-        .levels-container { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-        .level-section .levels-container { margin:0; padding:5px 0 0; background:transparent; border-radius:0; }
-        .level-btn { background:#fffdf7; color:var(--ink); border:1px solid rgba(72,131,105,.12); padding:10px 0; font-size:14px; font-weight:800; border-radius:12px; cursor:pointer; display:flex; flex-direction:column; gap:3px; transition:.18s ease; }
-        .level-btn:hover { border-color:var(--line); transform:translateY(-1px); }
-        .level-btn.active { background:linear-gradient(145deg,#efd18e,#dba84c); color:#19221b; border-color:var(--gold); box-shadow:0 5px 18px rgba(229,180,95,.22); }
-        .level-stars { font-size:9px; color:var(--gold); letter-spacing:1px; }
-        .level-btn.active .level-stars { color:#51401f; }
+        .level-section { position:relative; overflow:hidden; padding:13px 14px 10px; text-align:left; background:linear-gradient(145deg,#fff,var(--chapter-bg)); border:1px solid var(--chapter-border); border-left:4px solid var(--chapter-accent); border-radius:18px; }
+        .level-section::after { content:""; position:absolute; top:-36px; right:-22px; width:106px; height:106px; border-radius:50%; background:var(--chapter-glow); pointer-events:none; }
+        .chapter-foundation { --chapter-ink:#35664f; --chapter-accent:#4f9a70; --chapter-border:#b8d8be; --chapter-bg:#edf7ec; --chapter-node:#e0f0df; --chapter-earned:#d3ead4; --chapter-glow:rgba(115,184,128,.22); --chapter-pill:#deefdf; }
+        .chapter-sixteenths { --chapter-ink:#4d5c91; --chapter-accent:#687bc2; --chapter-border:#c0c9ea; --chapter-bg:#eff2ff; --chapter-node:#e2e8ff; --chapter-earned:#d8e1ff; --chapter-glow:rgba(115,134,206,.18); --chapter-pill:#e2e8ff; }
+        .chapter-advanced { --chapter-ink:#86573e; --chapter-accent:#ce7752; --chapter-border:#e9c0a4; --chapter-bg:#fff2e6; --chapter-node:#ffe5d1; --chapter-earned:#ffdec5; --chapter-glow:rgba(221,135,92,.2); --chapter-pill:#ffe4d3; }
+        .level-section-heading { position:relative; z-index:1; display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin:0 2px 3px; }
+        .level-section-heading strong { font-size:12px; color:var(--chapter-ink); }
+        .level-section-heading strong::before { content:""; display:inline-block; width:8px; height:8px; margin:0 7px 1px 0; border-radius:50%; background:var(--chapter-accent); box-shadow:0 0 0 3px var(--chapter-glow); }
+        .level-section-heading span { flex:none; padding:3px 8px; border-radius:999px; color:var(--chapter-ink); background:var(--chapter-pill); font-size:10px; }
+        .level-section-description { position:relative; z-index:1; margin:0 2px 3px; color:var(--muted); font-size:11px; }
+        .level-route { position:relative; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); justify-items:center; gap:10px 4px; margin:0; padding:10px 0 6px; }
+        .level-btn { position:relative; z-index:1; width:100%; max-width:64px; height:62px; padding:5px 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:linear-gradient(145deg,#fff,var(--chapter-node)); color:var(--chapter-ink); border:2px solid var(--chapter-border); border-radius:19px; font-size:15px; font-weight:800; cursor:pointer; box-shadow:0 4px 11px rgba(49,64,75,.1); transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
+        .level-btn:hover { border-color:var(--chapter-accent); transform:translateY(-2px) scale(1.05); box-shadow:0 7px 16px rgba(49,64,75,.16); }
+        .level-btn:focus-visible { outline:3px solid var(--chapter-accent); outline-offset:3px; }
+        .level-btn.active { background:linear-gradient(145deg,var(--chapter-accent),var(--chapter-ink)); color:#fff; border-color:var(--chapter-ink); box-shadow:0 0 0 4px rgba(231,169,54,.25),0 6px 15px rgba(49,64,75,.2); transform:scale(1.08); }
+        .level-btn.completed:not(.active) { background:linear-gradient(145deg,#fff,var(--chapter-earned)); border-color:var(--chapter-accent); }
+        .level-number { line-height:1; }
+        .level-stars { min-height:10px; color:var(--chapter-accent); font-size:9px; line-height:1; letter-spacing:.4px; white-space:nowrap; }
+        .level-btn.active .level-stars { color:#fff1c3; }
         button { font-family:inherit; }
         .primary-btn { background:linear-gradient(135deg,#e9c374,#d79c41); color:#17211a; font-weight:900; width:100%; padding:15px; font-size:15px; letter-spacing:.6px; border-radius:14px; border:0; margin-bottom:8px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.18); transition:transform .16s,filter .16s; }
         .primary-btn:hover { filter:brightness(1.06); transform:translateY(-1px); }
@@ -98,7 +131,7 @@
         .tempo-line { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:1px; }
         input[type=range] { width:100%; accent-color:var(--gold); margin:13px 0 5px; }
         #bpmValue { color:var(--gold); font-size:13px; font-weight:800; }
-        @media (max-width:420px) { .main-container{padding:17px 14px;border-radius:22px}.student-actions{gap:5px}.quiet-btn{font-size:10px}.levels-container{gap:6px;padding:8px}.nav-header{gap:5px}.student-chip{max-width:78px}.brand-mascot{width:88px;height:96px} }
+        @media (max-width:420px) { .main-container{padding:17px 14px;border-radius:22px}.student-actions{gap:5px}.quiet-btn{font-size:10px}.nav-header{gap:5px}.student-chip{max-width:78px}.brand-mascot{width:88px;height:96px}.duck-collection-preview{gap:4px}.duck-preview{font-size:17px} }
     </style>
 </head>
 <body>
@@ -131,12 +164,21 @@
             <div class="total-stars" id="totalStarsDisplay">★ 0</div>
         </div>
         <button id="leaderboardBtn" class="secondary-btn leaderboard-trigger" type="button"><span>🏆 Турнирная таблица</span><span id="leaderboardCount">0 учеников</span></button>
-        <div class="levels-heading"><strong>Выбери уровень</strong><span>19 ступеней</span></div>
+        
+        <div class="levels-heading"><strong>Карта музыкальных уровней</strong><span>Все уровни доступны</span></div>
         <div class="level-groups" id="levelsGrid"></div>
         <a class="channel-link" href="https://t.me/saxstass" target="_blank" rel="noopener noreferrer" aria-label="Поддержать подпиской на Telegram-канал Saxstass">
             <span aria-hidden="true">✈</span><span>Буду рад подписке — это большая поддержка · @saxstass</span><span aria-hidden="true">↗</span>
         </a>
         <button id="startGameBtn" class="primary-btn">НАЧАТЬ ЗАНЯТИЕ <span aria-hidden="true">→</span></button>
+        <section class="duck-collection-panel" aria-labelledby="duckCollectionTitle">
+            <div class="duck-collection-heading">
+                <div><h2 id="duckCollectionTitle">Коллекция уточек</h2><p>Открывай уточек за три звезды — в шапке появится самая последняя достигнутая.</p></div>
+                <div id="duckCollectionCount" class="duck-count">0 / 6</div>
+            </div>
+            <div id="duckCollectionPreview" class="duck-collection-preview" aria-label="Собранные уточки"></div>
+            <button id="duckCollectionBtn" class="secondary-btn duck-collection-btn" type="button">🦆 Открыть коллекцию</button>
+        </section>
     </div>
 
     <div id="gameScreen" class="screen">
@@ -189,6 +231,17 @@
     </form>
 </div>
 
+<div id="duckModal" class="student-dialog-backdrop" hidden>
+    <section class="student-dialog" role="dialog" aria-modal="true" aria-labelledby="duckModalTitle">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <h2 id="duckModalTitle">Коллекция уточек</h2>
+            <button id="closeDuckBtn" class="secondary-btn" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <p style="color:var(--muted);font-size:12px;line-height:1.45;margin:0">Новые уточки открываются за три звезды на контрольных уровнях. Закрытые персонажи ждут за занавесом, а в шапке всегда последняя достигнутая уточка.</p>
+        <div id="duckCollectionList" class="duck-collection-list"></div>
+    </section>
+</div>
+
 <div id="leaderboardModal" class="student-dialog-backdrop" hidden>
     <section class="student-dialog" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
         <span class="section-label">ТВОИ УЧЕНИКИ</span>
@@ -201,6 +254,7 @@
     </section>
 </div>
 
+<div id="rewardToast" class="reward-toast" role="status" aria-live="polite" hidden></div>
 <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
@@ -233,6 +287,15 @@
     };
 
 
+    const duckCollection = [
+        { id: 'baby-duck', level: 1, name: 'Малыш Нотик', mood: 'Маленький исследователь ритма', asset: 'assets/duck-baby.png' },
+        { id: 'rhythm-duck', level: 4, name: 'Ритмик', mood: 'Золотой маскот с ноткой на банте', asset: 'assets/duck-rhythm.png' },
+        { id: 'nerd-duck', level: 7, name: 'Профессор Ритм', mood: 'Знает, где спряталась каждая доля', asset: 'assets/duck-nerd.png' },
+        { id: 'super-duck', level: 12, name: 'Суперутка', mood: 'Спешит на помощь сбившемуся ритму', asset: 'assets/duck-superhero.png' },
+        { id: 'piano-duck', level: 16, name: 'Пианист Ля', mood: 'Слышит мелодию в каждом ритме', asset: 'assets/duck-pianist.png' },
+        { id: 'conductor-duck', level: 19, name: 'Маэстро', mood: 'Уверенно ведёт за собой весь оркестр', asset: 'assets/duck-conductor.png' }
+    ];
+
     const readStored = (key, fallback) => {
         try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
         catch (error) { return fallback; }
@@ -250,6 +313,9 @@
     if (!students.some(student => student.id === activeStudentId)) activeStudentId = students[0].id;
     let activeStudent = students.find(student => student.id === activeStudentId);
     let currentLevel = Math.min(19, Math.max(1, Number(activeStudent.level) || 1));
+    let unlockedDucks = Array.isArray(activeStudent.unlockedDucks) ? activeStudent.unlockedDucks : [];
+    let selectedDuckId = activeStudent.selectedDuckId || 'baby-duck';
+    let rewardToastTimer;
     let audioCtx, nextBeatTime, timerID;
     let lastStarsCount = 0;
     let currentSequence = [];
@@ -329,12 +395,15 @@
     function applyLevelPoints(delta) {
         levelPoints[currentLevel] = Math.max(0, Math.round((pointsForLevel(currentLevel) + delta) * 10) / 10);
         levelStars = starsFromPoints(levelPoints);
+        const newDuck = unlockCompletedMilestoneDuck();
         persistActiveStudent();
         updateCurrentLevelPoints();
         updateStarsUI();
         updateStudentSummary();
         initLevels();
         renderLeaderboard();
+        renderDuckCollection();
+        if (newDuck) showRewardToast(newDuck);
     }
 
     let levelPoints = activeStudent.levelPoints || pointsFromStars(activeStudent.stars);
@@ -343,6 +412,8 @@
         activeStudent.level = currentLevel;
         activeStudent.levelPoints = levelPoints;
         activeStudent.stars = levelStars;
+        activeStudent.unlockedDucks = unlockedDucks;
+        activeStudent.selectedDuckId = selectedDuckId;
         localStorage.setItem(storageKey('rhythmic_students'), JSON.stringify(students));
         localStorage.setItem(storageKey('rhythmic_active_student_id'), activeStudentId);
     }
@@ -377,12 +448,125 @@
         currentLevel = Math.min(19, Math.max(1, Number(activeStudent.level) || 1));
         levelPoints = activeStudent.levelPoints || pointsFromStars(activeStudent.stars);
         levelStars = starsFromPoints(levelPoints);
+        unlockedDucks = Array.isArray(activeStudent.unlockedDucks) ? activeStudent.unlockedDucks : [];
+        selectedDuckId = activeStudent.selectedDuckId || 'rhythm-duck';
         lastStarsCount = 0;
+        syncMilestoneDucks();
         persistActiveStudent();
+        renderDuckCollection();
         renderStudentSelector();
         initLevels();
         renderLeaderboard();
         updateCurrentLevelPoints();
+    }
+
+    function syncMilestoneDucks() {
+        duckCollection.forEach(duck => {
+            if (Number(levelStars[duck.level] || 0) === 3 && !unlockedDucks.includes(duck.id)) unlockedDucks.push(duck.id);
+        });
+        let latest = null;
+        duckCollection.forEach(duck => {
+            if (unlockedDucks.includes(duck.id)) latest = duck;
+        });
+        selectedDuckId = latest ? latest.id : '';
+    }
+
+    function unlockCompletedMilestoneDuck() {
+        const duck = duckCollection.find(item => item.level === currentLevel && Number(levelStars[currentLevel] || 0) === 3 && !unlockedDucks.includes(item.id));
+        if (!duck) return null;
+        unlockedDucks.push(duck.id);
+        selectedDuckId = duck.id;
+        return duck;
+    }
+
+    function renderDuckCollection() {
+        const selected = duckCollection.find(duck => duck.id === selectedDuckId && unlockedDucks.includes(duck.id));
+        const image = document.querySelector('.brand-mascot');
+        if (image) {
+            image.src = selected ? selected.asset : 'assets/duck-mascot.png';
+            image.style.filter = '';
+        }
+        const count = document.getElementById('duckCollectionCount');
+        count.innerText = unlockedDucks.length + ' / ' + duckCollection.length + ' собрано';
+        const preview = document.getElementById('duckCollectionPreview');
+        preview.innerHTML = '';
+        duckCollection.forEach(duck => {
+            const token = document.createElement('span');
+            token.className = 'duck-preview' + (unlockedDucks.includes(duck.id) ? '' : ' locked');
+            const unlocked = unlockedDucks.includes(duck.id);
+            if (unlocked) {
+                const previewImage = document.createElement('img');
+                previewImage.src = duck.asset;
+                previewImage.alt = '';
+                token.appendChild(previewImage);
+            } else {
+                token.setAttribute('aria-label', 'Уточка скрыта за занавесом');
+            }
+            token.title = unlocked ? duck.name : 'Уровень ' + duck.level;
+            preview.appendChild(token);
+        });
+    }
+
+    function renderDuckCards() {
+        const list = document.getElementById('duckCollectionList');
+        list.innerHTML = '';
+        duckCollection.forEach(duck => {
+            const unlocked = unlockedDucks.includes(duck.id);
+            const selected = selectedDuckId === duck.id;
+            const card = document.createElement('article');
+            card.className = 'duck-card ' + (unlocked ? 'unlocked' : 'locked') + (selected ? ' selected' : '');
+            const top = document.createElement('div');
+            top.className = 'duck-card-top';
+            const avatar = document.createElement('span');
+            avatar.className = 'duck-card-avatar';
+            if (unlocked) {
+                const image = document.createElement('img');
+                image.src = duck.asset;
+                image.alt = '';
+                avatar.appendChild(image);
+            } else {
+                avatar.textContent = '?';
+            }
+            const name = document.createElement('span');
+            name.className = 'duck-card-name';
+            name.textContent = unlocked ? duck.name : 'Новая уточка';
+            top.append(avatar, name);
+            const condition = document.createElement('div');
+            condition.className = 'duck-card-condition';
+            condition.textContent = unlocked ? duck.mood : 'Уровень ' + duck.level + ' · нужно 3 звезды';
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'duck-card-action';
+            button.disabled = true;
+            button.textContent = !unlocked ? 'За занавесом' : selected ? 'Сейчас в шапке' : 'Уже открыта';
+            card.append(top, condition, button);
+            list.appendChild(card);
+        });
+    }
+
+    function openDuckModal() {
+        renderDuckCards();
+        document.getElementById('duckModal').hidden = false;
+    }
+
+    function closeDuckModal() {
+        document.getElementById('duckModal').hidden = true;
+    }
+
+    function showRewardToast(duck) {
+        const toast = document.getElementById('rewardToast');
+        toast.innerHTML = '';
+        const copy = document.createElement('div');
+        copy.className = 'reward-toast-copy';
+        copy.innerHTML = '<strong>Новая уточка!</strong><br>🦆 ' + duck.name + ' теперь в коллекции';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Посмотреть';
+        button.onclick = () => { toast.hidden = true; openDuckModal(); };
+        toast.append(copy, button);
+        toast.hidden = false;
+        window.clearTimeout(rewardToastTimer);
+        rewardToastTimer = window.setTimeout(() => { toast.hidden = true; }, 7000);
     }
 
     let studentDialogMode = 'add';
@@ -421,30 +605,40 @@
         const grid = document.getElementById('levelsGrid');
         grid.innerHTML = '';
         const sections = [
-            { title: 'Раздел 1 · Основа ритма', description: 'Половинки · четверти · восьмые', start: 1, end: 7 },
-            { title: 'Раздел 2 · Шестнадцатые', description: 'Ритмы с шестнадцатыми длительностями', start: 8, end: 16 },
-            { title: 'Повышенная сложность', description: 'Шестнадцатые со звёздочкой', start: 17, end: 19 }
+            { title: 'Раздел 1 · Основа ритма', description: 'Половинки · четверти · восьмые', start: 1, end: 7, theme: 'foundation' },
+            { title: 'Раздел 2 · Шестнадцатые', description: 'Ритмы с шестнадцатыми длительностями', start: 8, end: 16, theme: 'sixteenths' },
+            { title: 'Повышенная сложность', description: 'Шестнадцатые со звёздочкой', start: 17, end: 19, theme: 'advanced' }
         ];
         sections.forEach(section => {
             const sectionEl = document.createElement('section');
-            sectionEl.className = 'level-section';
+            sectionEl.className = 'level-section chapter-' + section.theme;
             const heading = document.createElement('div');
             heading.className = 'level-section-heading';
-            heading.innerHTML = `<strong>${section.title}</strong><span>Уровни ${section.start}–${section.end}</span>`;
+            heading.innerHTML = '<strong>' + section.title + '</strong><span>Уровни ' + section.start + '–' + section.end + '</span>';
             sectionEl.appendChild(heading);
             const description = document.createElement('p');
             description.className = 'level-section-description';
             description.textContent = section.description;
             sectionEl.appendChild(description);
+
             const levels = document.createElement('div');
-            levels.className = 'levels-container';
-            for(let i=section.start; i<=section.end; i++) {
-                const b = document.createElement('button');
-                const stars = levelStars[i] || 0;
-                b.className = 'level-btn' + (i === currentLevel ? ' active' : '');
-                b.innerHTML = `<span>${i}</span><span class="level-stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</span>`;
-                b.onclick = () => { currentLevel = i; persistActiveStudent(); initLevels(); updateCurrentLevelPoints(); };
-                levels.appendChild(b);
+            levels.className = 'level-route';
+            levels.setAttribute('aria-label', 'Выбор уровня. Все уровни доступны');
+            for (let level = section.start; level <= section.end; level++) {
+                const stars = Number(levelStars[level] || 0);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'level-btn' + (level === currentLevel ? ' active' : '') + (stars > 0 ? ' completed' : '');
+                button.setAttribute('aria-label', 'Уровень ' + level + ', ' + stars + ' звёзд. Выбрать уровень');
+                button.title = 'Уровень ' + level + ' · выбрать';
+                button.innerHTML = '<span class="level-number">' + level + '</span><span class="level-stars">' + '★'.repeat(stars) + '☆'.repeat(3 - stars) + '</span>';
+                button.onclick = () => {
+                    currentLevel = level;
+                    persistActiveStudent();
+                    initLevels();
+                    updateCurrentLevelPoints();
+                };
+                levels.appendChild(button);
             }
             sectionEl.appendChild(levels);
             grid.appendChild(sectionEl);
@@ -632,7 +826,7 @@
         const name = document.getElementById('studentNameInput').value.trim().slice(0, 32);
         if (!name) return;
         if (studentDialogMode === 'add') {
-            const student = { id: `student-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name, level: 1, levelPoints: {}, stars: {} };
+            const student = { id: `student-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name, level: 1, levelPoints: {}, stars: {}, unlockedDucks: [], selectedDuckId: 'rhythm-duck' };
             students.push(student);
             setActiveStudent(student.id);
         } else {
@@ -650,6 +844,7 @@
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
             closeStudentDialog();
+            closeDuckModal();
             document.getElementById('leaderboardModal').hidden = true;
         }
     });
@@ -660,6 +855,11 @@
         activeStudentId = students[0].id;
         setActiveStudent(activeStudentId);
     };
+    document.getElementById('duckCollectionBtn').onclick = openDuckModal;
+    document.getElementById('closeDuckBtn').onclick = closeDuckModal;
+    document.getElementById('duckModal').onclick = event => {
+        if (event.target === event.currentTarget) closeDuckModal();
+    };
     document.getElementById('leaderboardBtn').onclick = () => {
         renderLeaderboard();
         document.getElementById('leaderboardModal').hidden = false;
@@ -669,7 +869,9 @@
         if (event.target === event.currentTarget) event.currentTarget.hidden = true;
     };
 
+    syncMilestoneDucks();
     renderStudentSelector();
+    renderDuckCollection();
     initLevels();
     updateCurrentLevelPoints();
     renderLeaderboard();
