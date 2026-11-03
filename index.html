@@ -13,6 +13,12 @@
         h1 { font-size:1.25rem; color:var(--gold); text-transform:uppercase; margin:5px 0; letter-spacing:3px; }
         .brand-kicker { color:var(--mint); font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase; }
         .intro { color:var(--muted); margin:6px 0 20px; font-size:13px; }
+        .brand-header { display:flex; align-items:center; justify-content:space-between; gap:8px; text-align:left; margin:0 0 8px; }
+        .brand-copy { min-width:0; }
+        .brand-header h1 { font-size:clamp(1rem,4vw,1.25rem); letter-spacing:2px; }
+        .brand-header .brand-kicker { line-height:1.5; letter-spacing:2px; }
+        .brand-header .intro { margin:6px 0 0; }
+        .brand-mascot { width:116px; height:122px; flex:none; object-fit:contain; filter:drop-shadow(0 5px 8px rgba(49,92,70,.12)); }
         .screen { display: none; }
         #menuScreen { display: block; }
         .student-panel { text-align:left; padding:17px; margin:0 0 14px; border:1px solid var(--line); border-radius:18px; background:linear-gradient(135deg,rgba(255,229,173,.48),rgba(216,241,226,.6)); }
@@ -89,16 +95,21 @@
         .tempo-line { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:1px; }
         input[type=range] { width:100%; accent-color:var(--gold); margin:13px 0 5px; }
         #bpmValue { color:var(--gold); font-size:13px; font-weight:800; }
-        @media (max-width:420px) { .main-container{padding:17px 14px;border-radius:22px}.student-actions{gap:5px}.quiet-btn{font-size:10px}.levels-container{gap:6px;padding:8px}.nav-header{gap:5px}.student-chip{max-width:78px} }
+        @media (max-width:420px) { .main-container{padding:17px 14px;border-radius:22px}.student-actions{gap:5px}.quiet-btn{font-size:10px}.levels-container{gap:6px;padding:8px}.nav-header{gap:5px}.student-chip{max-width:78px}.brand-mascot{width:88px;height:96px} }
     </style>
 </head>
 <body>
 
 <div class="main-container">
     <div id="menuScreen" class="screen">
-        <div class="brand-kicker">RHYTHMIC DUCK · ДЛЯ МУЗЫКАНТОВ</div>
-        <h1>Студия ритма</h1>
-        <p class="intro">Короткие ритмические задания для занятий</p>
+        <header class="brand-header">
+            <div class="brand-copy">
+                <div class="brand-kicker">RHYTHMIC DUCK · ДЛЯ МУЗЫКАНТОВ</div>
+                <h1>Студия ритма</h1>
+                <p class="intro">Короткие ритмические задания для занятий</p>
+            </div>
+            <img class="brand-mascot" src="assets/duck-mascot.png" alt="Уточка-маскот с музыкальной нотой" width="454" height="480" fetchpriority="high">
+        </header>
         <section class="student-panel" aria-label="Профиль ученика">
             <label class="section-label" for="studentSelect">Сейчас занимается</label>
             <div class="student-row">
