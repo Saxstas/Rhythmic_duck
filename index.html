@@ -61,7 +61,7 @@
         .star-pop { animation: starPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.49); }
         @keyframes starPop { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1); } }
 
-        .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); justify-items:center; align-items:center; gap:6px; min-height:150px; background:radial-gradient(ellipse,rgba(255,226,169,.38),rgba(237,243,230,.9)); border-radius:18px; padding:12px; margin-bottom:13px; border:1px solid var(--line); }
+        .grid { display:grid; grid-template-columns:repeat(4,minmax(0,80px)); justify-content:center; justify-items:center; align-items:center; gap:4px; min-height:150px; background:radial-gradient(ellipse,rgba(255,226,169,.38),rgba(237,243,230,.9)); border-radius:18px; padding:10px; margin-bottom:13px; border:1px solid var(--line); }
         .image-card { grid-column:span 1; width:100%; max-width:80px; aspect-ratio:1/1; height:auto; object-fit:cover; border-radius:12px; border:3px solid rgba(229,180,95,.24); opacity:0; transition:.16s; background:#26342c; display:none; }
         .image-card.loaded { opacity: 1; }
         .image-card.double-size { grid-column:span 2; width:100%; max-width:170px; aspect-ratio:2/1; height:auto; }
