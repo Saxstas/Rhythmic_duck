@@ -44,22 +44,25 @@
         .levels-heading strong { font-size:13px; letter-spacing:.3px; }
         .levels-heading span { font-size:11px; color:var(--muted); }
         .level-groups { display:grid; gap:10px; margin-bottom:14px; }
-        .level-section { position:relative; overflow:hidden; padding:12px 14px 10px; text-align:left; background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(236,243,231,.96)); border:1px solid var(--line); border-radius:18px; }
-        .level-section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin:0 2px 3px; }
-        .level-section-heading strong { font-size:12px; color:var(--ink); }
-        .level-section-heading span { flex:none; color:var(--muted); font-size:10px; }
-        .level-section-description { margin:0 2px 3px; color:var(--muted); font-size:11px; }
-        .level-route { position:relative; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:54px; gap:24px 0; margin:0; padding:12px 0; }
-        .level-route-svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; z-index:0; }
-        .level-route-segment { stroke:rgba(91,132,109,.35); stroke-width:3; stroke-dasharray:3 6; stroke-linecap:round; }
-        .level-route-segment.earned { stroke:#77b89a; }
-        .level-btn { position:relative; z-index:1; justify-self:center; align-self:center; width:52px; height:52px; padding:4px 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; background:#fffdf7; color:var(--ink); border:2px solid rgba(72,131,105,.22); border-radius:18px; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 3px 9px rgba(49,92,70,.08); transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
-        .level-btn:hover { border-color:var(--mint); transform:translateY(-2px) scale(1.04); box-shadow:0 6px 14px rgba(49,92,70,.14); }
-        .level-btn.active { background:linear-gradient(145deg,#f6dda0,#e4b85f); color:#19221b; border-color:#ce9637; box-shadow:0 0 0 4px rgba(231,169,54,.16),0 5px 13px rgba(160,116,43,.19); transform:scale(1.08); }
-        .level-btn.completed:not(.active) { background:linear-gradient(145deg,#f3fbf3,#e5f2e6); border-color:rgba(61,154,120,.45); }
+        .level-section { position:relative; overflow:hidden; padding:13px 14px 10px; text-align:left; background:linear-gradient(145deg,#fff,var(--chapter-bg)); border:1px solid var(--chapter-border); border-left:4px solid var(--chapter-accent); border-radius:18px; }
+        .level-section::after { content:""; position:absolute; top:-36px; right:-22px; width:106px; height:106px; border-radius:50%; background:var(--chapter-glow); pointer-events:none; }
+        .chapter-foundation { --chapter-ink:#35664f; --chapter-accent:#4f9a70; --chapter-border:#b8d8be; --chapter-bg:#edf7ec; --chapter-node:#e0f0df; --chapter-earned:#d3ead4; --chapter-glow:rgba(115,184,128,.22); --chapter-pill:#deefdf; }
+        .chapter-sixteenths { --chapter-ink:#4d5c91; --chapter-accent:#687bc2; --chapter-border:#c0c9ea; --chapter-bg:#eff2ff; --chapter-node:#e2e8ff; --chapter-earned:#d8e1ff; --chapter-glow:rgba(115,134,206,.18); --chapter-pill:#e2e8ff; }
+        .chapter-advanced { --chapter-ink:#86573e; --chapter-accent:#ce7752; --chapter-border:#e9c0a4; --chapter-bg:#fff2e6; --chapter-node:#ffe5d1; --chapter-earned:#ffdec5; --chapter-glow:rgba(221,135,92,.2); --chapter-pill:#ffe4d3; }
+        .level-section-heading { position:relative; z-index:1; display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin:0 2px 3px; }
+        .level-section-heading strong { font-size:12px; color:var(--chapter-ink); }
+        .level-section-heading strong::before { content:""; display:inline-block; width:8px; height:8px; margin:0 7px 1px 0; border-radius:50%; background:var(--chapter-accent); box-shadow:0 0 0 3px var(--chapter-glow); }
+        .level-section-heading span { flex:none; padding:3px 8px; border-radius:999px; color:var(--chapter-ink); background:var(--chapter-pill); font-size:10px; }
+        .level-section-description { position:relative; z-index:1; margin:0 2px 3px; color:var(--muted); font-size:11px; }
+        .level-route { position:relative; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); justify-items:center; gap:10px 4px; margin:0; padding:10px 0 6px; }
+        .level-btn { position:relative; z-index:1; width:100%; max-width:64px; height:62px; padding:5px 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:linear-gradient(145deg,#fff,var(--chapter-node)); color:var(--chapter-ink); border:2px solid var(--chapter-border); border-radius:19px; font-size:15px; font-weight:800; cursor:pointer; box-shadow:0 4px 11px rgba(49,64,75,.1); transition:transform .18s ease,box-shadow .18s ease,background .18s ease; }
+        .level-btn:hover { border-color:var(--chapter-accent); transform:translateY(-2px) scale(1.05); box-shadow:0 7px 16px rgba(49,64,75,.16); }
+        .level-btn:focus-visible { outline:3px solid var(--chapter-accent); outline-offset:3px; }
+        .level-btn.active { background:linear-gradient(145deg,var(--chapter-accent),var(--chapter-ink)); color:#fff; border-color:var(--chapter-ink); box-shadow:0 0 0 4px rgba(231,169,54,.25),0 6px 15px rgba(49,64,75,.2); transform:scale(1.08); }
+        .level-btn.completed:not(.active) { background:linear-gradient(145deg,#fff,var(--chapter-earned)); border-color:var(--chapter-accent); }
         .level-number { line-height:1; }
-        .level-stars { min-height:9px; color:#c28b2e; font-size:8px; line-height:1; letter-spacing:.4px; white-space:nowrap; }
-        .level-btn.active .level-stars { color:#51401f; }
+        .level-stars { min-height:10px; color:var(--chapter-accent); font-size:9px; line-height:1; letter-spacing:.4px; white-space:nowrap; }
+        .level-btn.active .level-stars { color:#fff1c3; }
         button { font-family:inherit; }
         .primary-btn { background:linear-gradient(135deg,#e9c374,#d79c41); color:#17211a; font-weight:900; width:100%; padding:15px; font-size:15px; letter-spacing:.6px; border-radius:14px; border:0; margin-bottom:8px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.18); transition:transform .16s,filter .16s; }
         .primary-btn:hover { filter:brightness(1.06); transform:translateY(-1px); }
@@ -135,7 +138,7 @@
             <div class="total-stars" id="totalStarsDisplay">★ 0</div>
         </div>
         <button id="leaderboardBtn" class="secondary-btn leaderboard-trigger" type="button"><span>🏆 Турнирная таблица</span><span id="leaderboardCount">0 учеников</span></button>
-        <div class="levels-heading"><strong>Карта музыкального пути</strong><span>Все уровни доступны</span></div>
+        <div class="levels-heading"><strong>Карта музыкальных уровней</strong><span>Все уровни доступны</span></div>
         <div class="level-groups" id="levelsGrid"></div>
         <a class="channel-link" href="https://t.me/saxstass" target="_blank" rel="noopener noreferrer" aria-label="Поддержать подпиской на Telegram-канал Saxstass">
             <span aria-hidden="true">✈</span><span>Буду рад подписке — это большая поддержка · @saxstass</span><span aria-hidden="true">↗</span>
@@ -425,14 +428,13 @@
         const grid = document.getElementById('levelsGrid');
         grid.innerHTML = '';
         const sections = [
-            { title: 'Раздел 1 · Основа ритма', description: 'Половинки · четверти · восьмые', start: 1, end: 7 },
-            { title: 'Раздел 2 · Шестнадцатые', description: 'Ритмы с шестнадцатыми длительностями', start: 8, end: 16 },
-            { title: 'Повышенная сложность', description: 'Шестнадцатые со звёздочкой', start: 17, end: 19 }
+            { title: 'Раздел 1 · Основа ритма', description: 'Половинки · четверти · восьмые', start: 1, end: 7, theme: 'foundation' },
+            { title: 'Раздел 2 · Шестнадцатые', description: 'Ритмы с шестнадцатыми длительностями', start: 8, end: 16, theme: 'sixteenths' },
+            { title: 'Повышенная сложность', description: 'Шестнадцатые со звёздочкой', start: 17, end: 19, theme: 'advanced' }
         ];
-        const svgNS = 'http://www.w3.org/2000/svg';
         sections.forEach(section => {
             const sectionEl = document.createElement('section');
-            sectionEl.className = 'level-section';
+            sectionEl.className = 'level-section chapter-' + section.theme;
             const heading = document.createElement('div');
             heading.className = 'level-section-heading';
             heading.innerHTML = '<strong>' + section.title + '</strong><span>Уровни ' + section.start + '–' + section.end + '</span>';
@@ -445,49 +447,11 @@
             const levels = document.createElement('div');
             levels.className = 'level-route';
             levels.setAttribute('aria-label', 'Выбор уровня. Все уровни доступны');
-            const count = section.end - section.start + 1;
-            const rows = Math.ceil(count / 4);
-            const padding = 12;
-            const rowHeight = 54;
-            const rowGap = 24;
-            const routeHeight = padding * 2 + rows * rowHeight + (rows - 1) * rowGap;
-            const svg = document.createElementNS(svgNS, 'svg');
-            svg.classList.add('level-route-svg');
-            svg.setAttribute('viewBox', '0 0 400 ' + routeHeight);
-            svg.setAttribute('preserveAspectRatio', 'none');
-            svg.setAttribute('aria-hidden', 'true');
-            const positions = [];
-
-            for (let index = 0; index < count; index++) {
-                const row = Math.floor(index / 4);
-                const col = row % 2 === 0 ? index % 4 : 3 - (index % 4);
-                positions.push({ x: 50 + col * 100, y: padding + rowHeight / 2 + row * (rowHeight + rowGap) });
-            }
-
-            for (let index = 0; index < positions.length - 1; index++) {
-                const from = positions[index];
-                const to = positions[index + 1];
-                const segment = document.createElementNS(svgNS, 'line');
-                segment.classList.add('level-route-segment');
-                if (Number(levelStars[section.start + index] || 0) > 0) segment.classList.add('earned');
-                segment.setAttribute('x1', from.x);
-                segment.setAttribute('y1', from.y);
-                segment.setAttribute('x2', to.x);
-                segment.setAttribute('y2', to.y);
-                svg.appendChild(segment);
-            }
-            levels.appendChild(svg);
-
-            for (let index = 0; index < count; index++) {
-                const level = section.start + index;
-                const row = Math.floor(index / 4);
-                const col = row % 2 === 0 ? index % 4 : 3 - (index % 4);
+            for (let level = section.start; level <= section.end; level++) {
                 const stars = Number(levelStars[level] || 0);
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'level-btn' + (level === currentLevel ? ' active' : '') + (stars > 0 ? ' completed' : '');
-                button.style.gridColumn = String(col + 1);
-                button.style.gridRow = String(row + 1);
                 button.setAttribute('aria-label', 'Уровень ' + level + ', ' + stars + ' звёзд. Выбрать уровень');
                 button.title = 'Уровень ' + level + ' · выбрать';
                 button.innerHTML = '<span class="level-number">' + level + '</span><span class="level-stars">' + '★'.repeat(stars) + '☆'.repeat(3 - stars) + '</span>';
