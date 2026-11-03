@@ -40,10 +40,6 @@
         .rank-box { background:rgba(255,255,255,.72); border:1px solid var(--line); border-radius:14px; padding:11px 14px; margin:0 0 10px; display:flex; justify-content:space-between; align-items:center; font-size:13px; }
         .rank-title { font-weight:800; color:var(--mint); }
         .total-stars { color:var(--gold); font-weight:800; }
-        .mode-panel { text-align:left; margin:0 0 16px; }
-        .mode-switch { display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:5px; background:#e9eee4; border-radius:13px; }
-        .mode-btn { border:0; background:transparent; color:var(--muted); padding:11px 8px; font-weight:800; font-size:12px; border-radius:9px; cursor:pointer; }
-        .mode-btn.active { background:#fffdf7; color:#9b6814; box-shadow:0 3px 10px rgba(49,92,70,.12); }
         .levels-heading { display:flex; align-items:center; justify-content:space-between; margin:17px 2px 9px; text-align:left; }
         .levels-heading strong { font-size:13px; letter-spacing:.3px; }
         .levels-heading span { font-size:11px; color:var(--muted); }
@@ -135,13 +131,6 @@
             <div class="total-stars" id="totalStarsDisplay">★ 0</div>
         </div>
         <button id="leaderboardBtn" class="secondary-btn leaderboard-trigger" type="button"><span>🏆 Турнирная таблица</span><span id="leaderboardCount">0 учеников</span></button>
-        <div class="mode-panel">
-            <span class="section-label">Режим занятия</span>
-            <div class="mode-switch">
-                <button class="mode-btn active" id="teacherModeBtn" type="button">С преподавателем</button>
-                <button class="mode-btn" id="autoModeBtn" type="button">Самопроверка</button>
-            </div>
-        </div>
         <div class="levels-heading"><strong>Выбери уровень</strong><span>19 ступеней</span></div>
         <div class="level-groups" id="levelsGrid"></div>
         <a class="channel-link" href="https://t.me/saxstass" target="_blank" rel="noopener noreferrer" aria-label="Поддержать подпиской на Telegram-канал Saxstass">
@@ -265,9 +254,6 @@
     let lastStarsCount = 0;
     let currentSequence = [];
     
-    let micStream = null;
-    let mediaRecorder = null;
-    let audioChunks = [];
     let state = 'IDLE'; 
     let beatCount = 0;
     let currentPatternReviewed = false;
@@ -353,8 +339,6 @@
 
     let levelPoints = activeStudent.levelPoints || pointsFromStars(activeStudent.stars);
     let levelStars = starsFromPoints(levelPoints);
-    let lessonMode = localStorage.getItem(storageKey('rhythmic_mode')) || 'teacher';
-
     function persistActiveStudent() {
         activeStudent.level = currentLevel;
         activeStudent.levelPoints = levelPoints;
@@ -399,17 +383,6 @@
         initLevels();
         renderLeaderboard();
         updateCurrentLevelPoints();
-    }
-
-    function setLessonMode(mode) {
-        lessonMode = mode;
-        localStorage.setItem(storageKey('rhythmic_mode'), mode);
-        document.getElementById('teacherModeBtn').classList.toggle('active', mode === 'teacher');
-        document.getElementById('autoModeBtn').classList.toggle('active', mode === 'auto');
-        document.getElementById('teacherActions').classList.toggle('visible', mode === 'teacher');
-        document.getElementById('statusArea').innerText = mode === 'teacher'
-            ? 'Сыграй или проговори ритм'
-            : '🎙️ Готов к записи';
     }
 
     let studentDialogMode = 'add';
@@ -534,25 +507,12 @@
         });
     }
 
-    async function initMic() {
-        if (micStream) return true;
-        try {
-            micStream = await navigator.mediaDevices.getUserMedia({ 
-                audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } 
-            });
-            return true;
-        } catch (e) {
-            alert("Пожалуйста, разрешите доступ к микрофону для игры!");
-            return false;
-        }
-    }
-
     function startEngine() {
-        state = lessonMode === 'teacher' ? 'TEACHER' : 'COUNTDOWN';
+        state = 'TEACHER';
         beatCount = 0;
         nextBeatTime = audioCtx.currentTime;
-        document.getElementById('statusArea').className = lessonMode === 'teacher' ? 'tap-area recording' : 'tap-area';
-        document.getElementById('statusArea').innerText = lessonMode === 'teacher' ? 'Метроном идёт · сыграй или проговори' : 'Приготовься к отсчёту';
+        document.getElementById('statusArea').className = 'tap-area recording';
+        document.getElementById('statusArea').innerText = 'Метроном идёт · сыграй или проговори';
         scheduler();
         document.getElementById('metronomeBtn').innerText = "■ Остановить метроном";
         document.getElementById('metronomeBtn').disabled = false;
@@ -560,9 +520,7 @@
 
     function playTick() {
         const bpm = document.getElementById('bpmRange').value;
-        const spb = 60 / bpm;
         const now = audioCtx.currentTime;
-        const statusArea = document.getElementById('statusArea');
 
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -584,46 +542,11 @@
                 acc += item.size;
             });
             beatCount = (beatCount + 1) % 4;
-        } else if (state === 'COUNTDOWN') {
-            document.getElementById('feedbackDisplay').innerText = `ОТСЧЕТ: ${4 - beatCount}`;
-            
-            if (beatCount === 3) {
-                startRecording();
-            }
-
-            beatCount++;
-            if (beatCount === 4) {
-                state = 'RECORDING';
-                beatCount = 0;
-                statusArea.className = 'tap-area recording';
-                statusArea.innerText = "🔴 ИДЕТ ЗАПИСЬ!";
-            }
-        } 
-        else if (state === 'RECORDING') {
-            document.getElementById('feedbackDisplay').innerText = "ИГРАЙТЕ!";
-            
-            const cards = document.querySelectorAll('.image-card');
-            cards.forEach(c => c.classList.remove('active-slot'));
-            let acc = 0;
-            currentSequence.forEach((item, idx) => {
-                if (beatCount >= acc && beatCount < acc + item.size) cards[idx].classList.add('active-slot');
-                acc += item.size;
-            });
-
-            beatCount++;
-            if (beatCount === 4) {
-                state = 'ANALYZING';
-                statusArea.className = 'tap-area analyzing';
-                statusArea.innerText = "⚙️ ОБРАБОТКА...";
-                document.getElementById('feedbackDisplay').innerText = "АНАЛИЗ...";
-                
-                setTimeout(stopRecording, (spb + 0.3) * 1000);
-            }
         }
     }
 
     function scheduler() {
-        if (state === 'IDLE' || state === 'ANALYZING') return;
+        if (state === 'IDLE') return;
         const bpm = document.getElementById('bpmRange').value;
         const spb = 60 / bpm;
         
@@ -634,139 +557,12 @@
         timerID = setTimeout(scheduler, 25);
     }
 
-    function startRecording() {
-        audioChunks = [];
-        mediaRecorder = new MediaRecorder(micStream);
-        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-        mediaRecorder.onstop = processAudio;
-        mediaRecorder.start();
-    }
-
-    function stopRecording() {
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-        }
-    }
-
-    async function processAudio() {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-        const arrayBuffer = await blob.arrayBuffer();
-        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-        const data = audioBuffer.getChannelData(0);
-        const sampleRate = audioBuffer.sampleRate;
-        
-        let maxVol = 0;
-        for(let i=0; i<data.length; i++) if(Math.abs(data[i]) > maxVol) maxVol = Math.abs(data[i]);
-        
-        const threshold = Math.max(0.03, maxVol * 0.25);
-        const peaks = [];
-        
-        // Уменьшенное окно "склейки" хлопков, чтобы ловить быстрые ноты (было 0.10, стало 0.08)
-        const debounceFrames = sampleRate * 0.08; 
-        let lastPeakFrame = -debounceFrames;
-        
-        for (let i = 0; i < data.length; i++) {
-            if (Math.abs(data[i]) > threshold) {
-                if (i - lastPeakFrame > debounceFrames) {
-                    peaks.push(i / sampleRate);
-                    lastPeakFrame = i;
-                }
-            }
-        }
-
-        const bpm = document.getElementById('bpmRange').value;
-        const spb = 60 / bpm;
-
-        const expectedTargets = [];
-        let acc = 0;
-        currentSequence.forEach(item => {
-            item.pattern.forEach(p => expectedTargets.push((1 + acc + p) * spb));
-            acc += item.size;
-        });
-
-        evaluateGameplay(peaks, expectedTargets, spb);
-    }
-
-    function evaluateGameplay(peaks, expectedTargets, spb) {
-        const fb = document.getElementById('feedbackDisplay');
-
-        if (expectedTargets.length === 0) {
-            if (peaks.length === 0) {
-                applyLevelPoints(1);
-                fb.innerText = "ИДЕАЛЬНАЯ ПАУЗА!"; fb.style.color = "#00cec9";
-                setTimeout(roll, 1000); 
-            } else {
-                applyLevelPoints(-1);
-                fb.innerText = `ОШИБКА: ЛИШНИЕ НОТЫ В ПАУЗЕ`; fb.style.color = "#ff4757";
-            }
-            resetEngine("statusArea", "metronomeBtn");
-            return;
-        }
-
-        if (peaks.length === 0) {
-            applyLevelPoints(-1);
-            fb.innerText = "НИЧЕГО НЕ УСЛЫШАЛ"; fb.style.color = "#ff4757";
-            resetEngine("statusArea", "metronomeBtn");
-            return;
-        }
-
-        const firstExpectedTarget = expectedTargets[0]; 
-        const firstPlayedNote = peaks[0];               
-        let shift = firstPlayedNote - firstExpectedTarget; 
-
-        // Динамический предел сдвига грува (чтобы не ломать ритм при долгом опоздании)
-        if (Math.abs(shift) > spb * 0.6) {
-            shift = 0;
-        }
-
-        let cycleHits = 0;
-        let cycleMisses = 0;
-        const matchedPeaks = new Set();
-        
-        // НОВЫЕ, СТРОГИЕ ОКНА ПОГРЕШНОСТИ, ЗАВИСЯЩИЕ ОТ ТЕМПА (BPM)
-        const perfectWindow = spb * 0.15; // 15% от доли (очень точно)
-        const goodWindow = spb * 0.28;    // 28% от доли (прощает мелкие огрехи, но отличает ритмы)
-
-        expectedTargets.forEach(target => {
-            let bestDiff = Infinity;
-            let bestPeakIdx = -1;
-            
-            const adjustedTarget = target + shift; 
-            
-            peaks.forEach((peak, pIdx) => {
-                if (matchedPeaks.has(pIdx)) return;
-                const diff = Math.abs(peak - adjustedTarget);
-                if (diff < bestDiff) { bestDiff = diff; bestPeakIdx = pIdx; }
-            });
-            
-            if (bestDiff <= perfectWindow) { 
-                cycleHits++; matchedPeaks.add(bestPeakIdx); 
-            } else if (bestDiff <= goodWindow) { 
-                cycleHits++; matchedPeaks.add(bestPeakIdx); 
-            } else { 
-                cycleMisses++; 
-            }
-        });
-        
-        const extraPeaks = peaks.length - matchedPeaks.size;
-        
-        if (cycleHits === expectedTargets.length && cycleMisses === 0 && extraPeaks === 0) {
-            applyLevelPoints(1);
-            fb.innerText = "ОТЛИЧНО!"; fb.style.color = "#00cec9";
-            setTimeout(roll, 1000); 
-        } else {
-            applyLevelPoints(-1);
-            fb.innerText = `ОШИБКИ (Ноты: ${peaks.length}/${expectedTargets.length})`; fb.style.color = "#ff4757";
-        }
-        resetEngine("statusArea", "metronomeBtn");
-    }
-
     function resetEngine(statusAreaId, btnId) {
         clearTimeout(timerID);
         state = 'IDLE';
         const statusArea = document.getElementById(statusAreaId);
         statusArea.className = 'tap-area';
-        statusArea.innerText = lessonMode === 'teacher' ? 'Сыграй или проговори ритм' : '🎙️ Готов к записи';
+        statusArea.innerText = 'Сыграй или проговори ритм';
         
         const btn = document.getElementById(btnId);
         btn.innerText = "▶ Запустить метроном";
@@ -785,32 +581,22 @@
 
     document.getElementById('backBtn').onclick = () => { initLevels(); showScreen('menuScreen'); };
 
-    document.getElementById('metronomeBtn').onclick = async function() {
+    document.getElementById('metronomeBtn').onclick = function() {
         if (state !== 'IDLE') {
             clearTimeout(timerID);
-            if (mediaRecorder && mediaRecorder.state === 'recording') {
-                mediaRecorder.onstop = null;
-                mediaRecorder.stop();
-            }
             resetEngine('statusArea', 'metronomeBtn');
             document.getElementById('feedbackDisplay').innerText = 'МЕТРОНОМ ОСТАНОВЛЕН';
             return;
         }
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        if (lessonMode === 'teacher') {
-            startEngine();
-        } else if (await initMic()) {
-            startEngine();
-        }
+        startEngine();
     };
 
     document.getElementById('shuffleBtn').onclick = () => {
         roll();
-        if (lessonMode === 'teacher') {
-            document.getElementById('feedbackDisplay').innerText = 'НОВЫЙ РИТМ';
-            document.getElementById('statusArea').innerText = 'Сыграй или проговори новый ритм';
-        }
+        document.getElementById('feedbackDisplay').innerText = 'НОВЫЙ РИТМ';
+        document.getElementById('statusArea').innerText = 'Сыграй или проговори новый ритм';
     };
     document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value + " BPM"; };
 
@@ -870,8 +656,6 @@
         activeStudentId = students[0].id;
         setActiveStudent(activeStudentId);
     };
-    document.getElementById('teacherModeBtn').onclick = () => setLessonMode('teacher');
-    document.getElementById('autoModeBtn').onclick = () => setLessonMode('auto');
     document.getElementById('leaderboardBtn').onclick = () => {
         renderLeaderboard();
         document.getElementById('leaderboardModal').hidden = false;
@@ -882,7 +666,6 @@
     };
 
     renderStudentSelector();
-    setLessonMode(lessonMode);
     initLevels();
     updateCurrentLevelPoints();
     renderLeaderboard();
