@@ -25,8 +25,9 @@
         .duck-collection-heading p { margin:4px 0 0; color:var(--muted); font-size:11px; line-height:1.4; }
         .duck-count { flex:none; padding:6px 9px; color:#4d5c91; background:#e8eaff; border:1px solid #cbd0ed; border-radius:999px; font-size:11px; font-weight:900; }
         .duck-collection-preview { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; margin-bottom:10px; }
-        .duck-preview { display:grid; place-items:center; aspect-ratio:1; min-width:0; border-radius:12px; background:linear-gradient(145deg,#fff,#f0f2ff); border:1px solid #dfe2f2; font-size:20px; }
-        .duck-preview.locked { filter:grayscale(1); opacity:.45; }
+         .duck-preview { display:grid; place-items:center; aspect-ratio:1; min-width:0; overflow:hidden; border-radius:12px; background:linear-gradient(145deg,#fff,#f0f2ff); border:1px solid #dfe2f2; }
+        .duck-preview img { width:100%; height:100%; padding:2px; object-fit:contain; }
+        .duck-preview.locked img { filter:grayscale(1); opacity:.42; }
         .duck-collection-btn { width:100%; margin:0; display:flex; align-items:center; justify-content:center; gap:7px; }
         .duck-collection-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; max-height:min(58vh,480px); overflow-y:auto; margin-top:13px; padding:2px; }
         .duck-card { min-width:0; padding:10px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.82); }
@@ -35,7 +36,8 @@
         .duck-card.selected { box-shadow:0 0 0 2px #687bc2; }
         .duck-card-top { display:flex; align-items:center; gap:8px; min-height:42px; }
         .duck-card-avatar { flex:none; width:40px; height:40px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:#eef2ff; }
-        .duck-card-avatar img { width:35px; height:38px; object-fit:contain; }
+         .duck-card-avatar img { width:100%; height:100%; padding:2px; object-fit:contain; }
+        .duck-card.locked .duck-card-avatar img { filter:grayscale(1); opacity:.5; }
         .duck-card-name { color:var(--ink); font-size:11px; font-weight:800; line-height:1.25; }
         .duck-card-condition { min-height:28px; margin:7px 0; color:var(--muted); font-size:10px; line-height:1.35; }
         .duck-card-action { width:100%; min-height:34px; padding:7px; border:1px solid rgba(72,131,105,.18); border-radius:9px; color:#35664f; background:#edf6eb; font-size:10px; font-weight:800; cursor:pointer; }
@@ -159,6 +161,13 @@
             <div class="total-stars" id="totalStarsDisplay">★ 0</div>
         </div>
         <button id="leaderboardBtn" class="secondary-btn leaderboard-trigger" type="button"><span>🏆 Турнирная таблица</span><span id="leaderboardCount">0 учеников</span></button>
+        
+        <div class="levels-heading"><strong>Карта музыкальных уровней</strong><span>Все уровни доступны</span></div>
+        <div class="level-groups" id="levelsGrid"></div>
+        <a class="channel-link" href="https://t.me/saxstass" target="_blank" rel="noopener noreferrer" aria-label="Поддержать подпиской на Telegram-канал Saxstass">
+            <span aria-hidden="true">✈</span><span>Буду рад подписке — это большая поддержка · @saxstass</span><span aria-hidden="true">↗</span>
+        </a>
+        <button id="startGameBtn" class="primary-btn">НАЧАТЬ ЗАНЯТИЕ <span aria-hidden="true">→</span></button>
         <section class="duck-collection-panel" aria-labelledby="duckCollectionTitle">
             <div class="duck-collection-heading">
                 <div><h2 id="duckCollectionTitle">Коллекция уточек</h2><p>Собирай три звезды на контрольных уровнях и знакомься с новыми уточками.</p></div>
@@ -167,12 +176,6 @@
             <div id="duckCollectionPreview" class="duck-collection-preview" aria-label="Собранные уточки"></div>
             <button id="duckCollectionBtn" class="secondary-btn duck-collection-btn" type="button">🦆 Открыть коллекцию</button>
         </section>
-        <div class="levels-heading"><strong>Карта музыкальных уровней</strong><span>Все уровни доступны</span></div>
-        <div class="level-groups" id="levelsGrid"></div>
-        <a class="channel-link" href="https://t.me/saxstass" target="_blank" rel="noopener noreferrer" aria-label="Поддержать подпиской на Telegram-канал Saxstass">
-            <span aria-hidden="true">✈</span><span>Буду рад подписке — это большая поддержка · @saxstass</span><span aria-hidden="true">↗</span>
-        </a>
-        <button id="startGameBtn" class="primary-btn">НАЧАТЬ ЗАНЯТИЕ <span aria-hidden="true">→</span></button>
     </div>
 
     <div id="gameScreen" class="screen">
@@ -282,12 +285,12 @@
 
 
     const duckCollection = [
-        { id: 'rhythm-duck', level: 1, name: 'Ритмик', mood: 'Любит чёткий пульс', filter: 'none' },
-        { id: 'mint-duck', level: 4, name: 'Мятная', mood: 'Всегда спокойна перед вступлением', filter: 'hue-rotate(75deg) saturate(.9)' },
-        { id: 'night-duck', level: 7, name: 'Ночная', mood: 'Слышит ритм даже во сне', filter: 'hue-rotate(205deg) saturate(.85)' },
-        { id: 'coral-duck', level: 12, name: 'Коралловая', mood: 'Играет смело и ярко', filter: 'hue-rotate(325deg) saturate(1.15)' },
-        { id: 'violet-duck', level: 16, name: 'Сиреневая', mood: 'Знает все синкопы', filter: 'hue-rotate(255deg) saturate(.8)' },
-        { id: 'maestro-duck', level: 19, name: 'Маэстро', mood: 'Собрала весь музыкальный путь', filter: 'hue-rotate(35deg) saturate(1.25)' }
+        { id: 'baby-duck', level: 1, name: 'Малыш Нотик', mood: 'Маленький исследователь ритма', asset: 'assets/duck-baby.png' },
+        { id: 'rhythm-duck', level: 4, name: 'Ритмик', mood: 'Золотой маскот с ноткой на банте', asset: 'assets/duck-rhythm.png' },
+        { id: 'nerd-duck', level: 7, name: 'Профессор Ритм', mood: 'Знает, где спряталась каждая доля', asset: 'assets/duck-nerd.png' },
+        { id: 'super-duck', level: 12, name: 'Суперутка', mood: 'Спешит на помощь сбившемуся ритму', asset: 'assets/duck-superhero.png' },
+        { id: 'piano-duck', level: 16, name: 'Пианист Ля', mood: 'Слышит мелодию в каждом ритме', asset: 'assets/duck-pianist.png' },
+        { id: 'conductor-duck', level: 19, name: 'Маэстро', mood: 'Уверенно ведёт за собой весь оркестр', asset: 'assets/duck-conductor.png' }
     ];
 
     const readStored = (key, fallback) => {
@@ -308,7 +311,7 @@
     let activeStudent = students.find(student => student.id === activeStudentId);
     let currentLevel = Math.min(19, Math.max(1, Number(activeStudent.level) || 1));
     let unlockedDucks = Array.isArray(activeStudent.unlockedDucks) ? activeStudent.unlockedDucks : [];
-    let selectedDuckId = activeStudent.selectedDuckId || 'rhythm-duck';
+    let selectedDuckId = activeStudent.selectedDuckId || 'baby-duck';
     let rewardToastTimer;
     let audioCtx, nextBeatTime, timerID;
     let lastStarsCount = 0;
@@ -471,7 +474,10 @@
     function renderDuckCollection() {
         const selected = duckCollection.find(duck => duck.id === selectedDuckId) || duckCollection[0];
         const image = document.querySelector('.brand-mascot');
-        if (image && selected) image.style.filter = selected.filter;
+        if (image && selected) {
+            image.src = selected.asset;
+            image.style.filter = '';
+        }
         const count = document.getElementById('duckCollectionCount');
         count.innerText = unlockedDucks.length + ' / ' + duckCollection.length + ' собрано';
         const preview = document.getElementById('duckCollectionPreview');
@@ -479,7 +485,10 @@
         duckCollection.forEach(duck => {
             const token = document.createElement('span');
             token.className = 'duck-preview' + (unlockedDucks.includes(duck.id) ? '' : ' locked');
-            token.textContent = unlockedDucks.includes(duck.id) ? '🦆' : '？';
+            const image = document.createElement('img');
+            image.src = duck.asset;
+            image.alt = '';
+            token.appendChild(image);
             token.title = unlockedDucks.includes(duck.id) ? duck.name : 'Уровень ' + duck.level;
             preview.appendChild(token);
         });
@@ -499,9 +508,8 @@
             avatar.className = 'duck-card-avatar';
             if (unlocked) {
                 const image = document.createElement('img');
-                image.src = 'assets/duck-mascot.png';
+                image.src = duck.asset;
                 image.alt = '';
-                image.style.filter = duck.filter;
                 avatar.appendChild(image);
             } else {
                 avatar.textContent = '？';
