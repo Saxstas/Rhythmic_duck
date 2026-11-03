@@ -49,6 +49,8 @@
         .pond-scene > img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 35%; }
         .pond-decoration-layer { position:absolute; inset:0; pointer-events:none; }
         .pond-decoration { position:absolute; display:grid; place-items:center; width:36px; height:36px; border:1px solid rgba(255,255,255,.8); border-radius:13px; background:rgba(255,255,249,.92); box-shadow:0 4px 12px rgba(23,52,44,.22); font-size:21px; transform:translate(-50%,-50%); animation:pondItemPop .3s ease-out; }
+        .pond-decoration.wear { background:#fff3d8; border-color:rgba(201,151,63,.65); border-radius:50%; }
+        .pond-decoration.pond { background:#e4f4d8; border-color:rgba(89,157,106,.6); border-radius:50% 50% 42% 42%; }
         @keyframes pondItemPop { from { opacity:0; transform:translate(-50%,-50%) scale(.6); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
         .pond-collection-btn { width:100%; margin:0; display:flex; align-items:center; justify-content:center; gap:7px; }
         .pond-rewards-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; max-height:min(58vh,480px); overflow-y:auto; margin-top:13px; padding:2px; }
@@ -558,7 +560,7 @@
         const button = document.createElement('button');
         button.type = 'button';
         button.textContent = 'Выбрать';
-        button.onclick = openPondModal;
+        button.onclick = () => { toast.hidden = true; openPondModal(); };
         toast.append(copy, button);
         toast.hidden = false;
         window.clearTimeout(rewardToastTimer);
