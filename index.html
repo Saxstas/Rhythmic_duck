@@ -482,10 +482,14 @@
 
         seq.forEach((item, idx) => {
             const img = images[idx];
-            img.src = item.src;
             img.className = 'image-card' + (item.size === 2 ? ' double-size' : '');
             img.style.display = 'block';
             img.onload = () => img.classList.add('loaded');
+            img.onerror = () => {
+                img.classList.add('loaded');
+                img.alt = 'Не удалось загрузить карточку';
+            };
+            img.src = item.src;
         });
     }
 
@@ -771,20 +775,18 @@
 
     function gradeCurrentPattern(delta, feedback, status) {
         if (currentPatternReviewed) return;
-        if (delta < 0) {
-            document.getElementById('firstTryBtn').disabled = true;
-            applyLevelPoints(delta);
-            document.getElementById('feedbackDisplay').innerText = feedback;
-            document.getElementById('statusArea').innerText = 'Попробуй ещё раз этот ритм.';
-            return;
-        }
         currentPatternReviewed = true;
         document.getElementById('firstTryBtn').disabled = true;
         document.getElementById('afterRepeatBtn').disabled = true;
         document.getElementById('notYetBtn').disabled = true;
         applyLevelPoints(delta);
         document.getElementById('feedbackDisplay').innerText = feedback;
-        document.getElementById('statusArea').innerText = status;
+        document.getElementById('statusArea').innerText = status || 'Ничего страшного, продолжим с новым ритмом.';
+        window.setTimeout(() => {
+            roll();
+            document.getElementById('feedbackDisplay').innerText = 'НОВОЕ ЗАДАНИЕ';
+            document.getElementById('statusArea').innerText = 'Сыграй или проговори новый ритм';
+        }, 750);
     }
 
     document.getElementById('firstTryBtn').onclick = () => gradeCurrentPattern(1, 'ЗАСЧИТАНО · +1 БАЛЛ', 'Отлично! Можно дать следующий ритм.');
