@@ -96,6 +96,23 @@
         .quiet-btn { flex:1; background:rgba(255,255,255,.58); color:var(--muted); border:1px solid rgba(72,131,105,.13); padding:9px 6px; border-radius:10px; font-size:11px; font-weight:700; cursor:pointer; }
         .quiet-btn:hover,.secondary-btn:hover { color:var(--gold); border-color:var(--line); }
         .nav-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:14px; }
+        .duck-coach { display:flex; align-items:center; gap:11px; margin:0 0 12px; padding:10px 12px; text-align:left; background:linear-gradient(135deg,#fff8e8,#edf5ea); border:1px solid rgba(72,131,105,.18); border-radius:16px; box-shadow:0 5px 15px rgba(49,92,70,.07); }
+        .duck-coach-avatar { width:54px; height:54px; flex:none; display:grid; place-items:center; overflow:hidden; border-radius:16px; background:linear-gradient(145deg,#fff,#f8e7bd); }
+        .duck-coach-avatar img { width:100%; height:100%; object-fit:contain; transform-origin:50% 85%; }
+        .duck-coach-copy { flex:1; min-width:0; }
+        .duck-coach-name { display:block; margin-bottom:3px; color:#4d5c91; font-size:11px; font-weight:900; }
+        .duck-coach-message { color:var(--ink); font-size:12px; font-weight:700; line-height:1.35; }
+        .duck-coach-badge { flex:none; width:29px; height:29px; display:grid; place-items:center; border-radius:50%; color:#96621a; background:#f8e5b8; font-size:15px; font-weight:900; }
+        .duck-coach-badge.cheer { color:#397d5d; background:#d9f0df; }
+        .duck-coach-badge.repeat { color:#98651b; background:#ffedc9; }
+        .duck-coach-badge.practice { color:#68758b; background:#e8edf4; }
+        @keyframes duckCheer { 0%,100%{transform:translateY(0) rotate(0)} 24%{transform:translateY(-9px) rotate(-8deg)} 48%{transform:translateY(0) rotate(7deg)} 72%{transform:translateY(-4px) rotate(-4deg)} }
+        @keyframes duckRepeat { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-5px) rotate(4deg)} 75%{transform:translateY(0) rotate(-3deg)} }
+        @keyframes duckEncourage { 0%,100%{transform:rotate(0)} 30%{transform:rotate(-7deg)} 60%{transform:rotate(5deg)} }
+        .duck-coach-image.cheer { animation:duckCheer .75s ease; }
+        .duck-coach-image.repeat { animation:duckRepeat .7s ease; }
+        .duck-coach-image.practice { animation:duckEncourage .7s ease; }
+        @media (prefers-reduced-motion:reduce) { .duck-coach-image.cheer,.duck-coach-image.repeat,.duck-coach-image.practice { animation:none; } }
         .student-chip { color:var(--mint); font-size:11px; font-weight:700; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:110px; }
         .stars-display { font-size: 1.2rem; display: flex; gap: 4px; }
         .star-item { color:rgba(38,59,52,.16); transition:all .3s; }
@@ -187,6 +204,14 @@
             <span id="activeStudentChip" class="student-chip"></span>
             <div class="stars-display" id="gameStarsDisplay"></div>
             <h1 style="margin:0; font-size:.9rem;">УРОВЕНЬ <span id="currentLevelDisplay">1</span></h1>
+        </div>
+        <div class="duck-coach" aria-live="polite">
+            <div class="duck-coach-avatar"><img id="duckCoachImage" class="duck-coach-image" src="assets/duck-mascot.png" alt=""></div>
+            <div class="duck-coach-copy">
+                <span id="duckCoachName" class="duck-coach-name">Ритмик</span>
+                <div id="duckCoachMessage" class="duck-coach-message">Покажи, как ты слышишь этот ритм!</div>
+            </div>
+            <span id="duckCoachBadge" class="duck-coach-badge" aria-hidden="true">♫</span>
         </div>
         <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
             <div style="color:var(--gold); font-weight:800; font-size:12px">БАЛЛЫ УРОВНЯ <span id="levelPointsDisplay">0</span></div>
@@ -486,6 +511,10 @@
             image.src = selected ? selected.asset : 'assets/duck-mascot.png';
             image.style.filter = '';
         }
+        const coachImage = document.getElementById('duckCoachImage');
+        const coachName = document.getElementById('duckCoachName');
+        if (coachImage) coachImage.src = selected ? selected.asset : 'assets/duck-mascot.png';
+        if (coachName) coachName.innerText = selected ? selected.name : 'Ритмик';
         const count = document.getElementById('duckCollectionCount');
         count.innerText = unlockedDucks.length + ' / ' + duckCollection.length + ' собрано';
         const preview = document.getElementById('duckCollectionPreview');
@@ -798,6 +827,26 @@
     };
     document.getElementById('bpmRange').oninput = function() { document.getElementById('bpmValue').innerText = this.value + " BPM"; };
 
+    function showDuckReaction(type) {
+        const messages = {
+            cheer: ['Точно в ритм! Так держать!', 'Вот это уверенный ритм!', 'Отлично слышишь пульс!'],
+            repeat: ['После повтора стало увереннее!', 'Здорово, ритм пойман!', 'Шаг за шагом — получается!'],
+            practice: ['Ничего, попробуем ещё раз.', 'Каждая попытка делает ритм точнее.', 'Мы рядом, продолжим тренироваться!']
+        };
+        const options = messages[type] || messages.practice;
+        const message = options[Math.floor(Math.random() * options.length)];
+        const image = document.getElementById('duckCoachImage');
+        const badge = document.getElementById('duckCoachBadge');
+        document.getElementById('duckCoachMessage').innerText = message;
+        image.classList.remove('cheer', 'repeat', 'practice');
+        badge.classList.remove('cheer', 'repeat', 'practice');
+        void image.offsetWidth;
+        image.classList.add(type);
+        badge.classList.add(type);
+        badge.innerText = type === 'cheer' ? '★' : type === 'repeat' ? '♫' : '♡';
+        window.setTimeout(() => image.classList.remove(type), 850);
+    }
+
     function gradeCurrentPattern(delta, feedback, status) {
         if (currentPatternReviewed) return;
         currentPatternReviewed = true;
@@ -805,6 +854,7 @@
         document.getElementById('afterRepeatBtn').disabled = true;
         document.getElementById('notYetBtn').disabled = true;
         applyLevelPoints(delta);
+        showDuckReaction(delta >= 1 ? 'cheer' : delta > 0 ? 'repeat' : 'practice');
         document.getElementById('feedbackDisplay').innerText = feedback;
         document.getElementById('statusArea').innerText = status || 'Ничего страшного, продолжим с новым ритмом.';
         window.setTimeout(() => {
