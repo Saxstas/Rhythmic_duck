@@ -464,7 +464,10 @@
         duckCollection.forEach(duck => {
             if (Number(levelStars[duck.level] || 0) === 3 && !unlockedDucks.includes(duck.id)) unlockedDucks.push(duck.id);
         });
-        const latest = duckCollection.filter(duck => unlockedDucks.includes(duck.id)).at(-1);
+        let latest = null;
+        duckCollection.forEach(duck => {
+            if (unlockedDucks.includes(duck.id)) latest = duck;
+        });
         selectedDuckId = latest ? latest.id : '';
     }
 
@@ -472,6 +475,7 @@
         const duck = duckCollection.find(item => item.level === currentLevel && Number(levelStars[currentLevel] || 0) === 3 && !unlockedDucks.includes(item.id));
         if (!duck) return null;
         unlockedDucks.push(duck.id);
+        selectedDuckId = duck.id;
         return duck;
     }
 
